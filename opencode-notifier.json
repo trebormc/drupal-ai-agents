@@ -1,0 +1,28 @@
+{
+  "sound": false,
+  "notification": false,
+  "timeout": 10,
+  "showProjectName": true,
+  "command": {
+    "enabled": true,
+    "path": "/bin/sh",
+    "args": [
+      "-c",
+      "curl -s -X POST http://host.docker.internal:5454/notify -H 'Content-Type: application/json' -d \"{\\\"title\\\":\\\"[OpenCode] {event}\\\",\\\"message\\\":\\\"{message}\\\"}\""
+    ],
+    "minDuration": 5
+  },
+  "events": {
+    "permission": true,
+    "complete": true,
+    "subagent_complete": false,
+    "error": true,
+    "question": true
+  },
+  "messages": {
+    "permission": "Needs your permission",
+    "complete": "Task completed",
+    "error": "Error detected",
+    "question": "Waiting for your response"
+  }
+}
