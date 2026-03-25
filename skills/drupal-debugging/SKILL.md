@@ -107,6 +107,78 @@ docker exec $WEB_CONTAINER ./vendor/bin/drush sql:connect
 | Route not working | `docker exec $WEB_CONTAINER ./vendor/bin/drush route:list \| grep mymodule` |
 | Entity field missing | `docker exec $WEB_CONTAINER ./vendor/bin/drush php:eval "print_r(\Drupal::entityDefinitionUpdateManager()->getChangeSummary());"` |
 
+## Twig Debugging
+
+```bash
+# Enable Twig debugging via Drush
+docker exec $WEB_CONTAINER ./vendor/bin/drush twig:debug
+
+# Check theme registry
+docker exec $WEB_CONTAINER ./vendor/bin/drush php:eval "print_r(array_keys(\Drupal::service('theme.registry')->get()));"
+```
+
+Manual setup for persistent Twig debugging:
+
+**In `settings.local.php`:**
+```php
+$settings['container_yamls'][] = DRUPAL_ROOT . '/sites/development.services.yml';
+```
+
+**In `sites/development.services.yml`:**
+```yaml
+parameters:
+  twig.config:
+    debug: true
+    auto_reload: true
+    cache: false
+```
+
+With Twig debugging enabled, HTML comments show template suggestions and the active template path.
+
+## Theme Troubleshooting
+
+| Problem | Fix |
+|---------|-----|
+| Template not being used | Check filename matches Drupal suggestion exactly. Enable Twig debug, check HTML comments, `drush cr` |
+| Tailwind classes not working | Recompile: `npm run build --prefix $DDEV_DOCROOT/themes/custom/THEME`, `drush cr`, hard refresh (Ctrl+Shift+R) |
+| JavaScript not executing | Verify library attached (`{{ attach_library() }}`), check console for errors, verify `mytheme.libraries.yml` syntax, `drush cr` |
+| Cache issues | Disable render/page/dynamic_page caches in `settings.local.php` using `cache.backend.null` |
+| Template suggestions not appearing | `docker exec $WEB_CONTAINER ./vendor/bin/drush twig:debug`, `drush cr` |
+| Preprocess variables unavailable | Check hook name (`mytheme_preprocess_node`), verify theme is active, `drush cr`. Debug with `kint($variables)` |
+| CSS/JS libraries not loading | `docker exec $WEB_CONTAINER ./vendor/bin/drush php:eval "print_r(array_keys(\Drupal::service('library.discovery')->getLibrariesByExtension('mytheme')));"` |
+| Field not rendering correctly | `docker exec $WEB_CONTAINER ./vendor/bin/drush php:eval "print_r(\Drupal::service('entity_field.manager')->getFieldDefinitions('node', 'article')['field_name']->getSettings());"` |
+| Images not displaying | `docker exec $WEB_CONTAINER ./vendor/bin/drush image:flush --all` and check file permissions |
+| Translations not appearing | `docker exec $WEB_CONTAINER ./vendor/bin/drush locale:clear-status && docker exec $WEB_CONTAINER ./vendor/bin/drush locale:update` |
+
+## Test Troubleshooting
+
+| Problem | Fix |
+|---------|-----|
+| "Class not found" in tests | `docker exec $WEB_CONTAINER composer dump-autoload`. Verify namespace matches directory path |
+| Kernel: "Entity type not found" | Add module to `$modules`, call `$this->installEntitySchema('entity_type')` in `setUp()` |
+| Functional: "Route not found" | Verify module in `$modules`, try `$this->rebuildContainer()`, check `drush route:list \| grep module` |
+| "SQLSTATE no such table" | Call `$this->installEntitySchema('user')`, `$this->installSchema('node', ['node_access'])` in `setUp()` |
+| "Service not found" | Ensure module with service is in `$modules`. Get via `$this->container->get('service.id')` |
+| Tests pass locally, fail in CI | Check hardcoded paths/URLs, timezone settings, race conditions, use transactions |
+| "Test was not supposed to have output" | Don't use print/echo. Capture with `$this->expectOutputString('expected')` |
+| "Maximum function nesting level" | `docker exec $WEB_CONTAINER php -d xdebug.max_nesting_level=500 ./vendor/bin/phpunit ...` |
+| Functional: "Failed to connect localhost:80" | Ensure `SIMPLETEST_BASE_URL` set in phpunit.xml or use `$this->setBaseUrl('http://web')` |
+| "Could not connect to database" | `docker exec $WEB_CONTAINER ./vendor/bin/drush sql:query "CREATE DATABASE IF NOT EXISTS test;"`. SIMPLETEST_DB: `mysql://db:db@db/test` |
+| Browser screenshots not saving | `docker exec $WEB_CONTAINER mkdir -p /var/www/html/sites/simpletest/browser_output && docker exec $WEB_CONTAINER chmod 777 /var/www/html/sites/simpletest/browser_output` |
+| "Theme not found" in functional | Set `protected $defaultTheme = 'stark';` or install custom theme in `setUp()` |
+| Test timeout issues | `--timeout=300` flag. Check for unnecessary modules in `$modules` |
+| "Test site directory exists already" | `docker exec $WEB_CONTAINER rm -rf /var/www/html/sites/simpletest/` then recreate browser_output dir |
+
+## Performance Troubleshooting
+
+| Problem | Fix |
+|---------|-----|
+| Page not caching | Check for `max-age: 0` in any render array. Look for session-dependent code. Enable `http.response.debug_cacheability_headers: true` in development.services.yml |
+| Cache not invalidating | Verify cache tags are correct. Test: `docker exec $WEB_CONTAINER ./vendor/bin/drush php:eval "\Drupal::service('cache_tags.invalidator')->invalidateTags(['node:123']);"` |
+| Queries still slow | Check indexes: `docker exec $WEB_CONTAINER ./vendor/bin/drush sqlq "EXPLAIN SELECT ..."`. Add custom index in `hook_schema()` |
+| Memory issues | `docker exec $WEB_CONTAINER ./vendor/bin/drush php:eval "echo 'Peak: ' . round(memory_get_peak_usage(true) / 1024 / 1024) . 'MB';"`. Use `resetCache()` in batch operations |
+| Views performance | Enable query caching + rendered output caching. Configure pager (no unlimited). Use Search API for complex queries |
+
 ## Verification
 
 ```bash

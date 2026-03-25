@@ -18,6 +18,7 @@ permission:
   bash:
     "*": allow
 allowed_tools: Read, Glob, Grep, Bash
+maxTurns: 30
 ---
 
 You are a Drupal update specialist working inside a DDEV environment. Your sole responsibility is executing complete, safe Drupal update cycles.

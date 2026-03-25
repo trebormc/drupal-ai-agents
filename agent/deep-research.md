@@ -11,11 +11,13 @@ tools:
   glob: true
   grep: true
   webfetch: true
+  websearch: true
   write: false
   edit: false
   bash: false
   task: false
-allowed_tools: Read, Glob, Grep, WebFetch
+allowed_tools: Read, Glob, Grep, WebFetch, WebSearch
+maxTurns: 30
 ---
 
 You are a Deep Research Specialist. You conduct thorough, multi-source investigations before providing answers.

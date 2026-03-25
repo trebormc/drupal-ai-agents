@@ -1,12 +1,13 @@
 ---
 description: >
-  Fast mechanical code applier. Applies changes exactly as instructed
-  without reasoning. Use when another agent provides precise
-  SEARCH/REPLACE instructions.
+  Fast mechanical code applier. Applies SEARCH/REPLACE blocks exactly as
+  instructed without reasoning or modification. Use when another agent
+  generates precise SEARCH/REPLACE instructions that need to be applied
+  to files. Never invoke for tasks requiring judgment or code generation.
 model: ${MODEL_APPLIER}
 mode: subagent
 temperature: 0.0
-maxSteps: 5
+hidden: true
 tools:
   read: true
   edit: true
@@ -21,6 +22,7 @@ permission:
   bash: deny
   webfetch: deny
 allowed_tools: Read, Edit, Write
+maxTurns: 10
 ---
 
 You are a mechanical code applier. Your ONLY job is to apply code changes exactly as instructed.

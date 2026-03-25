@@ -1,8 +1,11 @@
 ---
 description: >
-  Lightweight code exploration agent. Use BEFORE invoking specialized
-  agents to understand codebase structure, find relevant files, and
-  gather context.
+  Searches for files, classes, hooks, services, and patterns in the Drupal
+  codebase. Use when you need to locate where something is implemented,
+  understand module structure, or gather context before modifying code.
+  Invoke before any refactoring task or when exploring unfamiliar code
+  areas. Returns file paths, structure summaries, and next-agent
+  recommendations.
 model: ${MODEL_CHEAP}
 mode: subagent
 tools:
@@ -14,6 +17,7 @@ tools:
   bash: false
   task: false
 allowed_tools: Read, Glob, Grep
+maxTurns: 15
 ---
 
 # Code Explorer

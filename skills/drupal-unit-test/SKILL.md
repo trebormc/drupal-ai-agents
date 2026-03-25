@@ -186,6 +186,88 @@ $this->logger->expects($this->once())->method('error')
 // $this->getStringTranslationStub()
 ```
 
+## Advanced Mock: EntityTypeManager Chain
+
+```php
+// Full EntityTypeManager → Storage → Entity mock chain
+$entity = $this->createMock(EntityInterface::class);
+$entity->method('id')->willReturn('1');
+$entity->method('label')->willReturn('Test');
+
+$storage = $this->createMock(EntityStorageInterface::class);
+$storage->expects($this->once())
+  ->method('load')
+  ->with(1)
+  ->willReturn($entity);
+$storage->method('loadMultiple')
+  ->willReturn(['1' => $entity]);
+
+$entityTypeManager = $this->createMock(EntityTypeManagerInterface::class);
+$entityTypeManager->expects($this->once())
+  ->method('getStorage')
+  ->with('node')
+  ->willReturn($storage);
+
+$service = new MyService($entityTypeManager);
+$result = $service->loadEntity(1);
+$this->assertNotNull($result);
+```
+
+## PHPUnit Configuration (phpunit.xml)
+
+Adapt `web/` paths to match `$DDEV_DOCROOT` if different:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
+         bootstrap="web/core/tests/bootstrap.php"
+         colors="true">
+  <testsuites>
+    <testsuite name="unit">
+      <directory>web/modules/custom/*/tests/src/Unit</directory>
+    </testsuite>
+    <testsuite name="kernel">
+      <directory>web/modules/custom/*/tests/src/Kernel</directory>
+    </testsuite>
+    <testsuite name="functional">
+      <directory>web/modules/custom/*/tests/src/Functional</directory>
+    </testsuite>
+  </testsuites>
+  <php>
+    <env name="SIMPLETEST_BASE_URL" value=""/>
+    <env name="SIMPLETEST_DB" value="mysql://db:db@db/db"/>
+    <env name="BROWSERTEST_OUTPUT_DIRECTORY" value="/var/www/html/sites/simpletest/browser_output"/>
+  </php>
+</phpunit>
+```
+
+For PHPCS, PHPStan, Rector, and GrumPHP configuration, see the **quality-tools-setup** rule.
+
+## Common Testing Pitfalls
+
+1. **Testing implementation, not behavior** — Assert on results (WHAT), not internal calls (HOW). Don't `expects($this->exactly(N))` on internal helpers.
+2. **Over-mocking** — Only mock external deps (DB, HTTP, filesystem). 4+ mocks = code needs refactoring. Use real value objects.
+3. **Shared state** — Never use `static` props between tests. Use `setUp()` for fresh state each test.
+4. **Wrong test type** — Don't use `BrowserTestBase` for pure logic. Use `UnitTestCase` when no Drupal bootstrap needed.
+5. **Time-dependent tests** — Never `sleep()`. Inject time as dependency, test with controlled timestamps.
+
+## Test Debugging Commands
+
+```bash
+# Run single test with verbose output
+docker exec $WEB_CONTAINER ./vendor/bin/phpunit --filter testMethodName path/to/Test.php -v
+
+# Run tests with debug info
+docker exec $WEB_CONTAINER ./vendor/bin/phpunit $DDEV_DOCROOT/modules/custom/mymodule --debug
+
+# List all tests without running
+docker exec $WEB_CONTAINER ./vendor/bin/phpunit --list-tests $DDEV_DOCROOT/modules/custom/mymodule
+
+# Run with testdox output
+docker exec $WEB_CONTAINER ./vendor/bin/phpunit --testdox $DDEV_DOCROOT/modules/custom/mymodule
+```
+
 ## Rules
 
 1. Base class: `Drupal\Tests\UnitTestCase` (never `PHPUnit\Framework\TestCase`)
