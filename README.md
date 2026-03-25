@@ -177,16 +177,19 @@ All PHP/Drupal commands run via `docker exec $WEB_CONTAINER`.
 
 While this repo is designed for OpenCode, the agent prompts and rules make excellent source material for a `CLAUDE.md` file. Copy the relevant rules and agent instructions into your project's `CLAUDE.md` for use with [ddev-claude-code](https://github.com/trebormc/ddev-claude-code).
 
-## Related
+## Part of DDEV AI Workspace
 
-- [ddev-agents-sync](https://github.com/trebormc/ddev-agents-sync) -- Auto-syncs this repo into DDEV containers
-- [ddev-opencode](https://github.com/trebormc/ddev-opencode) -- DDEV add-on for OpenCode container
-- [ddev-claude-code](https://github.com/trebormc/ddev-claude-code) -- DDEV add-on for Claude Code container
-- [ddev-ralph](https://github.com/trebormc/ddev-ralph) -- Autonomous task runner
-- [ddev-beads](https://github.com/trebormc/ddev-beads) -- Git-backed task tracker container
-- [ddev-playwright-mcp](https://github.com/trebormc/ddev-playwright-mcp) -- Playwright browser automation
-- [OpenCode](https://opencode.ai) -- AI-powered development tool
-- [Beads](https://github.com/steveyegge/beads) -- Git-backed task tracker for AI agents
+This configuration package is part of [DDEV AI Workspace](https://github.com/trebormc/ddev-ai-workspace), a modular ecosystem of DDEV add-ons for AI-powered Drupal development.
+
+| Repository | Description | Relationship |
+|------------|-------------|--------------|
+| [ddev-ai-workspace](https://github.com/trebormc/ddev-ai-workspace) | Meta add-on that installs the full AI development stack with one command. | Workspace |
+| [ddev-agents-sync](https://github.com/trebormc/ddev-agents-sync) | Auto-syncs this repo (and optional private repos) into a shared Docker volume on every `ddev start`. | Syncs this package into containers |
+| [ddev-opencode](https://github.com/trebormc/ddev-opencode) | [OpenCode](https://opencode.ai) AI CLI container. Agents, rules, and skills from this repo are loaded as OpenCode config. | Primary consumer |
+| [ddev-claude-code](https://github.com/trebormc/ddev-claude-code) | [Claude Code](https://docs.anthropic.com/en/docs/claude-code) CLI container. Uses `CLAUDE.md` from this repo for project instructions. | Consumer (via CLAUDE.md) |
+| [ddev-ralph](https://github.com/trebormc/ddev-ralph) | Autonomous AI task orchestrator. Uses the `ralph-planner` agent and Beads workflow from this repo. | Consumer (via backends) |
+| [ddev-beads](https://github.com/trebormc/ddev-beads) | [Beads](https://github.com/steveyegge/beads) git-backed task tracker. This repo includes the `beads-workflow` rule and `beads-task-tracking` skill. | Task tracking provider |
+| [ddev-playwright-mcp](https://github.com/trebormc/ddev-playwright-mcp) | Headless Playwright browser. This repo includes the `playwright-browser-testing` skill and `visual-test` agent. | Browser automation provider |
 
 ## Disclaimer
 
