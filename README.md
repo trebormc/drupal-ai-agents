@@ -2,7 +2,7 @@
 
 A comprehensive set of AI agents, rules, skills, and configuration for Drupal 10/11 development. Designed for [OpenCode](https://opencode.ai) and compatible with [DDEV](https://ddev.readthedocs.io/) environments.
 
-This repository is **not** a DDEV add-on -- it is a configuration package that gets mounted into the OpenCode container (or used standalone). It provides 13 specialized agents, 4 rule sets, and 13 skills tailored for Drupal development.
+This repository is **not** a DDEV add-on -- it is a configuration package that gets mounted into the OpenCode container (or used standalone). It provides 13 specialized agents, 4 rule sets, and 14 skills tailored for Drupal development.
 
 ## Quick Install
 
