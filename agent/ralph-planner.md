@@ -1,14 +1,24 @@
 ---
-description: Ralph Loop requirements planner. Transforms user requests into detailed, structured requirements.md files optimized for autonomous execution with Beads task tracking. Ensures Ralph Loop can work overnight without human intervention.
+description: >
+  Ralph Loop requirements planner. Transforms user requests into
+  detailed, structured requirements.md files optimized for autonomous
+  execution with Beads task tracking. Ensures Ralph Loop can work
+  overnight without human intervention.
+model: ${MODEL_SMART}
 mode: primary
 tools:
   read: true
   glob: true
-  write: true
-  edit: false
-  bash: true
   grep: true
+  write: true
+  bash: true
+  edit: false
   task: false
+permission:
+  write: allow
+  bash:
+    "*": allow
+allowed_tools: Read, Glob, Grep, Write, Bash
 ---
 
 ## ROLE

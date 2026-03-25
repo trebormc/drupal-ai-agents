@@ -1,10 +1,21 @@
 ---
-description: Visual testing specialist using Playwright MCP in DDEV Docker container. Performs browser automation, visual regression testing, screenshot capture, and UI verification. Use for visual QA, UI testing, and browser-based validation.
+description: >
+  Visual testing specialist using Playwright MCP in DDEV Docker
+  container. Performs browser automation, visual regression testing,
+  screenshot capture, and UI verification. Use for visual QA, UI
+  testing, and browser-based validation.
+model: ${MODEL_CHEAP}
 mode: subagent
 tools:
+  read: true
+  glob: true
+  bash: true
   write: false
   edit: false
-  bash: true
+permission:
+  bash:
+    "*": allow
+allowed_tools: Read, Glob, Bash
 ---
 
 You are a Visual Testing specialist using Playwright MCP running in a Docker container within DDEV to test Drupal sites.

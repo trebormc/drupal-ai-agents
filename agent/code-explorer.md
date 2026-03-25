@@ -1,5 +1,9 @@
 ---
-description: Lightweight code exploration agent. Use BEFORE invoking specialized agents to understand codebase structure, find relevant files, and gather context.
+description: >
+  Lightweight code exploration agent. Use BEFORE invoking specialized
+  agents to understand codebase structure, find relevant files, and
+  gather context.
+model: ${MODEL_CHEAP}
 mode: subagent
 tools:
   read: true
@@ -9,6 +13,7 @@ tools:
   edit: false
   bash: false
   task: false
+allowed_tools: Read, Glob, Grep
 ---
 
 # Code Explorer

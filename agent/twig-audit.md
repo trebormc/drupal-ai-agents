@@ -1,14 +1,21 @@
 ---
-description: Drupal 10 Twig template auditor and refactoring specialist. Detects anti-patterns like render array drilling, business logic in templates, improper |raw usage, missing cache bubbling, and component isolation issues. Use after writing new templates or when modernizing legacy themes.
+description: >
+  Drupal 10 Twig template auditor and refactoring specialist. Detects
+  anti-patterns like render array drilling, business logic in templates,
+  improper |raw usage, missing cache bubbling, and component isolation
+  issues. Use after writing new templates or when modernizing legacy
+  themes.
+model: ${MODEL_CHEAP}
 mode: subagent
 tools:
   read: true
   glob: true
   grep: true
+  task: true
   bash: false
   write: false
   edit: false
-  task: true
+allowed_tools: Read, Glob, Grep
 ---
 
 ## DDEV Environment Context

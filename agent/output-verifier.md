@@ -1,14 +1,20 @@
 ---
-description: Verifies generated outputs using Opus-level intelligence. Reviews correctness, completeness, edge cases, and best practices. Use when you want a second opinion or need confidence validation before proceeding.
+description: >
+  Verifies generated outputs using high-intelligence model. Reviews
+  correctness, completeness, edge cases, and best practices. Use when
+  you want a second opinion or need confidence validation before
+  proceeding.
+model: ${MODEL_SMART}
 mode: subagent
 tools:
   read: true
   glob: true
   grep: true
+  task: true
   write: false
   edit: false
   bash: false
-  task: true
+allowed_tools: Read, Glob, Grep
 ---
 
 # Output Verifier

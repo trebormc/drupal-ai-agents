@@ -1,10 +1,21 @@
 ---
-description: Deep research specialist for thorough investigation of complex topics. Visits 5-10+ sources, cross-references information, evaluates credibility, and synthesizes findings. Use for technical comparisons, current events analysis, product research, or when accuracy is critical.
+description: >
+  Deep research specialist for thorough investigation of complex topics.
+  Visits 5-10+ sources, cross-references information, evaluates
+  credibility, and synthesizes findings. Use for technical comparisons,
+  current events analysis, product research, or when accuracy is critical.
+model: ${MODEL_SMART}
 mode: subagent
 tools:
-  edit: false
+  read: true
+  glob: true
+  grep: true
+  webfetch: true
   write: false
+  edit: false
   bash: false
+  task: false
+allowed_tools: Read, Glob, Grep, WebFetch
 ---
 
 You are a Deep Research Specialist. You conduct thorough, multi-source investigations before providing answers.

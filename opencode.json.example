@@ -48,11 +48,6 @@
       "extensions": [".php", ".module", ".inc", ".install", ".theme", ".profile"]
     }
   },
-  "mode": {
-    "build": {
-      "prompt": "You are Claude Code, Anthropic,s official CLI for Claude."
-    }
-  },
   "mcp": {
     "playwright": {
       "type": "remote",
@@ -62,223 +57,6 @@
     }
   },
   "plugin": ["@mohak34/opencode-notifier@latest"],
-  "agent": {
-    "applier": {
-      "mode": "subagent",
-      "model": "litellm/fireworks_ai/accounts/fireworks/models/gpt-oss-20b",
-      "temperature": 0.0,
-      "tools": {
-        "read": true,
-        "edit": true,
-        "write": true,
-        "bash": false,
-        "grep": false,
-        "glob": false,
-        "webfetch": false,
-        "task": false
-      },
-      "permission": {
-        "edit": "allow",
-        "bash": "deny",
-        "webfetch": "deny"
-      }
-    },
-    "ralph-planner": {
-      "mode": "primary",
-      "model": "anthropic/claude-opus-4-6",
-      "tools": {
-        "read": true,
-        "glob": true,
-        "grep": true,
-        "write": true,
-        "edit": false,
-        "bash": true,
-        "task": false
-      },
-      "permission": {
-        "write": "allow",
-        "bash": {
-          "*": "allow"
-        }
-      }
-    },
-    "drupal-dev": {
-      "mode": "subagent",
-      "model": "anthropic/claude-haiku-4-5",
-      "tools": {
-        "read": true,
-        "glob": true,
-        "grep": true,
-        "write": false,
-        "edit": false,
-        "bash": true,
-        "task": true
-      },
-      "permission": {
-        "bash": {
-          "*": "allow"
-        }
-      }
-    },
-    "output-verifier": {
-      "mode": "subagent",
-      "model": "anthropic/claude-opus-4-6",
-      "tools": {
-        "read": true,
-        "glob": true,
-        "grep": true,
-        "write": false,
-        "edit": false,
-        "bash": false,
-        "task": true
-      }
-    },
-    "deep-research": {
-      "mode": "subagent",
-      "model": "anthropic/claude-opus-4-6",
-      "tools": {
-        "read": true,
-        "glob": true,
-        "grep": true,
-        "webfetch": true,
-        "edit": false,
-        "write": false,
-        "bash": false,
-        "task": false
-      }
-    },
-    "drupal-update": {
-      "mode": "subagent",
-      "model": "anthropic/claude-haiku-4-5",
-      "tools": {
-        "read": true,
-        "glob": true,
-        "grep": true,
-        "write": false,
-        "edit": false,
-        "bash": true,
-        "task": false
-      },
-      "permission": {
-        "bash": {
-          "*": "allow"
-        }
-      }
-    },
-    "drupal-test": {
-      "mode": "subagent",
-      "model": "anthropic/claude-haiku-4-5",
-      "tools": {
-        "read": true,
-        "glob": true,
-        "grep": true,
-        "write": false,
-        "edit": false,
-        "bash": true,
-        "task": true
-      },
-      "permission": {
-        "bash": {
-          "*": "allow"
-        }
-      }
-    },
-    "drupal-theme": {
-      "mode": "subagent",
-      "model": "anthropic/claude-haiku-4-5",
-      "tools": {
-        "read": true,
-        "glob": true,
-        "grep": true,
-        "write": false,
-        "edit": false,
-        "bash": true,
-        "task": true
-      },
-      "permission": {
-        "bash": {
-          "*": "allow"
-        }
-      }
-    },
-    "three-judges": {
-      "mode": "subagent",
-      "model": "anthropic/claude-opus-4-6",
-      "tools": {
-        "read": true,
-        "glob": true,
-        "grep": true,
-        "write": false,
-        "edit": false,
-        "bash": true
-      },
-      "permission": {
-        "bash": {
-          "*": "allow"
-        }
-      }
-    },
-    "drupal-perf": {
-      "mode": "subagent",
-      "model": "anthropic/claude-haiku-4-5",
-      "tools": {
-        "read": true,
-        "glob": true,
-        "grep": true,
-        "write": false,
-        "edit": false,
-        "bash": true,
-        "task": true
-      },
-      "permission": {
-        "bash": {
-          "*": "allow"
-        }
-      }
-    },
-    "visual-test": {
-      "mode": "subagent",
-      "model": "anthropic/claude-haiku-4-5",
-      "tools": {
-        "read": true,
-        "glob": true,
-        "write": false,
-        "edit": false,
-        "bash": true
-      },
-      "permission": {
-        "bash": {
-          "*": "allow"
-        }
-      }
-    },
-    "twig-audit": {
-      "mode": "subagent",
-      "model": "anthropic/claude-haiku-4-5",
-      "tools": {
-        "read": true,
-        "glob": true,
-        "grep": true,
-        "bash": false,
-        "write": false,
-        "edit": false,
-        "task": true
-      }
-    },
-    "code-explorer": {
-      "mode": "subagent",
-      "model": "anthropic/claude-haiku-4-5",
-      "tools": {
-        "read": true,
-        "glob": true,
-        "grep": true,
-        "write": false,
-        "edit": false,
-        "bash": false,
-        "task": false
-      }
-    }
-  },
   "provider": {
     "litellm": {
       "npm": "@ai-sdk/openai-compatible",
@@ -289,45 +67,15 @@
       "models": {
         "claude-opus-4-5": {
           "name": "Claude Opus 4.5 (Premium)",
-          "limit": {
-            "context": 200000,
-            "output": 64000
-          }
+          "limit": { "context": 200000, "output": 64000 }
         },
         "claude-sonnet-4-5": {
-          "name": "Claude Sonnet 4.5 (Principal)",
-          "limit": {
-            "context": 200000,
-            "output": 64000
-          }
+          "name": "Claude Sonnet 4.5",
+          "limit": { "context": 200000, "output": 64000 }
         },
         "claude-haiku-4-5": {
           "name": "Claude Haiku 4.5 (Fast)",
-          "limit": {
-            "context": 200000,
-            "output": 64000
-          }
-        },
-        "gpt-4.1-mini": {
-          "name": "GPT 4.1-mini",
-          "limit": {
-            "context": 1000000,
-            "output": 32768
-          }
-        },
-        "gpt-4.1": {
-          "name": "GPT 4.1",
-          "limit": {
-            "context": 1000000,
-            "output": 32768
-          }
-        },
-        "accounts/fireworks/models/kimi-k2p5": {
-          "name": "Fireworks Kimi k2.5",
-          "limit": {
-            "context": 200000,
-            "output": 50000
-          }
+          "limit": { "context": 200000, "output": 64000 }
         }
       }
     }
