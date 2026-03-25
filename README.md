@@ -6,30 +6,26 @@ This repository is **not** a DDEV add-on -- it is a configuration package that g
 
 ## Quick Install
 
-### Path A: With ddev-opencode (recommended)
+### With DDEV (recommended)
 
-Clone the repo and point the DDEV add-on to it:
+When you install [ddev-opencode](https://github.com/trebormc/ddev-opencode) or [ddev-claude-code](https://github.com/trebormc/ddev-claude-code), this repository is **automatically synced** via [ddev-agents-sync](https://github.com/trebormc/ddev-agents-sync). No manual clone is needed.
 
 ```bash
-# Clone to any local directory
-git clone https://github.com/trebormc/drupal-ai-agents.git ~/drupal-ai-agents
-
-# Copy and customize the config
-cd ~/drupal-ai-agents
-cp opencode.json.example opencode.json
-vi opencode.json
-
-# In your Drupal project, set the config directory
-ddev dotenv set .ddev/.env.opencode \
-  --host-opencode-config-dir="$HOME/drupal-ai-agents/"
-
+# Install OpenCode or Claude Code — agents are synced automatically
+ddev add-on get trebormc/ddev-opencode
 ddev restart
 ddev opencode
 ```
 
-The entire `drupal-ai-agents` directory is mounted into the OpenCode container as its config directory. Agents, rules, skills, and `opencode.json` are all available automatically.
+To add private agent repos alongside the public ones, edit `.ddev/.env.agents-sync`:
 
-### Path B: Standalone (without DDEV)
+```bash
+AGENTS_REPOS=https://github.com/trebormc/drupal-ai-agents.git,https://github.com/your-org/private-agents.git
+```
+
+To manually trigger an update: `ddev agents-update`
+
+### Standalone (without DDEV)
 
 ```bash
 # Clone directly to the OpenCode config directory
@@ -54,7 +50,7 @@ drupal-ai-agents/
 ├── CLAUDE.md                   Main instructions (language, design, environment, agents)
 ├── opencode.json.example       Config template (copy to opencode.json)
 ├── opencode-notifier.json      Notification bridge config (used automatically)
-├── agent/                      16 agent definitions (.md files)
+├── agent/                      13 agent definitions (.md files)
 │   ├── drupal-dev.md
 │   ├── drupal-theme.md
 │   ├── drupal-test.md
@@ -183,6 +179,7 @@ While this repo is designed for OpenCode, the agent prompts and rules make excel
 
 ## Related
 
+- [ddev-agents-sync](https://github.com/trebormc/ddev-agents-sync) -- Auto-syncs this repo into DDEV containers
 - [ddev-opencode](https://github.com/trebormc/ddev-opencode) -- DDEV add-on for OpenCode container
 - [ddev-claude-code](https://github.com/trebormc/ddev-claude-code) -- DDEV add-on for Claude Code container
 - [ddev-ralph](https://github.com/trebormc/ddev-ralph) -- Autonomous task runner
