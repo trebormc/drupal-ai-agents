@@ -229,15 +229,15 @@ If you detect `[RALPH LOOP - Iteration X]` in your prompt:
 
 ### Model Strategy
 
-This configuration uses **claude-haiku-4-5** as the primary model for all agents and interactive work, with Opus 4-6 reserved for Ralph Loop autonomous execution.
+Agents use model tokens (`MODEL_SMART`, `MODEL_NORMAL`, `MODEL_CHEAP`, `MODEL_APPLIER`) that resolve to real model names at sync time. Defaults:
 
-| Component | Model | Why |
-|-----------|-------|-----|
-| **All 13 agents** | `anthropic/claude-haiku-4-5` | Fast, cost-effective, optimal for specific tasks |
-| **OpenCode TUI/Web** | `anthropic/claude-haiku-4-5` | Interactive development, quick feedback |
-| **Ralph Loop (default)** | `anthropic/claude-opus-4-6` | Autonomous overnight runs, superior reasoning |
+| Token | Default model | Used by |
+|-------|---------------|---------|
+| `MODEL_SMART` | Opus 4.6 | three-judges, output-verifier, deep-research, ralph-planner |
+| `MODEL_CHEAP` | Haiku 4.5 | drupal-dev, drupal-theme, drupal-test, drupal-perf, drupal-update, code-explorer, visual-test, twig-audit |
+| `MODEL_APPLIER` | Haiku 4.5 | applier |
 
-**Workflow**: Claude Haiku 4-5 handles 95% of work (exploration, implementation, validation). Opus 4-6 is only used for Ralph Loop's autonomous overnight execution.
+To change models globally, edit `.env.agents` in the agent repository. See [drupal-ai-agents](https://github.com/trebormc/drupal-ai-agents) for details.
 
 ### Exploration & Utilities
 
@@ -246,8 +246,6 @@ This configuration uses **claude-haiku-4-5** as the primary model for all agents
 | `code-explorer` | Codebase exploration | BEFORE invoking specialized agents |
 | `applier` | Code applier | Apply SEARCH/REPLACE blocks mechanically |
 | `ralph-planner` | Ralph Loop planner | Transform requests into requirements.md for autonomous execution |
-
-**All agents use Haiku 4-5**: `anthropic/claude-haiku-4-5`
 
 ### Drupal Development
 
@@ -283,7 +281,7 @@ All other agents (applier, code-explorer, deep-research, drupal-update, output-v
 
 ### Available Skills (15)
 
-Skills are specialized instructions auto-discovered from the `skills/` directory:
+Skills are reference guides in the `skills/` directory. In OpenCode they are auto-discovered. In Claude Code the content is available through agents and CLAUDE.md instructions.
 
 | Skill | Purpose |
 |-------|---------|
@@ -308,31 +306,20 @@ Skills are specialized instructions auto-discovered from the `skills/` directory
 
 ## How to Invoke Subagents
 
-Use the **Task tool** to delegate to a subagent:
+Delegate work to specialized agents. Each tool has its own invocation syntax:
 
-```
-Task: agent-name
-[Your instructions for the subagent]
-```
+- **OpenCode**: Use the `Task` tool — `Task: agent-name`
+- **Claude Code**: Use the `Agent` tool with `subagent_type` matching the agent name
 
 ### Example: Delegate to drupal-dev
 
-```
-Task: drupal-dev
-Create a custom service that fetches and caches external API data.
-The service should:
-- Accept a URL parameter
-- Cache responses for 1 hour
-- Handle errors gracefully
-```
+Ask the `drupal-dev` agent to create a custom service that fetches and caches external API data, accepts a URL parameter, caches responses for 1 hour, and handles errors gracefully.
 
-### Example: Chain multiple subagents
+### Example: Chain multiple agents
 
-```
-1. Task: drupal-dev → Implement the feature
-2. Task: drupal-test → Write tests for it
-3. Task: three-judges → Validate the implementation
-```
+1. `drupal-dev` → Implement the feature
+2. `drupal-test` → Write tests for it
+3. `three-judges` → Validate the implementation
 
 ---
 
@@ -366,13 +353,7 @@ path/to/new/file.ext
 
 ### Invoking Applier
 
-After generating SEARCH/REPLACE blocks:
-```
-Task: applier
-Apply these changes:
-
-[paste all SEARCH/REPLACE blocks here]
-```
+After generating SEARCH/REPLACE blocks, delegate to the `applier` agent with the blocks as input.
 
 ---
 
@@ -415,14 +396,7 @@ The `ralph-planner` agent transforms vague user requests into comprehensive, una
 
 ### How to Invoke
 
-```
-Task: ralph-planner
-User wants to: [Describe user's request]
-
-Context:
-- [Any additional context from conversation]
-- [Current project state]
-```
+Delegate to the `ralph-planner` agent with the user's request and any relevant context about the project.
 
 ### What Ralph Planner Does
 
@@ -441,16 +415,7 @@ Context:
 
 **User:** "I want to create a module to manage products with an external API"
 
-**You invoke:**
-```
-Task: ralph-planner
-User wants to: Create a Drupal module to manage products from external API
-
-Context:
-- User mentioned external API (need to clarify which one)
-- Needs admin interface and public display
-- Should cache data
-```
+**You delegate to `ralph-planner`** with the request: "Create a Drupal module to manage products from external API" and context about which API, admin interface needs, and caching requirements.
 
 **Ralph Planner will:**
 1. Ask: "Which API? Specific endpoints? Authentication required?"
@@ -604,7 +569,7 @@ Updates agent/skill/rule → Future sessions avoid the error entirely
 
 ## Web Interaction Policy (CRITICAL)
 
-For browser testing, use the **playwright-browser-testing** skill. It covers
+For browser testing, use the **visual-test** agent or follow the playwright-browser-testing guidelines. Key topics:
 tools, authentication, SSL workarounds, screenshots, selectors, and troubleshooting.
 
 **Four non-negotiable rules:**
