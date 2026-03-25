@@ -233,11 +233,11 @@ This configuration uses **claude-haiku-4-5** as the primary model for all agents
 
 | Component | Model | Why |
 |-----------|-------|-----|
-| **All 12 specialized agents** | `anthropic/claude-haiku-4-5` | Fast, cost-effective, optimal for specific tasks |
+| **All 13 agents** | `anthropic/claude-haiku-4-5` | Fast, cost-effective, optimal for specific tasks |
 | **OpenCode TUI/Web** | `anthropic/claude-haiku-4-5` | Interactive development, quick feedback |
 | **Ralph Loop (default)** | `anthropic/claude-opus-4-6` | Autonomous overnight runs, superior reasoning |
 
-**Workflow**: Kimi K2.5 handles 95% of work (exploration, implementation, validation). Opus 4-6 is only used for Ralph Loop's autonomous overnight execution.
+**Workflow**: Claude Haiku 4-5 handles 95% of work (exploration, implementation, validation). Opus 4-6 is only used for Ralph Loop's autonomous overnight execution.
 
 ### Exploration & Utilities
 
@@ -273,6 +273,35 @@ This configuration uses **claude-haiku-4-5** as the primary model for all agents
 | Agent | Purpose | When to use |
 |-------|---------|-------------|
 | `deep-research` | Investigation | Multi-source research, technical comparisons |
+
+### Agent-to-Agent Delegation
+
+Five agents have the `Agent` tool, allowing them to delegate internally to the `applier` agent for file modifications (the Applier Pattern):
+- `drupal-dev`, `drupal-perf`, `drupal-test`, `drupal-theme`, `twig-audit`
+
+All other agents (applier, code-explorer, deep-research, drupal-update, output-verifier, ralph-planner, three-judges, visual-test) cannot delegate — they return results directly.
+
+### Available Skills (15)
+
+Skills are specialized instructions auto-discovered from the `skills/` directory:
+
+| Skill | Purpose |
+|-------|---------|
+| `beads-task-tracking` | Beads (bd) task management commands |
+| `drupal-audit` | Code quality audits via Audit module drush commands |
+| `drupal-audit-setup` | Install and configure the Audit module |
+| `drupal-code-patterns` | Reference templates: Forms, Blocks, Routing, Hooks, Batch/Queue, AJAX |
+| `drupal-config-management` | Config export, import, config_split, schema validation |
+| `drupal-debugging` | Debugging, troubleshooting (theme, tests, performance, Twig) |
+| `drupal-migration` | Content migrations (D7→D10/11, CSV/JSON/API sources) |
+| `drupal-module-scaffold` | Scaffold new custom modules with proper structure |
+| `drupal-unit-test` | Unit test generation, mocking patterns, phpunit.xml, testing pitfalls |
+| `drush-commands` | Drush command reference for cache, modules, cron, maintenance |
+| `playwright-browser-testing` | Playwright MCP browser automation, screenshots, auth |
+| `run-quality-checks` | Full quality pipeline: PHPCS, PHPStan, Rector, PHPUnit |
+| `skill-creator` | Create and validate new skills |
+| `tailwind-drupal` | TailwindCSS setup, compilation, and troubleshooting in Drupal |
+| `xdebug-profiling` | Xdebug trace and profile mode for debugging and performance |
 
 ---
 
@@ -452,7 +481,7 @@ User request
     │   └─► drupal-update
     │
     ├─ "create module" / "service" / "entity" / "plugin" / "API"
-    │   └─► drupal-dev → three-judges
+    │   └─► drupal-dev (+ drupal-code-patterns skill for templates) → three-judges
     │
     ├─ "theme" / "Twig" / "CSS" / "Tailwind" / "frontend"
     │   └─► drupal-theme → twig-audit
