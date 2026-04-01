@@ -5,7 +5,7 @@ description: >
   and Drupal best practices. Use after a development agent produces
   output that needs quality assurance before presenting to the user.
   Returns PASS / NEEDS REVISION verdict with specific issues listed.
-model: ${MODEL_SMART}
+model: ${MODEL_NORMAL}
 mode: subagent
 tools:
   read: true

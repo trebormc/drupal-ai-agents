@@ -6,7 +6,7 @@ description: >
   implementing to validate quality. Invoke automatically for security-sensitive
   code, architectural decisions with multiple valid approaches, and
   performance-critical paths. Returns APPROVE/REJECT verdict per judge.
-model: ${MODEL_SMART}
+model: ${MODEL_NORMAL}
 mode: subagent
 tools:
   read: true

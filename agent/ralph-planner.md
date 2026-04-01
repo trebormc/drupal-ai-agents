@@ -6,7 +6,7 @@ description: >
   for Ralph", "generate requirements", or wants autonomous overnight
   execution. Ensures zero ambiguity so Ralph can work 8+ hours without
   human intervention.
-model: ${MODEL_SMART}
+model: ${MODEL_NORMAL}
 mode: primary
 tools:
   read: true

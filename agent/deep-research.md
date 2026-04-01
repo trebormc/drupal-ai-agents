@@ -4,7 +4,7 @@ description: >
   Visits 5-10+ sources, cross-references information, evaluates
   credibility, and synthesizes findings. Use for technical comparisons,
   current events analysis, product research, or when accuracy is critical.
-model: ${MODEL_SMART}
+model: ${MODEL_NORMAL}
 mode: subagent
 tools:
   read: true
