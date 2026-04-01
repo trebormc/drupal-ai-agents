@@ -3,6 +3,7 @@
   "notification": false,
   "timeout": 10,
   "showProjectName": true,
+  "suppressWhenFocused": false,
   "command": {
     "enabled": true,
     "path": "/bin/sh",
@@ -10,7 +11,7 @@
       "-c",
       "curl -s --connect-timeout 1 -X POST http://host.docker.internal:5454/notify -H 'Content-Type: application/json' -d \"{\\\"title\\\":\\\"[$DDEV_SITENAME] ${DDEV_TUI_TITLE:-OpenCode}\\\",\\\"message\\\":\\\"{message}\\\"}\""
     ],
-    "minDuration": 5
+    "minDuration": 0
   },
   "events": {
     "permission": true,
