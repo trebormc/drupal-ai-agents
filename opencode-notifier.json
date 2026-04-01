@@ -8,7 +8,7 @@
     "path": "/bin/sh",
     "args": [
       "-c",
-      "curl -s -X POST http://host.docker.internal:5454/notify -H 'Content-Type: application/json' -d \"{\\\"title\\\":\\\"[OpenCode] {event}\\\",\\\"message\\\":\\\"{message}\\\"}\""
+      "curl -s --connect-timeout 1 -X POST http://host.docker.internal:5454/notify -H 'Content-Type: application/json' -d \"{\\\"title\\\":\\\"[OpenCode] {event}\\\",\\\"message\\\":\\\"{message}\\\"}\""
     ],
     "minDuration": 5
   },
