@@ -28,10 +28,10 @@ if [ -f "$SCRIPT_DIR/.env.agents" ]; then
   echo "  Loaded model aliases from .env.agents"
 else
   echo "  WARNING: .env.agents not found, using defaults"
-  export MODEL_SMART="anthropic/claude-opus-4-6"
-  export MODEL_NORMAL="anthropic/claude-sonnet-4-5"
-  export MODEL_CHEAP="anthropic/claude-haiku-4-5"
-  export MODEL_APPLIER="anthropic/claude-haiku-4-5"
+  export MODEL_SMART="opencode/kimi-k2.5"
+  export MODEL_NORMAL="opencode/minimax-m2.5"
+  export MODEL_CHEAP="opencode/gpt-5-nano"
+  export MODEL_APPLIER="opencode/gpt-5-nano"
 fi
 
 # Create target directory

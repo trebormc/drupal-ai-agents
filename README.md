@@ -87,10 +87,10 @@ Edit `.env.agents` to change which models all agents use:
 
 ```bash
 # OpenCode models (provider/model-id format)
-OC_MODEL_SMART=anthropic/claude-opus-4-6
-OC_MODEL_NORMAL=anthropic/claude-sonnet-4-5
-OC_MODEL_CHEAP=anthropic/claude-haiku-4-5
-OC_MODEL_APPLIER=anthropic/claude-haiku-4-5
+OC_MODEL_SMART=opencode/kimi-k2.5
+OC_MODEL_NORMAL=opencode/minimax-m2.5
+OC_MODEL_CHEAP=opencode/gpt-5-nano
+OC_MODEL_APPLIER=opencode/gpt-5-nano
 
 # Claude Code models (native aliases)
 CC_MODEL_SMART=opus
