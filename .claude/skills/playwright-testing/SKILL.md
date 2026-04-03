@@ -76,7 +76,7 @@ echo $PLAYWRIGHT_MCP_URL
 | Tool | Purpose | Key parameters |
 |------|---------|----------------|
 | `browser_navigate` | Navigate to URL | `url` |
-| `browser_take_screenshot` | Capture screenshot | (none) |
+| `browser_take_screenshot` | Capture screenshot | `filename`, `fullPage` |
 | `browser_snapshot` | Accessibility tree (text) | (none) |
 | `browser_click` | Click element | `element`, `ref` |
 | `browser_fill_form` | Fill form field | `ref`, `value` |
@@ -117,11 +117,22 @@ grep -o '"name":"[^"]*"' /tmp/sse.txt | sort -u
 kill $PID 2>/dev/null
 ```
 
-## Screenshot Storage
+## Screenshot Storage — How It Works
 
-- Screenshots save to: `<project-root>/screenshots/`
-- Container path: `/var/www/html/screenshots/`
-- Find recent: `ls -lth /var/www/html/screenshots/ | head -10`
+Screenshots auto-save to `<project-root>/screenshots/` via a Docker volume mount between the Playwright MCP container (`/tmp/playwright-output/`) and your project directory (`./screenshots/`).
+
+**To control the filename**, pass the `filename` parameter to `browser_take_screenshot`:
+- `filename: "homepage.png"` → saves to `/var/www/html/screenshots/homepage.png`
+- `filename: "admin-content.png"` → saves to `/var/www/html/screenshots/admin-content.png`
+- Always use relative paths (just the filename) — the output directory is pre-configured
+- The directory exists automatically via the Docker volume mount — do NOT run `mkdir`
+
+**Minimal screenshot workflow (3 tool calls):**
+1. `browser_navigate` → `http://<project>.ddev.site/path`
+2. `browser_take_screenshot` → `filename: "descriptive-name.png"`
+3. Done. File is at `/var/www/html/screenshots/descriptive-name.png`
+
+**Find recent screenshots:** `ls -lth /var/www/html/screenshots/ | head -10`
 
 ## Authentication (drush uli)
 
@@ -223,7 +234,7 @@ docker exec $WEB_CONTAINER ./vendor/bin/drush uli
 | 403 Forbidden | Authenticate with `drush uli` first |
 | Element not found | Use `browser_snapshot` to see available elements, then `browser_wait_for` |
 | Site not accessible | `docker exec $WEB_CONTAINER ./vendor/bin/drush status` |
-| Screenshots not saving | Check `/var/www/html/screenshots/` exists |
+| Screenshots not saving | Use `filename` parameter in `browser_take_screenshot` — directory is auto-created by Docker volume mount |
 
 ## When to use curl (exceptions)
 
