@@ -55,7 +55,7 @@ To change models globally, edit `.env.agents` in the agent repository.
 | `drupal-theme` | NORMAL | Frontend: Twig, CSS, JS, Tailwind |
 | `code-explorer` | CHEAP | Codebase exploration (use before specialized agents) |
 | `applier` | APPLIER | Apply SEARCH/REPLACE blocks mechanically |
-| `three-judges` | SMART | Quality gate: architecture, security, performance |
+| `code-review` | SMART | Quality gate: correctness, security, Drupal quality, performance |
 | `output-verifier` | NORMAL | Validate outputs with high confidence |
 | `deep-research` | NORMAL | Multi-source investigation, technical comparisons |
 | `ralph-planner` | SMART | Generate requirements.md for autonomous execution |

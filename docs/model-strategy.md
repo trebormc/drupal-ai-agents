@@ -15,7 +15,7 @@ Agent files use model tokens instead of hardcoded model names. This makes agents
 
 | Agent | Token | Justification |
 |-------|-------|---------------|
-| three-judges | $MODEL_SMART | Architecture/security evaluation requires maximum capability |
+| code-review | $MODEL_SMART | Code quality evaluation requires maximum capability |
 | deep-research | $MODEL_NORMAL | Multi-source investigation needs deep reasoning |
 | ralph-planner | $MODEL_SMART | Complex planning for autonomous execution |
 | drupal-dev | $MODEL_NORMAL | Structured development with clear patterns |

@@ -54,7 +54,7 @@ drupal-ai-agents/
 ├── agent/                      13 agent definitions (.md files with fat frontmatter)
 │   ├── drupal-dev.md
 │   ├── drupal-theme.md
-│   ├── three-judges.md
+│   ├── code-review.md
 │   └── ...
 ├── rules/                      4 rule sets loaded as instructions
 │   ├── drupal-essentials.md
@@ -148,7 +148,7 @@ During sync, [ddev-agents-sync](https://github.com/trebormc/ddev-agents-sync) ge
 
 | Agent | Token | Purpose |
 |-------|-------|---------|
-| `three-judges` | `MODEL_SMART` | Quality gate: architecture, security, performance review |
+| `code-review` | `MODEL_SMART` | Quality gate: architecture, security, performance review |
 | `output-verifier` | `MODEL_SMART` | Validate outputs with high confidence |
 | `visual-test` | `MODEL_CHEAP` | Playwright browser screenshots and UI checks |
 

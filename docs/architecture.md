@@ -21,7 +21,7 @@ AI containers never access the database directly. They use `docker exec` to run 
 Agents are organized in three tiers by model cost:
 
 ### Tier 1: Smart (Opus) — Complex reasoning
-- **three-judges**: Quality gate (architecture, security, performance review)
+- **code-review**: Quality gate (correctness, security, Drupal quality, performance)
 - **deep-research**: Multi-source investigation
 - **ralph-planner**: Requirements generation for autonomous execution
 
