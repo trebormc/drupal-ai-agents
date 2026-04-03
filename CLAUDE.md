@@ -135,6 +135,7 @@ Present a clear summary of all file changes. The user reviews and commits manual
 | `drupal-unit-test` | Unit test generation and mock patterns |
 | `playwright-testing` | Browser automation and screenshots |
 | `tailwind-drupal` | TailwindCSS in Drupal |
+| `commit-message` | Generate commit messages from git diff |
 
 ## Beads Task Tracking
 
