@@ -4,11 +4,11 @@ description: >-
   Scaffolds a new Drupal 10/11 custom module with proper PSR-4 structure,
   services.yml, routing.yml, info.yml, permissions.yml, and config schema.
   Use when creating a new custom module or when user says "create module",
-  "new module", "scaffold module", "crear modulo", "nuevo modulo".
+  "new module", "scaffold module".
   Examples:
   - user: "Create a module called event_manager" -> scaffold complete module
-  - user: "Necesito un modulo para gestionar webhooks" -> scaffold module
-  - user: "Crea un modulo custom" -> scaffold complete module structure
+  - user: "I need a module to handle webhooks" -> scaffold module
+  - user: "Scaffold a new custom module" -> scaffold complete module structure
   Never use this for theme scaffolding, contrib module patching, or subthemes.
 ---
 

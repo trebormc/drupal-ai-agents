@@ -7,8 +7,8 @@ description: >-
   Examples:
   - user: "migrate content from D7 to D10" -> plan and implement migration
   - user: "create a migration from CSV" -> custom source plugin + YAML config
-  - user: "migrar contenido de D7" -> plan and implement migration
-  - user: "importar datos desde CSV" -> custom source plugin + YAML config
+  - user: "upgrade from Drupal 7" -> plan and implement migration
+  - user: "import data from external API" -> custom source plugin + YAML config
   Never run migrations on production without --limit testing first.
 ---
 

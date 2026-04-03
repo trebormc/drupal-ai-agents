@@ -10,9 +10,9 @@ description: >-
   - user: "debug this page error" -> enable Xdebug trace, trigger request, analyze trace
   - user: "why is this page slow" -> enable Xdebug profiler, trigger request, analyze cachegrind
   - user: "trace the execution of /admin/content" -> trace mode workflow
-  - user: "depurar este error" -> enable Xdebug trace and analyze
-  - user: "esta pagina va lenta" -> enable profiler and analyze bottlenecks
-  - user: "analizar rendimiento" -> profile mode workflow
+  - user: "find where this error comes from" -> enable Xdebug trace and analyze
+  - user: "this page loads slowly" -> enable profiler and analyze bottlenecks
+  - user: "analyze performance of this request" -> profile mode workflow
   Never use for step debugging with IDE breakpoints (that requires IDE integration).
 ---
 

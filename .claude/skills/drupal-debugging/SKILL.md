@@ -7,8 +7,8 @@ description: >-
   Examples:
   - user: "check watchdog logs" -> show recent log entries
   - user: "debug this service" -> inspect service container and definitions
-  - user: "que errores hay en el log" -> show watchdog errors
-  - user: "inspeccionar la cache" -> cache debugging commands
+  - user: "what errors are in the log" -> show watchdog errors
+  - user: "inspect the cache" -> cache debugging commands
   Never use for destructive operations (use drush-commands skill instead).
 ---
 

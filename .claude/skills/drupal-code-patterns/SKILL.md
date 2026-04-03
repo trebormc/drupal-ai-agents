@@ -9,8 +9,8 @@ description: >-
   - user: "create a form" -> use Form template pattern
   - user: "add a block plugin" -> use Block Plugin template
   - user: "implement hook_form_alter" -> use Hooks patterns
-  - user: "necesito un formulario con AJAX" -> use AJAX Form pattern
-  - user: "proceso batch para importar datos" -> use Batch API pattern
+  - user: "add AJAX to my form" -> use AJAX Form pattern
+  - user: "batch process for importing data" -> use Batch API pattern
   Never use for module scaffolding (use drupal-module-scaffold) or theming (use drupal-theme agent).
 ---
 

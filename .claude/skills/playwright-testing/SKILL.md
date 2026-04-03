@@ -9,8 +9,8 @@ description: >-
   - user: "test the homepage" -> navigate and screenshot via Playwright
   - user: "check the admin page" -> authenticate with drush uli then navigate
   - user: "take a screenshot" -> browser_take_screenshot via Playwright MCP
-  - user: "prueba la pagina de admin" -> authenticate and navigate
-  - user: "haz una captura de pantalla" -> browser_take_screenshot
+  - user: "verify the login page works" -> authenticate and navigate
+  - user: "screenshot the content listing" -> browser_take_screenshot
   Never use curl for testing Drupal functionality. Use Playwright MCP instead.
 ---
 
