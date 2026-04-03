@@ -1,0 +1,52 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Grep",
+      "Glob",
+      "Bash(docker exec *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git status *)",
+      "Bash(git show *)",
+      "Bash(git branch *)",
+      "Bash(ls *)",
+      "Bash(cat *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(echo *)",
+      "Bash(bd *)"
+    ],
+    "deny": [
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(git pull *)",
+      "Bash(git checkout *)",
+      "Bash(git reset *)",
+      "Bash(git merge *)",
+      "Bash(git rebase *)",
+      "Bash(git stash *)",
+      "Bash(git tag *)",
+      "Bash(git add *)",
+      "Bash(rm -rf *)",
+      "Bash(sudo *)",
+      "Write(.env)",
+      "Write(settings.php)",
+      "Write(settings.local.php)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cmd=$(jq -r '.tool_input.command'); case \"$cmd\" in *'git commit'*|*'git push'*|*'git reset --hard'*|*'git add '*|*'rm -rf '*) echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"Destructive or git write operations are blocked. Present changes for user review instead.\"}}'; exit 2;; esac",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

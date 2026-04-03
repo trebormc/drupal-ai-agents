@@ -6,7 +6,7 @@ description: >
   theming to drupal-theme, tests to drupal-test, and performance to
   drupal-perf. Generates SEARCH/REPLACE blocks and delegates file
   modifications to the applier agent.
-model: ${MODEL_CHEAP}
+model: ${MODEL_NORMAL}
 mode: subagent
 tools:
   read: true

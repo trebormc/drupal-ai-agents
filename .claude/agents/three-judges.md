@@ -6,19 +6,16 @@ description: >
   implementing to validate quality. Invoke automatically for security-sensitive
   code, architectural decisions with multiple valid approaches, and
   performance-critical paths. Returns APPROVE/REJECT verdict per judge.
-model: ${MODEL_NORMAL}
+model: ${MODEL_SMART}
 mode: subagent
 tools:
   read: true
   glob: true
   grep: true
-  bash: true
+  bash: false
   write: false
   edit: false
-permission:
-  bash:
-    "*": allow
-allowed_tools: Read, Glob, Grep, Bash
+allowed_tools: Read, Glob, Grep
 maxTurns: 15
 ---
 
@@ -176,6 +173,8 @@ Each judge independently gives one of:
 ---
 
 ## DDEV Commands for Validation
+
+Note: These commands should be run by the calling agent. three-judges is read-only and cannot execute bash commands.
 
 **Use `$DDEV_DOCROOT` instead of hardcoding `web/`.**
 

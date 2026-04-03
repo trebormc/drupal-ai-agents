@@ -1,3 +1,13 @@
+---
+description: Quality tools setup guide — PHPStan, PHPCS, Rector, GrumPHP, PHPUnit configuration
+globs:
+  - "phpstan.neon"
+  - "phpcs.xml*"
+  - "phpunit.xml*"
+  - "rector.php"
+  - "grumphp.yml"
+---
+
 # Quality Tools Setup Guide
 
 Reference for setting up code quality tools in Drupal projects.

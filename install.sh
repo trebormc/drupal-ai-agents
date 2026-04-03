@@ -2,7 +2,7 @@
 # Install OpenCode Drupal Agents configuration
 # Usage: ./install.sh [target_dir]
 #
-# Copies agent definitions, rules, skills, and config to the OpenCode
+# Copies agent definitions, rules, skills, settings, and config to the OpenCode
 # config directory. Model tokens in agent files are resolved using
 # .env.agents values.
 
@@ -38,9 +38,9 @@ fi
 mkdir -p "$TARGET"
 
 # Copy agent definitions with model token substitution
-if [ -d "$SCRIPT_DIR/agent" ]; then
+if [ -d "$SCRIPT_DIR/.claude/agents" ]; then
     mkdir -p "$TARGET/agent"
-    for src in "$SCRIPT_DIR/agent/"*.md; do
+    for src in "$SCRIPT_DIR/.claude/agents/"*.md; do
         [ -f "$src" ] || continue
         name=$(basename "$src")
         envsubst '${MODEL_SMART},${MODEL_NORMAL},${MODEL_CHEAP},${MODEL_APPLIER}' \
@@ -48,26 +48,33 @@ if [ -d "$SCRIPT_DIR/agent" ]; then
         # Remove allowed_tools line (OpenCode doesn't need it)
         sed -i '/^allowed_tools:/d' "$TARGET/agent/$name"
     done
-    echo "  Installed $(ls -1 "$SCRIPT_DIR/agent/"*.md | wc -l) agent definitions (model tokens resolved)"
+    echo "  Installed $(ls -1 "$SCRIPT_DIR/.claude/agents/"*.md | wc -l) agent definitions (model tokens resolved)"
 fi
 
 # Copy rules
-if [ -d "$SCRIPT_DIR/rules" ]; then
+if [ -d "$SCRIPT_DIR/.claude/rules" ]; then
     mkdir -p "$TARGET/rules"
-    cp "$SCRIPT_DIR/rules/"*.md "$TARGET/rules/"
-    echo "  Installed $(ls -1 "$SCRIPT_DIR/rules/"*.md | wc -l) rules"
+    cp "$SCRIPT_DIR/.claude/rules/"*.md "$TARGET/rules/"
+    echo "  Installed $(ls -1 "$SCRIPT_DIR/.claude/rules/"*.md | wc -l) rules"
 fi
 
 # Copy skills
-if [ -d "$SCRIPT_DIR/skills" ]; then
+if [ -d "$SCRIPT_DIR/.claude/skills" ]; then
     mkdir -p "$TARGET/skills"
-    for skill_dir in "$SCRIPT_DIR/skills"/*/; do
+    for skill_dir in "$SCRIPT_DIR/.claude/skills"/*/; do
         [ -d "$skill_dir" ] || continue
         skill_name=$(basename "$skill_dir")
         mkdir -p "$TARGET/skills/$skill_name"
         cp "$skill_dir"SKILL.md "$TARGET/skills/$skill_name/"
     done
-    echo "  Installed $(ls -1d "$SCRIPT_DIR/skills"/*/ | wc -l) skills"
+    echo "  Installed $(ls -1d "$SCRIPT_DIR/.claude/skills"/*/ | wc -l) skills"
+fi
+
+# Copy settings.json
+if [ -f "$SCRIPT_DIR/.claude/settings.json" ]; then
+    mkdir -p "$TARGET/.claude"
+    cp "$SCRIPT_DIR/.claude/settings.json" "$TARGET/.claude/settings.json"
+    echo "  Installed .claude/settings.json"
 fi
 
 # Copy orchestrator

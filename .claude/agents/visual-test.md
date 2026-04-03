@@ -5,7 +5,7 @@ description: >
   CSS, JavaScript) to verify the UI renders correctly. Handles
   authentication via drush uli for admin pages. Returns screenshots
   and PASS/FAIL verdicts with visual findings.
-model: ${MODEL_CHEAP}
+model: ${MODEL_NORMAL}
 mode: subagent
 tools:
   read: true

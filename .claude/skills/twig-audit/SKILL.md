@@ -1,106 +1,70 @@
 ---
-description: >
-  Use PROACTIVELY after any Twig template is created or modified to detect
-  anti-patterns. Checks for render array drilling, business logic in
-  templates, improper |raw usage, missing cache bubbling, component
-  isolation issues, and incorrect attribute handling. Also use when
-  modernizing legacy Drupal themes. Generates SEARCH/REPLACE blocks and
-  delegates fixes to the applier agent.
-model: ${MODEL_CHEAP}
-mode: subagent
-tools:
-  read: true
-  glob: true
-  grep: true
-  task: true
-  bash: false
-  write: false
-  edit: false
-allowed_tools: Read, Glob, Grep, Agent
-maxTurns: 15
+name: twig-audit
+description: >-
+  Audit Twig templates for anti-patterns: render array drilling, business logic
+  in templates, improper |raw usage, missing cache bubbling, component isolation
+  issues, incorrect attribute handling. Use when reviewing templates, refactoring
+  themes, or modernizing legacy Drupal templates.
+allowed-tools: Read Grep Glob
+metadata:
+  drupal-version: "10.x/11.x"
+  environment: "ddev"
 ---
 
-## DDEV Environment Context
-
-This agent runs inside an OpenCode container. It reads templates and generates SEARCH/REPLACE blocks for the `applier` agent.
-
-After changes are applied, the parent agent should clear cache:
-```bash
-docker exec $WEB_CONTAINER ./vendor/bin/drush cr
-```
-
-## APPLIER PATTERN - NO DIRECT EDITING
-
-You DO NOT have edit/write tools. Generate SEARCH/REPLACE blocks and call the `applier` agent.
-
-### Format for refactored templates:
-```
-path/to/template.html.twig
-<<<<<<< SEARCH
-{# ❌ BAD - anti-pattern #}
-{{ content.field_image[0]['#markup'] }}
-=======
-{# ✅ GOOD - proper rendering #}
-{{ content.field_image }}
->>>>>>> REPLACE
-```
-
-After generating blocks, use Task tool to call `applier` agent.
-
-You are an expert Drupal 10 Twig template auditor. You analyze templates for anti-patterns and provide refactored code following Drupal community standards.
+# Twig Audit
 
 **Principle: Twig is for presentation ONLY. Preprocess handles logic.**
 
 ## Anti-Patterns to Detect
 
-### 1. Render Array Drilling (CRITICAL - Breaks Cache)
+### 1. Render Array Drilling (CRITICAL — Breaks Cache)
 ```twig
-{# ❌ BAD - loses cache metadata, security risk #}
+{# BAD — loses cache metadata, security risk #}
 {{ content.field_image[0]['#markup'] }}
 {{ content.field_body['#items'][0]['value'] }}
 
-{# ✅ GOOD #}
+{# GOOD #}
 {{ content.field_image }}
 {{ content.body }}
 ```
 
 ### 2. Business Logic in Templates
 ```twig
-{# ❌ BAD #}
+{# BAD #}
 {% if user.field_role.value == 'premium' and user.field_expiration.value|date('U') > 'now'|date('U') %}
   {% set discount = product.price.value * 0.2 %}
 
-{# ✅ GOOD - variable from preprocess #}
+{# GOOD — variable from preprocess #}
 {% if has_premium_discount %}
   {{ formatted_discounted_price }}
 ```
 
 ### 3. Unsafe |raw Usage
 ```twig
-{# ❌ BAD - XSS vulnerability #}
+{# BAD — XSS vulnerability #}
 {{ node.field_user_content.value|raw }}
 
-{# ✅ GOOD - use processed field #}
+{# GOOD — use processed field #}
 {{ content.field_user_content }}
 ```
 
 ### 4. Missing Component Isolation
 ```twig
-{# ❌ BAD - variable contamination #}
+{# BAD — variable contamination #}
 {{ include('mytheme:card', {heading: title}) }}
 
-{# ✅ GOOD #}
+{# GOOD #}
 {{ include('mytheme:card', {heading: title}, with_context = false) }}
 {% embed 'mytheme:card' with {heading: title} only %}
 ```
 
 ### 5. Content Not Rendered (Loses Cache Metadata)
 ```twig
-{# ❌ BAD - cache metadata lost #}
+{# BAD — cache metadata lost #}
 <h1>{{ label }}</h1>
 {{ content.body }}
 
-{# ✅ GOOD - render remaining with without #}
+{# GOOD — render remaining with without #}
 <h1>{{ label }}</h1>
 {{ content.body }}
 {{ content|without('body') }}
@@ -108,23 +72,22 @@ You are an expert Drupal 10 Twig template auditor. You analyze templates for ant
 
 ### 6. Direct Entity Access (Bypasses Render System)
 ```twig
-{# ❌ BAD - bypasses formatters and cache #}
+{# BAD — bypasses formatters and cache #}
 {{ file_url(node.field_image.entity.uri.value) }}
 
-{# ✅ GOOD - render the field properly #}
+{# GOOD — render the field properly #}
 {{ content.field_image }}
 
-{# Or if you need just the URL, use preprocess: #}
-{# In mytheme.theme: $variables['image_url'] = ... #}
+{# Or if you need just the URL, use preprocess #}
 {{ image_url }}
 ```
 
 ### 7. Attributes as Strings
 ```twig
-{# ❌ BAD #}
+{# BAD #}
 <article class="node node--{{ node.bundle }}">
 
-{# ✅ GOOD #}
+{# GOOD #}
 {% set classes = ['node', 'node--' ~ node.bundle|clean_class] %}
 <article{{ attributes.addClass(classes) }}>
 ```
@@ -155,39 +118,35 @@ You are an expert Drupal 10 Twig template auditor. You analyze templates for ant
 ```
 
 ## Move to Preprocess
+
 Flag these as preprocess candidates:
 - Entity queries
 - Service calls
 - Complex calculations
 - Permission checks
-- Date formatting beyond simple |date
+- Date formatting beyond simple `|date`
 
-## Response Format
+## Audit Report Format
 
-### 1. Issues Detected
+### Issues Detected
 | Severity | Line | Issue | Risk |
 |----------|------|-------|------|
 | CRITICAL | 12 | Render array drilling | Broken cache |
 
-### 2. Refactored Code
+### Refactored Code
 Complete template with fixes and comments.
 
-### 3. Preprocess Changes
+### Preprocess Changes
 ```php
 function mytheme_preprocess_node(&$variables) {
-  // Required PHP code
+  // Required PHP code for logic moved from template
 }
 ```
 
-### 4. Final Checklist
+### Final Checklist
 - [ ] No render array drilling
-- [ ] content rendered or |without used
+- [ ] content rendered or `|without` used
 - [ ] No business logic
-- [ ] |raw only with trusted data
+- [ ] `|raw` only with trusted data
 - [ ] Components isolated
 - [ ] Attributes via object
-
-## Language
-
-- **User interaction**: English
-- **Code, comments, template examples**: English

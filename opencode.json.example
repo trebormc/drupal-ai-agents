@@ -5,7 +5,10 @@
   "autoupdate": true,
   "instructions": [
     "rules/beads-workflow.md",
-    "rules/drupal-essentials.md",
+    "rules/drupal-coding-standards.md",
+    "rules/security-rules.md",
+    "rules/ddev-environment.md",
+    "rules/git-workflow.md",
     "rules/quality-tools-setup.md",
     "rules/lessons-learned.md"
   ],

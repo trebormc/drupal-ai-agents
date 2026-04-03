@@ -5,7 +5,7 @@ description: >
   preprocess functions, library definitions, asset optimization,
   responsive design, and Tailwind components. Delegates template
   quality audits to twig-audit and visual verification to visual-test.
-model: ${MODEL_CHEAP}
+model: ${MODEL_NORMAL}
 mode: subagent
 tools:
   read: true

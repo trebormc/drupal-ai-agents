@@ -1,3 +1,7 @@
+---
+description: Beads task tracking workflow — session start, during work, session end
+---
+
 # Beads Task Tracking
 
 Beads (bd) runs in its own DDEV container (`ddev-{project}-beads`). A wrapper at `/usr/local/bin/bd` is installed in your container, so you can use `bd` commands directly -- they are transparently delegated to the Beads container via `docker exec`.
