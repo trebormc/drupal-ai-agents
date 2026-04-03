@@ -2,7 +2,7 @@
 
 A comprehensive set of AI agents, rules, skills, and configuration for Drupal 10/11 development. Designed for [OpenCode](https://opencode.ai) and [Claude Code](https://docs.anthropic.com/en/docs/claude-code), compatible with [DDEV](https://ddev.readthedocs.io/) environments.
 
-This repository is **not** a DDEV add-on -- it is a configuration package that gets synced into OpenCode and Claude Code containers via [ddev-agents-sync](https://github.com/trebormc/ddev-agents-sync). It provides 13 specialized agents, 4 rule sets, and 14 skills tailored for Drupal development.
+This repository is **not** a DDEV add-on -- it is a configuration package that gets synced into OpenCode and Claude Code containers via [ddev-agents-sync](https://github.com/trebormc/ddev-agents-sync). It provides 10 specialized agents, 12 rules, and 24 skills tailored for Drupal development.
 
 ## Quick Install
 
@@ -139,7 +139,7 @@ During sync, [ddev-agents-sync](https://github.com/trebormc/ddev-agents-sync) ge
 |-------|-------|---------|
 | `drupal-dev` | `MODEL_CHEAP` | Backend: modules, services, entities, plugins, APIs |
 | `drupal-theme` | `MODEL_CHEAP` | Frontend: Twig, CSS, JS, Tailwind, responsive |
-| `drupal-test` | `MODEL_CHEAP` | Testing: PHPUnit, coverage, test automation |
+| `drupal-test-generator` | `MODEL_NORMAL` | Test generation: analyzes code, picks type, generates tests |
 | `drupal-perf` | `MODEL_CHEAP` | Performance: caching, queries, bottlenecks |
 | `drupal-update` | `MODEL_CHEAP` | Updates: Composer, security patches, migrations |
 | `twig-audit` | `MODEL_CHEAP` | Templates: anti-patterns, cache bubbling, raw filter |
@@ -168,6 +168,7 @@ Rules are loaded as global instructions for every session:
 | File | Purpose |
 |------|---------|
 | `rules/drupal-essentials.md` | Drupal coding standards, security, dependency injection |
+| `rules/drupal-testing.md` | Test type decision tree, D10 vs D11 differences, common rules |
 | `rules/beads-workflow.md` | Beads task tracking workflow |
 | `rules/quality-tools-setup.md` | PHPUnit, PHPStan, PHPCS setup and usage |
 | `rules/lessons-learned.md` | Self-learning system -- agents record lessons for future sessions |
@@ -185,9 +186,15 @@ Reusable skill definitions that agents can invoke:
 | `drupal-debugging` | Inspect services, entities, cache, watchdog logs, database queries |
 | `drupal-migration` | D7-to-D10/D11 upgrades, custom migrations (CSV, JSON, API, SQL) |
 | `drupal-module-scaffold` | Scaffold a new module with PSR-4 structure |
-| `drupal-unit-test` | Generate PHPUnit tests with proper mocking patterns |
+| `drupal-testing` | Test orchestrator: analyzes code, delegates to specialized test skills |
+| `drupal-unit-test` | Unit tests with proper mocking patterns |
+| `drupal-kernel-test` | Kernel tests: services, entities, DB, config, plugins, hooks |
+| `drupal-functional-test` | Functional tests: forms, permissions, HTML output |
+| `drupal-functionaljs-test` | FunctionalJavascript: AJAX, modals, autocompletes |
+| `drupal-behat-test` | Behat: BDD, acceptance testing, Gherkin scenarios |
+| `drupal-playwright-test` | Playwright: visual regression, cross-browser, E2E test files |
 | `drush-commands` | Cache clearing, database updates, module management, cron |
-| `playwright-browser-testing` | Browser testing with Playwright MCP |
+| `playwright-browser-testing` | Browser testing with Playwright MCP (interactive) |
 | `run-quality-checks` | Full quality pipeline: Audit module primary, raw PHPCS/PHPStan fallback |
 | `skill-creator` | Create and validate new OpenCode skills |
 | `tailwind-drupal` | TailwindCSS setup and usage in Drupal themes |

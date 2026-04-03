@@ -53,6 +53,7 @@ To change models globally, edit `.env.agents` in the agent repository.
 |-------|-------|---------|
 | `drupal-dev` | NORMAL | Backend: modules, services, entities, plugins, APIs |
 | `drupal-theme` | NORMAL | Frontend: Twig, CSS, JS, Tailwind |
+| `drupal-test-generator` | NORMAL | Test generation: analyzes code, picks test type, generates tests |
 | `code-explorer` | CHEAP | Codebase exploration (use before specialized agents) |
 | `applier` | APPLIER | Apply SEARCH/REPLACE blocks mechanically |
 | `code-review` | SMART | Quality gate: correctness, security, Drupal quality, performance |
@@ -68,6 +69,7 @@ To change models globally, edit `.env.agents` in the agent repository.
 | Need to find files or understand code structure | `code-explorer` |
 | Backend PHP: modules, services, entities, plugins | `drupal-dev` |
 | Frontend: Twig, CSS, JS, Tailwind | `drupal-theme` |
+| Generate tests for Drupal code | `drupal-test-generator` |
 | Validate code quality (pre/post implementation) | `code-review` |
 | Validate non-code outputs (plans, configs, docs) | `output-verifier` |
 | Browser screenshots and visual verification | `visual-test` |
@@ -126,14 +128,19 @@ Present a clear summary of all file changes. The user reviews and commits manual
 | Skill | Purpose |
 |-------|---------|
 | `quality-checks` | PHPCS, PHPStan, Rector, PHPUnit (Audit module primary) |
-| `drupal-testing` | PHPUnit test creation and execution |
+| `drupal-testing` | Test orchestrator: analyzes code, delegates to specialized test skills |
+| `drupal-unit-test` | Unit test generation and mock patterns |
+| `drupal-kernel-test` | Kernel tests: services, entities, DB, config, plugins |
+| `drupal-functional-test` | Functional tests: forms, permissions, HTML output |
+| `drupal-functionaljs-test` | FunctionalJavascript: AJAX, modals, autocompletes |
+| `drupal-behat-test` | Behat: BDD, acceptance testing, Gherkin |
+| `drupal-playwright-test` | Playwright: visual regression, cross-browser, E2E |
 | `performance-audit` | Caching, queries, lazy builders, bottlenecks |
 | `drupal-update` | Safe Composer update workflow |
 | `twig-audit` | Template anti-patterns and cache bubbling |
 | `beads-task-tracking` | Beads (bd) task management |
 | `module-scaffold` | Scaffold new custom modules |
-| `drupal-unit-test` | Unit test generation and mock patterns |
-| `playwright-testing` | Browser automation and screenshots |
+| `playwright-testing` | Browser automation and screenshots (MCP tools) |
 | `tailwind-drupal` | TailwindCSS in Drupal |
 | `commit-message` | Generate commit messages from git diff |
 
