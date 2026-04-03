@@ -203,16 +203,7 @@ Note: These commands should be run by the calling agent. code-review is read-onl
 
 **Use `$DDEV_DOCROOT` instead of hardcoding `web/`.**
 
-**ALWAYS check for Audit module first** (MANDATORY):
-```bash
-docker exec $WEB_CONTAINER ./vendor/bin/drush pm:list --filter=audit --format=list
-
-# If installed:
-docker exec $WEB_CONTAINER ./vendor/bin/drush audit:run phpcs --filter="module:mymodule" --format=json
-docker exec $WEB_CONTAINER ./vendor/bin/drush audit:run phpstan --filter="module:mymodule" --format=json
-```
-
-If Audit module is NOT installed, recommend `composer require drupal/audit` + `drush en audit_all` (see **drupal-audit-setup** skill).
+For quality validation commands, see the **quality-tools-setup** rule and **quality-checks** skill (Audit module primary, raw tools fallback). These commands should be run by the calling agent — code-review is read-only.
 
 ---
 

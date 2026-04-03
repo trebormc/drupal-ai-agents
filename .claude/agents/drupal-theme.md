@@ -84,7 +84,7 @@ path/to/new/template.html.twig
 
 ## Command Reference
 
-For Drush commands see the **drush-commands** skill. After modifying templates, **ALWAYS check for the Audit module first** (`docker exec $WEB_CONTAINER ./vendor/bin/drush pm:list --filter=audit --format=list`). If installed, validate with `drush audit:run twig/phpcs --filter="module:THEME_NAME" --format=json`. If NOT installed, recommend `composer require drupal/audit` + `drush en audit_all` (see **drupal-audit-setup** skill). Only fall back to raw commands if the user declines. See **quality-checks** skill for full pipeline. Theme-specific commands:
+For Drush commands see the **drush-commands** skill. After modifying templates, ALWAYS validate with quality checks — see the **quality-tools-setup** rule and **quality-checks** skill for the full workflow (Audit module primary, raw tools fallback). Theme-specific commands:
 
 | Task | Command |
 |------|---------|
@@ -240,7 +240,7 @@ docker exec $WEB_CONTAINER ./vendor/bin/drush cr
 
 ## Cache Bubbling in Templates
 
-For comprehensive caching strategies, delegate to the **drupal-perf** agent.
+For comprehensive caching strategies, use the **performance-audit** skill.
 For cache debugging commands, use the **drupal-debugging** skill.
 
 ```twig

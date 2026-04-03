@@ -6,6 +6,8 @@ description: >-
   for Drupal 10+11 compatibility. Run test suites, check coverage, and
   validate code quality. Use when writing tests, improving coverage,
   running test suites, or setting up QA automation.
+  Never use for advanced unit test mocking patterns (use drupal-unit-test).
+  Never use for browser/visual testing with Playwright (use playwright-testing).
 allowed-tools: Bash Read Grep Glob
 metadata:
   drupal-version: "10.x/11.x"
@@ -225,8 +227,9 @@ final class MyFormTest extends BrowserTestBase {
 - [ ] Tests are isolated (no shared state)
 - [ ] Test names describe what they test
 
-## Reference Skills
+## Related Skills
 
-- **drupal-unit-test** — mock templates, service mocking patterns, data providers
+- **drupal-unit-test** — Advanced mock templates, service mocking patterns, data providers (use for unit test specifics)
+- **quality-checks** — Code quality validation (Audit module primary, raw tools fallback)
+- **drupal-debugging** — Test debugging and troubleshooting commands
 - **quality-tools-setup** rule — PHPUnit, PHPCS, PHPStan configuration files
-- **drupal-debugging** — test debugging and troubleshooting commands

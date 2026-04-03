@@ -1,5 +1,5 @@
 ---
-name: playwright-browser-testing
+name: playwright-testing
 description: >-
   Browser-based testing of Drupal sites using Playwright MCP in DDEV.
   Covers navigation, screenshots, authentication with drush uli, SSL/HTTPS

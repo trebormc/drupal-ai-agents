@@ -145,6 +145,11 @@ final class MyCustomSource extends SqlBase {
 | `static_map` | Value mapping table |
 | `skip_on_empty` | Skip row if source empty |
 
+## Related Skills
+
+- **drupal-testing** — Create PHPUnit tests for migration source plugins and process logic
+- **drupal-debugging** — Debug migration errors, inspect entities, check watchdog logs
+
 ## Verification
 
 ```bash

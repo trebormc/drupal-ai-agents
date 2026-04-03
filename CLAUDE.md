@@ -56,10 +56,24 @@ To change models globally, edit `.env.agents` in the agent repository.
 | `code-explorer` | CHEAP | Codebase exploration (use before specialized agents) |
 | `applier` | APPLIER | Apply SEARCH/REPLACE blocks mechanically |
 | `code-review` | SMART | Quality gate: correctness, security, Drupal quality, performance |
-| `output-verifier` | NORMAL | Validate outputs with high confidence |
+| `output-verifier` | SMART | Validate outputs against requirements |
 | `deep-research` | NORMAL | Multi-source investigation, technical comparisons |
 | `ralph-planner` | SMART | Generate requirements.md for autonomous execution |
 | `visual-test` | NORMAL | Playwright MCP browser automation |
+
+### When to Use Each Agent
+
+| Scenario | Agent |
+|----------|-------|
+| Need to find files or understand code structure | `code-explorer` |
+| Backend PHP: modules, services, entities, plugins | `drupal-dev` |
+| Frontend: Twig, CSS, JS, Tailwind | `drupal-theme` |
+| Validate code quality (pre/post implementation) | `code-review` |
+| Validate non-code outputs (plans, configs, docs) | `output-verifier` |
+| Browser screenshots and visual verification | `visual-test` |
+| Technical research across multiple sources | `deep-research` |
+| Generate requirements.md for Ralph autonomous loop | `ralph-planner` |
+| Apply SEARCH/REPLACE blocks mechanically | `applier` |
 
 **Invocation:** OpenCode uses `Task: agent-name`. Claude Code uses `Agent` tool with `subagent_type`.
 

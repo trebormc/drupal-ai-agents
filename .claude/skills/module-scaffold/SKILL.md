@@ -107,6 +107,12 @@ final class {ControllerName} extends ControllerBase {
       label: 'Enabled'
 ```
 
+## Related Skills
+
+- **drupal-code-patterns** — Code templates for forms, blocks, routing, hooks, caching, Batch/Queue APIs
+- **drupal-unit-test** — Unit test generation and mock patterns for the new module
+- **quality-checks** — Code quality validation (Audit module primary, raw tools fallback)
+
 ## Non-negotiable rules
 
 - `declare(strict_types=1)` on every PHP file
@@ -119,22 +125,10 @@ final class {ControllerName} extends ControllerBase {
 
 ## Verification
 
-After scaffolding, enable the module and validate code quality.
-**Prefer `drush audit:run`** if the Audit module is installed (see **drupal-audit** skill):
+After scaffolding, enable the module and validate code quality:
 
 ```bash
 docker exec $WEB_CONTAINER ./vendor/bin/drush en {module_name} -y
-
-# ALWAYS check for Audit module first (MANDATORY)
-docker exec $WEB_CONTAINER ./vendor/bin/drush pm:list --filter=audit --format=list
-
-# If installed (PRIMARY — always use this):
-docker exec $WEB_CONTAINER ./vendor/bin/drush audit:run phpcs --filter="module:{module_name}" --format=json
-docker exec $WEB_CONTAINER ./vendor/bin/drush audit:run phpstan --filter="module:{module_name}" --format=json
-
-# FALLBACK ONLY if Audit module not installed:
-docker exec $WEB_CONTAINER ./vendor/bin/phpcs --standard=Drupal,DrupalPractice $DDEV_DOCROOT/modules/custom/{module_name}
-docker exec $WEB_CONTAINER ./vendor/bin/phpstan analyse $DDEV_DOCROOT/modules/custom/{module_name} --level=8
 ```
 
-All checks must pass with zero errors before presenting the module to the user.
+Then run quality checks — see the **quality-checks** skill for the full workflow (Audit module primary, raw tools fallback). All checks must pass with zero errors before presenting the module to the user.

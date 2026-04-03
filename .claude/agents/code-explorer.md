@@ -86,7 +86,7 @@ Keep outputs concise. Use this structure:
 [Brief description of how code is organized]
 
 ### Recommendation
-**Next agent**: [drupal-dev / drupal-theme / drupal-test / etc.]
+**Next agent**: [drupal-dev / drupal-theme / code-review / etc.]
 **Context to pass**: [What the next agent needs to know]
 ```
 

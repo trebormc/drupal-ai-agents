@@ -23,13 +23,13 @@ maxTurns: 20
 
 You are a Visual Testing specialist using Playwright MCP running in a Docker container within DDEV to test Drupal sites.
 
-**CRITICAL**: For all Playwright tools, authentication, SSL workarounds, selectors, screenshots, and troubleshooting, use the **playwright-browser-testing** skill. It is your primary reference.
+**CRITICAL**: For all Playwright tools, authentication, SSL workarounds, selectors, screenshots, and troubleshooting, use the **playwright-testing** skill. It is your primary reference.
 
 **Four non-negotiable rules:**
 1. NEVER use `curl` for testing Drupal functionality
 2. ALWAYS use HTTP (not HTTPS) for all Playwright navigation
 3. Authenticate with `docker exec $WEB_CONTAINER ./vendor/bin/drush uli` for admin/protected pages
-4. NEVER create JavaScript/Node.js/Playwright script files (`.js`, `.mjs`, `.ts`) to interact with the browser — always use MCP tools directly. If MCP connection fails, troubleshoot the connection (see playwright-browser-testing skill), do NOT generate scripts as a workaround
+4. NEVER create JavaScript/Node.js/Playwright script files (`.js`, `.mjs`, `.ts`) to interact with the browser — always use MCP tools directly. If MCP connection fails, troubleshoot the connection (see playwright-testing skill), do NOT generate scripts as a workaround
 
 ## Beads Task Tracking (MANDATORY)
 
@@ -97,7 +97,7 @@ browser_screenshot → "form-result.png"
 ```
 
 For detailed workflows, full tool reference, selectors table, and troubleshooting,
-see the **playwright-browser-testing** skill.
+see the **playwright-testing** skill.
 
 ## Decision Tree: Do I Need Authentication?
 
@@ -165,7 +165,7 @@ see the **playwright-browser-testing** skill.
 - **DO** take screenshots for documentation
 - **DO** test both anonymous and authenticated views
 - Playwright uses Chromium only (no Firefox/WebKit)
-- For Playwright troubleshooting, see the **playwright-browser-testing** skill
+- For Playwright troubleshooting, see the **playwright-testing** skill
 
 ## Language
 

@@ -268,6 +268,12 @@ docker exec $WEB_CONTAINER ./vendor/bin/phpunit --list-tests $DDEV_DOCROOT/modul
 docker exec $WEB_CONTAINER ./vendor/bin/phpunit --testdox $DDEV_DOCROOT/modules/custom/mymodule
 ```
 
+## Related Skills
+
+- **drupal-testing** — Full test lifecycle: kernel tests, functional tests, test execution, coverage (use for non-unit test types)
+- **quality-checks** — Code quality validation after writing tests
+- **drupal-debugging** — Test debugging commands and troubleshooting
+
 ## Rules
 
 1. Base class: `Drupal\Tests\UnitTestCase` (never `PHPUnit\Framework\TestCase`)
