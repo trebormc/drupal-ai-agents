@@ -10,12 +10,21 @@ This repository is **not** a DDEV add-on -- it is a configuration package that g
 
 ## Quick Install
 
-### With DDEV (recommended)
+### With DDEV AI Workspace (recommended)
 
-When you install [ddev-opencode](https://github.com/trebormc/ddev-opencode) or [ddev-claude-code](https://github.com/trebormc/ddev-claude-code), this repository is **automatically synced** via [ddev-agents-sync](https://github.com/trebormc/ddev-agents-sync). No manual clone is needed.
+The **recommended way** is to install the full [DDEV AI Workspace](https://github.com/trebormc/ddev-ai-workspace), which installs all tools and syncs this repository automatically with a single command:
 
 ```bash
-# Install OpenCode or Claude Code — agents are synced automatically
+ddev add-on get trebormc/ddev-ai-workspace
+ddev restart
+ddev opencode    # or: ddev claude-code
+```
+
+### With a single AI tool
+
+If you only install [ddev-opencode](https://github.com/trebormc/ddev-opencode) or [ddev-claude-code](https://github.com/trebormc/ddev-claude-code), this repository is also **automatically synced** via [ddev-agents-sync](https://github.com/trebormc/ddev-agents-sync). No manual clone is needed.
+
+```bash
 ddev add-on get trebormc/ddev-opencode
 ddev restart
 ddev opencode
