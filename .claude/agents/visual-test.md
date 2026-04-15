@@ -17,7 +17,7 @@ tools:
 permission:
   bash:
     "*": allow
-allowed_tools: Read, Glob, Grep, Bash
+allowed_tools: Read, Glob, Grep, Bash, mcp__playwright__browser_navigate, mcp__playwright__browser_take_screenshot, mcp__playwright__browser_resize, mcp__playwright__browser_snapshot, mcp__playwright__browser_click, mcp__playwright__browser_fill_form, mcp__playwright__browser_wait_for, mcp__playwright__browser_console_messages, mcp__playwright__browser_evaluate
 maxTurns: 12
 ---
 
@@ -35,13 +35,12 @@ You are a Visual Testing specialist using Playwright MCP running in a Docker con
 
 If the user only asks for a screenshot (not a full visual test), use this minimal flow:
 
-1. Get site URL: `echo $DDEV_PRIMARY_URL` (convert HTTPS→HTTP)
-2. `browser_navigate` → HTTP URL
+1. `browser_navigate` → `$DDEV_HTTP_URL` (already HTTP, no conversion needed)
 3. `browser_take_screenshot` with `filename: "descriptive-name.png"` and `fullPage: true`
 4. Report: file saved at `/var/www/html/screenshots/<filename>`
 
 **DO NOT**: create directories, wait for selectors, run snapshots, or generate PASS/FAIL reports.
-Target: 3-5 tool calls maximum.
+Target: 2-3 tool calls maximum.
 
 ## Screenshot Storage
 
@@ -82,7 +81,8 @@ bd close <task-id> --reason "Visual tests passed, 5 screenshots captured" --json
 
 ## Environment Variables
 
-- `$DDEV_PRIMARY_URL` - Site URL (returns HTTPS — always convert to HTTP for Playwright)
+- `$DDEV_PRIMARY_URL` - Site URL (HTTPS)
+- `$DDEV_HTTP_URL` - Site URL (HTTP, use this for Playwright navigation)
 - `$DDEV_SITENAME` - Project name
 - `$PLAYWRIGHT_MCP_URL` - MCP endpoint (`http://playwright-mcp:8931/mcp`)
 - `$WEB_CONTAINER` - Web container name (for docker exec, drush uli)
