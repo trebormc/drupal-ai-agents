@@ -1,3 +1,6 @@
+[![last commit](https://img.shields.io/github/last-commit/trebormc/drupal-ai-agents)](https://github.com/trebormc/drupal-ai-agents/commits)
+[![release](https://img.shields.io/github/v/release/trebormc/drupal-ai-agents)](https://github.com/trebormc/drupal-ai-agents/releases/latest)
+
 # Drupal AI Agents
 
 The **brain** of the [DDEV AI Workspace](https://github.com/trebormc/ddev-ai-workspace). A comprehensive set of AI agents, rules, skills, and configuration for **Drupal 10/11** development. Designed for [OpenCode](https://opencode.ai) and [Claude Code](https://docs.anthropic.com/en/docs/claude-code), compatible with [DDEV](https://ddev.readthedocs.io/) environments.
