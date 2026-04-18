@@ -63,25 +63,66 @@ opencode
 
 ```
 drupal-ai-agents/
-├── CLAUDE.md                   Main instructions (language, design, environment, agents)
-├── opencode.json.example       OpenCode config template (copy to opencode.json)
-├── opencode-notifier.json      Notification bridge config (used automatically)
-├── .env.agents                 Model alias definitions (tokens → real model names)
-├── agent/                      13 agent definitions (.md files with fat frontmatter)
-│   ├── drupal-dev.md
-│   ├── drupal-theme.md
-│   ├── code-review.md
-│   └── ...
-├── rules/                      4 rule sets loaded as instructions
-│   ├── drupal-essentials.md
-│   ├── beads-workflow.md
-│   ├── quality-tools-setup.md
-│   └── lessons-learned.md
-├── skills/                     14 reusable skills
-│   ├── drupal-audit/SKILL.md
-│   ├── drupal-module-scaffold/SKILL.md
-│   └── ...
-└── install.sh                  Installation helper script (standalone mode)
+├── CLAUDE.md                          Main instructions (language, design, environment, agents)
+├── opencode.json.example             OpenCode config template (copy to opencode.json)
+├── opencode-notifier.json            Notification bridge config (used automatically)
+├── .env.agents                       Model alias definitions (tokens → real model names)
+├── install.sh                        Installation helper script (standalone mode)
+├── .claude/
+│   ├── settings.json                 Claude Code permissions and hooks
+│   ├── agents/                       10 agent definitions (.md files with fat frontmatter)
+│   │   ├── applier.md
+│   │   ├── code-explorer.md
+│   │   ├── code-review.md
+│   │   ├── deep-research.md
+│   │   ├── drupal-dev.md
+│   │   ├── drupal-test-generator.md
+│   │   ├── drupal-theme.md
+│   │   ├── output-verifier.md
+│   │   ├── ralph-planner.md
+│   │   └── visual-test.md
+│   ├── rules/                        12 rule sets loaded as instructions
+│   │   ├── applier-protocol.md
+│   │   ├── beads-workflow.md
+│   │   ├── config-management.md
+│   │   ├── ddev-environment.md
+│   │   ├── drupal-coding-standards.md
+│   │   ├── drupal-testing.md
+│   │   ├── git-workflow.md
+│   │   ├── lessons-learned.md
+│   │   ├── quality-tools-setup.md
+│   │   ├── security-rules.md
+│   │   ├── services-conventions.md
+│   │   └── twig-patterns.md
+│   └── skills/                       24 reusable skills
+│       ├── beads-task-tracking/SKILL.md
+│       ├── commit-message/SKILL.md
+│       ├── config-management/SKILL.md
+│       ├── drupal-audit-setup/SKILL.md
+│       ├── drupal-behat-test/SKILL.md
+│       ├── drupal-code-patterns/SKILL.md
+│       ├── drupal-debugging/SKILL.md
+│       ├── drupal-functional-test/SKILL.md
+│       ├── drupal-functionaljs-test/SKILL.md
+│       ├── drupal-kernel-test/SKILL.md
+│       ├── drupal-migration/SKILL.md
+│       ├── drupal-playwright-test/SKILL.md
+│       ├── drupal-testing/SKILL.md
+│       ├── drupal-unit-test/SKILL.md
+│       ├── drupal-update/SKILL.md
+│       ├── drush-commands/SKILL.md
+│       ├── module-scaffold/SKILL.md
+│       ├── performance-audit/SKILL.md
+│       ├── playwright-testing/SKILL.md
+│       ├── quality-checks/SKILL.md
+│       ├── skill-creator/SKILL.md
+│       ├── tailwind-drupal/SKILL.md
+│       ├── twig-audit/SKILL.md
+│       └── xdebug-profiling/SKILL.md
+└── docs/                             Additional documentation
+    ├── architecture.md
+    ├── model-strategy.md
+    └── ralph-loop.md
 ```
 
 ## Model Token System
@@ -153,20 +194,17 @@ During sync, [ddev-agents-sync](https://github.com/trebormc/ddev-agents-sync) ge
 
 | Agent | Token | Purpose |
 |-------|-------|---------|
-| `drupal-dev` | `MODEL_CHEAP` | Backend: modules, services, entities, plugins, APIs |
-| `drupal-theme` | `MODEL_CHEAP` | Frontend: Twig, CSS, JS, Tailwind, responsive |
+| `drupal-dev` | `MODEL_NORMAL` | Backend: modules, services, entities, plugins, APIs |
+| `drupal-theme` | `MODEL_NORMAL` | Frontend: Twig, CSS, JS, Tailwind, responsive |
 | `drupal-test-generator` | `MODEL_NORMAL` | Test generation: analyzes code, picks type, generates tests |
-| `drupal-perf` | `MODEL_CHEAP` | Performance: caching, queries, bottlenecks |
-| `drupal-update` | `MODEL_CHEAP` | Updates: Composer, security patches, migrations |
-| `twig-audit` | `MODEL_CHEAP` | Templates: anti-patterns, cache bubbling, raw filter |
 
 ### Quality and Validation
 
 | Agent | Token | Purpose |
 |-------|-------|---------|
-| `code-review` | `MODEL_SMART` | Quality gate: architecture, security, performance review |
+| `code-review` | `MODEL_SMART` | Quality gate: correctness, security, Drupal quality, performance |
 | `output-verifier` | `MODEL_SMART` | Validate outputs with high confidence |
-| `visual-test` | `MODEL_CHEAP` | Playwright browser screenshots and UI checks |
+| `visual-test` | `MODEL_NORMAL` | Playwright browser screenshots and UI checks |
 
 ### Utilities
 
@@ -175,52 +213,85 @@ During sync, [ddev-agents-sync](https://github.com/trebormc/ddev-agents-sync) ge
 | `code-explorer` | `MODEL_CHEAP` | Codebase exploration and analysis |
 | `applier` | `MODEL_APPLIER` | Mechanical code application (SEARCH/REPLACE) |
 | `ralph-planner` | `MODEL_SMART` | Generate requirements.md for Ralph Loop |
-| `deep-research` | `MODEL_SMART` | Multi-source research and investigation |
+| `deep-research` | `MODEL_NORMAL` | Multi-source research and investigation |
 
 ## Rules
 
-Rules are loaded as global instructions for every session:
+Rules are loaded as global instructions. Some are path-scoped (activate only for matching file types), others apply globally.
 
-| File | Purpose |
-|------|---------|
-| `rules/drupal-essentials.md` | Drupal coding standards, security, dependency injection |
-| `rules/drupal-testing.md` | Test type decision tree, D10 vs D11 differences, common rules |
-| `rules/beads-workflow.md` | Beads task tracking workflow |
-| `rules/quality-tools-setup.md` | PHPUnit, PHPStan, PHPCS setup and usage |
-| `rules/lessons-learned.md` | Self-learning system. Agents record lessons for future sessions |
+| File | Scope | Purpose |
+|------|-------|---------|
+| `drupal-coding-standards.md` | `*.php` | Strict types, 2-space indent, type hints, DI, cache metadata, quality checklist |
+| `twig-patterns.md` | `*.twig` | Presentation only, render full fields, cache bubbling, anti-patterns |
+| `drupal-testing.md` | Global | Test type decision tree, D10 vs D11 differences, common rules |
+| `beads-workflow.md` | Global | Beads task tracking: session start, during work, session end |
+| `quality-tools-setup.md` | Global | PHPStan, PHPCS, Rector, GrumPHP, PHPUnit setup (Audit module priority) |
+| `lessons-learned.md` | Global | Self-learning protocol: document problems and solutions |
+| `services-conventions.md` | Global | Service definitions, DI, interfaces, event subscribers, tagging |
+| `applier-protocol.md` | Global | SEARCH/REPLACE block format for code changes |
+| `config-management.md` | Global | Config export/import, config_split, schema validation |
+| `security-rules.md` | Global | Input sanitization, DB placeholders, route access, CSRF |
+| `ddev-environment.md` | Global | Docker exec commands, environment variables, Audit module priority |
+| `git-workflow.md` | Global | Agents must NOT commit/push; user controls git operations |
 
 ## Skills
 
 Reusable skill definitions that agents can invoke:
 
+### Testing
+
 | Skill | Description |
 |-------|-------------|
-| `beads-task-tracking` | Git-backed task tracking with Beads (bd) |
-| `drupal-audit` | Code quality audits using the Drupal Audit module |
-| `drupal-audit-setup` | Install and configure the Drupal Audit module |
-| `drupal-config-management` | Configuration export/import, config_split, schema validation |
-| `drupal-debugging` | Inspect services, entities, cache, watchdog logs, database queries |
-| `drupal-migration` | D7-to-D10/D11 upgrades, custom migrations (CSV, JSON, API, SQL) |
-| `drupal-module-scaffold` | Scaffold a new module with PSR-4 structure |
-| `drupal-testing` | Test orchestrator: analyzes code, delegates to specialized test skills |
+| `drupal-testing` | Test orchestrator: analyzes code, determines type, delegates to specialized skills |
 | `drupal-unit-test` | Unit tests with proper mocking patterns |
 | `drupal-kernel-test` | Kernel tests: services, entities, DB, config, plugins, hooks |
 | `drupal-functional-test` | Functional tests: forms, permissions, HTML output |
-| `drupal-functionaljs-test` | FunctionalJavascript: AJAX, modals, autocompletes |
+| `drupal-functionaljs-test` | FunctionalJavascript: AJAX, modals, autocompletes, WebDriverTestBase |
 | `drupal-behat-test` | Behat: BDD, acceptance testing, Gherkin scenarios |
 | `drupal-playwright-test` | Playwright: visual regression, cross-browser, E2E test files |
+
+### Development
+
+| Skill | Description |
+|-------|-------------|
+| `module-scaffold` | Scaffold a new module with PSR-4 structure |
+| `drupal-code-patterns` | Reference patterns: forms, blocks, routing, controllers, Batch/Queue API |
+| `drupal-migration` | D7-to-D10/D11 upgrades, custom migrations (CSV, JSON, API, SQL) |
+| `drupal-update` | Safe Composer update workflow: core, contrib, security patches |
+| `config-management` | Configuration export/import, config_split, schema validation |
+| `drupal-debugging` | Inspect services, entities, cache, watchdog logs, database queries |
 | `drush-commands` | Cache clearing, database updates, module management, cron |
-| `playwright-browser-testing` | Browser testing with Playwright MCP (interactive) |
-| `run-quality-checks` | Full quality pipeline: Audit module primary, raw PHPCS/PHPStan fallback |
-| `skill-creator` | Create and validate new OpenCode skills |
+
+### Quality and Performance
+
+| Skill | Description |
+|-------|-------------|
+| `quality-checks` | Full quality pipeline: Audit module primary, raw PHPCS/PHPStan fallback |
+| `drupal-audit-setup` | Install and configure the Drupal Audit module |
+| `performance-audit` | Caching, queries, lazy builders, bottlenecks, N+1 detection |
+| `twig-audit` | Template anti-patterns, cache bubbling, raw filter misuse |
+
+### Browser and UI
+
+| Skill | Description |
+|-------|-------------|
+| `playwright-testing` | Interactive browser testing with Playwright MCP (navigation, screenshots) |
 | `tailwind-drupal` | TailwindCSS setup and usage in Drupal themes |
+
+### Workflow and Utilities
+
+| Skill | Description |
+|-------|-------------|
+| `beads-task-tracking` | Git-backed task tracking with Beads (bd) |
+| `commit-message` | Generate commit messages from git diff (Conventional Commits format) |
 | `xdebug-profiling` | Xdebug tracing and profiling for debugging and performance |
+| `skill-creator` | Create and validate new OpenCode skills |
 
 ## Customization
 
 ### Adding your own agents
 
-Create a `.md` file in `agent/` with fat frontmatter and a system prompt:
+Create a `.md` file in `.claude/agents/` with fat frontmatter and a system prompt:
 
 ```yaml
 ---
@@ -242,23 +313,24 @@ allowed_tools: Read, Glob, Grep
 You are a code review specialist...
 ```
 
-The agent is auto-discovered from the `agent/` directory. Use model tokens (`${MODEL_SMART}`, `${MODEL_NORMAL}`, `${MODEL_CHEAP}`, `${MODEL_APPLIER}`) so the sync script resolves them correctly for each tool.
+The agent is auto-discovered from the `.claude/agents/` directory. Use model tokens (`${MODEL_SMART}`, `${MODEL_NORMAL}`, `${MODEL_CHEAP}`, `${MODEL_APPLIER}`) so the sync script resolves them correctly for each tool.
 
 ### Adding rules
 
-1. Create a `.md` file in the `rules/` directory.
-2. Add its path to the `instructions` array in `opencode.json`.
+1. Create a `.md` file in the `.claude/rules/` directory.
+2. For OpenCode: add its path to the `instructions` array in `opencode.json`.
+3. For Claude Code: rules in `.claude/rules/` are auto-discovered.
 
 ### Adding skills
 
-1. Create a `SKILL.md` file in `skills/{skill-name}/` following the [Agent Skills specification](https://agentskills.io).
-2. Skills are auto-discovered from the `skills/` directory. No config changes needed.
+1. Create a `SKILL.md` file in `.claude/skills/{skill-name}/` following the [Agent Skills specification](https://agentskills.io).
+2. Skills are auto-discovered from the `.claude/skills/` directory. No config changes needed.
 
 ### Private agent repo
 
 To add custom agents without forking this repo:
 
-1. Create a git repository with the same structure (`agent/`, `rules/`, `skills/`, `.env.agents`).
+1. Create a git repository with the same structure (`.claude/agents/`, `.claude/rules/`, `.claude/skills/`, `.env.agents`).
 2. Add it to `AGENTS_REPOS` in `.ddev/.env.agents-sync`:
    ```bash
    AGENTS_REPOS=https://github.com/trebormc/drupal-ai-agents.git,https://github.com/your-org/private-agents.git
