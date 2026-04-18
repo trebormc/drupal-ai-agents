@@ -160,10 +160,10 @@ foreach (array_slice(\$fns, 0, 20) as \$fn => \$cost) {
 
 ```bash
 # Trace a Drush command (XDEBUG_MODE env var = single-command, zero impact)
-ssh web bash -c 'XDEBUG_MODE=trace php -d xdebug.start_with_request=yes -d xdebug.output_dir=/tmp/xdebug -d xdebug.trace_format=1 -d xdebug.collect_return=1 -d xdebug.trace_output_name=trace.%t.%p ./vendor/bin/drush cr'
+ssh web bash -c 'XDEBUG_MODE=trace php -d xdebug.start_with_request=yes -d xdebug.output_dir=/tmp/xdebug -d xdebug.trace_format=1 -d xdebug.collect_return=1 -d xdebug.trace_output_name=trace.%t.%p drush cr'
 
 # Profile a Drush command
-ssh web bash -c 'XDEBUG_MODE=profile php -d xdebug.start_with_request=yes -d xdebug.output_dir=/tmp/xdebug -d xdebug.profiler_output_name=cachegrind.out.%t.%p ./vendor/bin/drush status'
+ssh web bash -c 'XDEBUG_MODE=profile php -d xdebug.start_with_request=yes -d xdebug.output_dir=/tmp/xdebug -d xdebug.profiler_output_name=cachegrind.out.%t.%p drush status'
 ```
 
 ## ALWAYS: Disable and Cleanup

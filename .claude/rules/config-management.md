@@ -9,7 +9,7 @@ globs:
 
 ## Rules
 
-- **Always export after changes**: `ssh web ./vendor/bin/drush cex -y`
+- **Always export after changes**: `ssh web drush cex -y`
 - **Never edit config YAML files manually** — use Drupal admin UI or drush, then export
 - **Use config_split** for environment-specific config (dev modules, performance settings)
 - **Validate schema** — ensure `.schema.yml` exists for custom config
@@ -18,13 +18,13 @@ globs:
 
 ```bash
 # Export config
-ssh web ./vendor/bin/drush cex -y
+ssh web drush cex -y
 
 # Import config
-ssh web ./vendor/bin/drush cim -y
+ssh web drush cim -y
 
 # Check status (pending changes)
-ssh web ./vendor/bin/drush config:status
+ssh web drush config:status
 ```
 
 ## Config Split

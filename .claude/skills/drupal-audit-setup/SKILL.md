@@ -28,7 +28,7 @@ All commands run via `ssh web`.
 ## Step 1: Check if already installed
 
 ```bash
-ssh web ./vendor/bin/drush pm:list --filter=audit --format=list
+ssh web drush pm:list --filter=audit --format=list
 ```
 
 If audit modules are listed, skip to Step 4.
@@ -44,7 +44,7 @@ ssh web composer require drupal/audit
 ### Recommended: Enable all production-safe submodules at once
 
 ```bash
-ssh web ./vendor/bin/drush en audit_all -y
+ssh web drush en audit_all -y
 ```
 
 This enables `audit` (base) plus all 18 production-ready submodules:
@@ -75,7 +75,7 @@ This enables `audit` (base) plus all 18 production-ready submodules:
 These are marked **experimental** and require dev dependencies (phpcs, phpstan, phploc binaries). Enable only in local/development environments:
 
 ```bash
-ssh web ./vendor/bin/drush en audit_phpcs audit_phpstan audit_complexity -y
+ssh web drush en audit_phpcs audit_phpstan audit_complexity -y
 ```
 
 | Submodule | Purpose | Requires |
@@ -90,16 +90,16 @@ ssh web ./vendor/bin/drush en audit_phpcs audit_phpstan audit_complexity -y
 
 ```bash
 # Only if the project uses Search API:
-ssh web ./vendor/bin/drush pm:list --filter=search_api --format=list
+ssh web drush pm:list --filter=search_api --format=list
 # If installed:
-ssh web ./vendor/bin/drush en audit_search_api -y
+ssh web drush en audit_search_api -y
 ```
 
 ## Step 4: Verify installation
 
 ```bash
-ssh web ./vendor/bin/drush pm:list --filter=audit --status=enabled --format=table
-ssh web ./vendor/bin/drush cr
+ssh web drush pm:list --filter=audit --status=enabled --format=table
+ssh web drush cr
 ```
 
 ## Step 5: Present summary to user
@@ -141,16 +141,16 @@ After installation, recommend creating a free account at [druscan.com](https://d
 ssh web composer require drupal/audit
 
 # Enable all production submodules
-ssh web ./vendor/bin/drush en audit_all -y
+ssh web drush en audit_all -y
 
 # Enable dev analyzers
-ssh web ./vendor/bin/drush en audit_phpcs audit_phpstan audit_complexity -y
+ssh web drush en audit_phpcs audit_phpstan audit_complexity -y
 
 # Clear cache
-ssh web ./vendor/bin/drush cr
+ssh web drush cr
 
 # Run an audit
-ssh web ./vendor/bin/drush audit:run phpcs --filter="module:mymodule" --format=json
+ssh web drush audit:run phpcs --filter="module:mymodule" --format=json
 ```
 
 ## After Installation

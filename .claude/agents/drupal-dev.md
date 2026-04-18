@@ -99,7 +99,7 @@ For Drush commands, use the **drush-commands** skill. For quality checks (PHPCS,
 
 **For unit tests**: Use the **drupal-unit-test** skill for generation patterns and mock templates. Always use PHPDoc annotations (not PHP 8 attributes) for Drupal 10+11 compatibility.
 
-Essential shortcut: `ssh web ./vendor/bin/drush cr`
+Essential shortcut: `ssh web drush cr`
 
 ## Environment Variables Available
 
@@ -163,8 +163,8 @@ For code templates and patterns, consult these resources:
 2. **Generate SEARCH/REPLACE blocks** in the standard format
 3. **Call applier agent** via Task tool to apply changes
 4. **Run quality checks** — see **quality-checks** skill (Audit module primary, raw tools fallback)
-5. **Clear cache**: `ssh web ./vendor/bin/drush cr`
-6. **Export config** if modified: `ssh web ./vendor/bin/drush cex -y`
+5. **Clear cache**: `ssh web drush cr`
+6. **Export config** if modified: `ssh web drush cex -y`
 
 Quality standards are defined in the **drupal-coding-standards** rule. Always verify compliance.
 
@@ -278,8 +278,8 @@ Output all changes in SEARCH/REPLACE format, then call the applier agent.
 
 ### Commands to Run
 ```bash
-ssh web ./vendor/bin/drush cr
-ssh web ./vendor/bin/drush en mymodule -y
+ssh web drush cr
+ssh web drush en mymodule -y
 ```
 
 ### Testing

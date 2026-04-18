@@ -29,7 +29,7 @@ New classes that aren't compiled will NOT appear in the browser.
 ssh web npm run build --prefix $DDEV_DOCROOT/themes/custom/<THEME>
 
 # 2. Clear Drupal cache (renders may reference old CSS)
-ssh web ./vendor/bin/drush cr
+ssh web drush cr
 
 # 3. Verify in browser with hard refresh (Ctrl+Shift+R / Cmd+Shift+R)
 #    Or use Playwright with cache disabled for testing
@@ -152,7 +152,7 @@ ssh web npm run dev --prefix $DDEV_DOCROOT/themes/custom/<THEME>
 ssh web npm run build --prefix $DDEV_DOCROOT/themes/custom/<THEME>
 
 # After build, ALWAYS clear Drupal cache
-ssh web ./vendor/bin/drush cr
+ssh web drush cr
 ```
 
 ## Responsive breakpoints
@@ -192,7 +192,7 @@ ssh web npm run build --prefix $DDEV_DOCROOT/themes/custom/<THEME>
 ssh web grep "your-class" $DDEV_DOCROOT/themes/custom/<THEME>/css/styles.css
 
 # 3. Clear Drupal cache
-ssh web ./vendor/bin/drush cr
+ssh web drush cr
 
 # 4. Test in browser (use Playwright or hard refresh)
 ```

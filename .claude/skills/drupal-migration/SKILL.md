@@ -14,13 +14,13 @@ description: >-
 
 ## Environment
 
-All commands via `ssh web ./vendor/bin/drush`.
+All commands via `ssh web drush`.
 
 ## Required modules
 
 ```bash
 ssh web composer require drupal/migrate_plus drupal/migrate_tools drupal/migrate_upgrade
-ssh web ./vendor/bin/drush en migrate migrate_plus migrate_tools -y
+ssh web drush en migrate migrate_plus migrate_tools -y
 ```
 
 ## Migration YAML structure
@@ -61,35 +61,35 @@ migration_dependencies:
 
 | Task | Command |
 |------|---------|
-| List migrations | `ssh web ./vendor/bin/drush migrate:status` |
-| Run migration | `ssh web ./vendor/bin/drush migrate:import my_migration` |
-| Run with limit | `ssh web ./vendor/bin/drush migrate:import my_migration --limit=10` |
-| Rollback | `ssh web ./vendor/bin/drush migrate:rollback my_migration` |
-| Reset stuck | `ssh web ./vendor/bin/drush migrate:reset my_migration` |
-| Run all in group | `ssh web ./vendor/bin/drush migrate:import --group=my_group` |
-| Update existing | `ssh web ./vendor/bin/drush migrate:import my_migration --update` |
+| List migrations | `ssh web drush migrate:status` |
+| Run migration | `ssh web drush migrate:import my_migration` |
+| Run with limit | `ssh web drush migrate:import my_migration --limit=10` |
+| Rollback | `ssh web drush migrate:rollback my_migration` |
+| Reset stuck | `ssh web drush migrate:reset my_migration` |
+| Run all in group | `ssh web drush migrate:import --group=my_group` |
+| Update existing | `ssh web drush migrate:import my_migration --update` |
 
 ## D7 to D10/D11 workflow
 
 ### Step 1: Generate migration config
 ```bash
-ssh web ./vendor/bin/drush migrate:upgrade --legacy-db-key=d7 --configure-only
+ssh web drush migrate:upgrade --legacy-db-key=d7 --configure-only
 ```
 
 ### Step 2: Review and customize
 ```bash
-ssh web ./vendor/bin/drush cex -y
+ssh web drush cex -y
 # Review migrate_plus.migration.* files in config/sync/
 ```
 
 ### Step 3: Test with limits
 ```bash
-ssh web ./vendor/bin/drush migrate:import upgrade_d7_node_article --limit=5
+ssh web drush migrate:import upgrade_d7_node_article --limit=5
 ```
 
 ### Step 4: Verify and run full
 ```bash
-ssh web ./vendor/bin/drush migrate:import --all
+ssh web drush migrate:import --all
 ```
 
 ## Custom source plugin template
@@ -154,8 +154,8 @@ final class MyCustomSource extends SqlBase {
 
 ```bash
 # Check migration status after run
-ssh web ./vendor/bin/drush migrate:status --format=table
+ssh web drush migrate:status --format=table
 
 # Verify migrated content count
-ssh web ./vendor/bin/drush sqlq "SELECT COUNT(*) FROM node WHERE type = 'article'"
+ssh web drush sqlq "SELECT COUNT(*) FROM node WHERE type = 'article'"
 ```

@@ -151,7 +151,7 @@ Screenshots auto-save to `<project-root>/screenshots/` via a Docker volume mount
 
 ```bash
 # 1. Generate one-time admin login link
-ssh web ./vendor/bin/drush uli
+ssh web drush uli
 # Output: https://project.ddev.site/user/reset/1/123456/abc/login
 
 # 2. CRITICAL: Convert HTTPS to HTTP
@@ -175,7 +175,7 @@ ssh web ./vendor/bin/drush uli
 ### 403 Forbidden recovery flow
 
 1. `browser_navigate` → target URL
-2. If 403 → `ssh web ./vendor/bin/drush uli`
+2. If 403 → `ssh web drush uli`
 3. Convert HTTPS to HTTP in returned URL
 4. `browser_navigate` → http login URL
 5. `browser_navigate` → target URL again (now authenticated)
@@ -192,7 +192,7 @@ ssh web ./vendor/bin/drush uli
 
 ### Admin page testing
 
-1. `ssh web ./vendor/bin/drush uli`
+1. `ssh web drush uli`
 2. Convert HTTPS → HTTP
 3. `browser_navigate` → http login URL
 4. `browser_navigate` → `http://<project>.ddev.site/admin/content`
@@ -233,7 +233,7 @@ ssh web ./vendor/bin/drush uli
 | SSL/certificate errors | Convert HTTPS to HTTP in ALL URLs |
 | 403 Forbidden | Authenticate with `drush uli` first |
 | Element not found | Use `browser_snapshot` to see available elements, then `browser_wait_for` |
-| Site not accessible | `ssh web ./vendor/bin/drush status` |
+| Site not accessible | `ssh web drush status` |
 | Screenshots not saving | Use `filename` parameter in `browser_take_screenshot` — directory is auto-created by Docker volume mount |
 
 ## When to use curl (exceptions)

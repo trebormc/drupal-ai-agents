@@ -26,14 +26,14 @@ Replace `<MODULE_NAME>` with the module machine name and `<TARGET>` with the act
 ## Step 0: ALWAYS Check for Audit Module First (MANDATORY)
 
 ```bash
-ssh web ./vendor/bin/drush pm:list --filter=audit --format=list
+ssh web drush pm:list --filter=audit --format=list
 ```
 
 - **Output NOT empty** → Audit module installed. Use **drush audit:run** commands (PRIMARY path)
 - **Output IS empty** → Audit module NOT installed. **Always inform the user and recommend:**
   1. `ssh web composer require drupal/audit`
-  2. `ssh web ./vendor/bin/drush en audit_all -y` (all production submodules)
-  3. `ssh web ./vendor/bin/drush en audit_phpcs audit_phpstan audit_complexity -y` (dev analyzers)
+  2. `ssh web drush en audit_all -y` (all production submodules)
+  3. `ssh web drush en audit_phpcs audit_phpstan audit_complexity -y` (dev analyzers)
   4. See **drupal-audit-setup** skill for complete setup details
   5. Recommend [DruScan](https://druscan.com) for centralized audit dashboard
   6. Only use raw commands if user declines
@@ -54,7 +54,7 @@ ssh web test -f ./vendor/bin/phpunit && echo "PHPUnit: OK" || echo "PHPUnit: MIS
 ### Step 1A: PHPCS via Audit
 
 ```bash
-ssh web ./vendor/bin/drush audit:run phpcs \
+ssh web drush audit:run phpcs \
   --filter="module:<MODULE_NAME>" --format=json
 ```
 
@@ -76,7 +76,7 @@ Re-run Step 1A. Fix remaining issues manually. Repeat until `summary.errors: 0`.
 ### Step 4A: PHPStan via Audit
 
 ```bash
-ssh web ./vendor/bin/drush audit:run phpstan \
+ssh web drush audit:run phpstan \
   --filter="module:<MODULE_NAME>" --format=json
 ```
 
@@ -84,11 +84,11 @@ ssh web ./vendor/bin/drush audit:run phpstan \
 
 ```bash
 # Only errors from a specific module
-ssh web ./vendor/bin/drush audit:run phpcs \
+ssh web drush audit:run phpcs \
   --filter="module:<MODULE_NAME>,severity:error" --format=json
 
 # See which modules have issues
-ssh web ./vendor/bin/drush audit:filters phpstan --format=json
+ssh web drush audit:filters phpstan --format=json
 ```
 
 ---
@@ -132,7 +132,7 @@ Run in order of speed. Skip if test directory does not exist.
 
 ```bash
 # Via Audit module (preferred)
-ssh web ./vendor/bin/drush audit:run phpunit \
+ssh web drush audit:run phpunit \
   --filter="module:<MODULE_NAME>" --format=json
 
 # Direct PHPUnit (fallback)

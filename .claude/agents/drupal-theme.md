@@ -88,7 +88,7 @@ For Drush commands see the **drush-commands** skill. After modifying templates, 
 
 | Task | Command |
 |------|---------|
-| Clear cache | `ssh web ./vendor/bin/drush cr` |
+| Clear cache | `ssh web drush cr` |
 | Build theme | `ssh web npm run build --prefix $DDEV_DOCROOT/themes/custom/<THEME>` |
 | Watch mode | `ssh web npm run dev --prefix $DDEV_DOCROOT/themes/custom/<THEME>` |
 | Install deps | `ssh web npm install --prefix $DDEV_DOCROOT/themes/custom/<THEME>` |
@@ -204,7 +204,7 @@ you MUST recompile and clear caches:
 # 1. Recompile CSS
 ssh web npm run build --prefix $DDEV_DOCROOT/themes/custom/<THEME>
 # 2. Clear Drupal cache
-ssh web ./vendor/bin/drush cr
+ssh web drush cr
 # 3. Hard refresh browser (Ctrl+Shift+R)
 ```
 
@@ -232,7 +232,7 @@ ssh web ./vendor/bin/drush cr
 6. **Test and validate:**
    ```bash
    ssh web npm run build --prefix $DDEV_DOCROOT/themes/custom/mytheme
-   ssh web ./vendor/bin/drush cr
+   ssh web drush cr
    ```
    Check: all breakpoints, accessibility, no console errors, no debug code.
 
@@ -304,7 +304,7 @@ $DDEV_DOCROOT/themes/custom/mytheme/src/input.css (modified)
 ### Commands to Run
 ```bash
 ssh web npm run build --prefix $DDEV_DOCROOT/themes/custom/mytheme
-ssh web ./vendor/bin/drush cr
+ssh web drush cr
 ```
 
 ### Preview

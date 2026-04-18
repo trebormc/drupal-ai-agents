@@ -10,7 +10,7 @@ You run inside an AI container (OpenCode or Claude Code). ALL PHP/Drupal command
 
 ```bash
 # CORRECT
-ssh web ./vendor/bin/drush cr
+ssh web drush cr
 
 # WRONG
 drush cr                                    # Missing ssh web
@@ -20,7 +20,7 @@ ssh web drush cr         # Missing ./vendor/bin/ path
 
 ## Critical Rules
 
-- **Always use `./vendor/bin/drush`** — never just `drush`
+- **Use `ssh web drush <command>`** to run Drush commands (drush is in the web container's PATH)
 - **Never hardcode `web/`** — use `$DDEV_DOCROOT` (detect with: `grep "^docroot:" .ddev/config.yaml`)
 - **Use HTTP not HTTPS** for Playwright browser navigation (avoids SSL errors in DDEV)
 
@@ -38,7 +38,7 @@ ssh web drush cr         # Missing ./vendor/bin/ path
 
 Always check for the Audit module first:
 ```bash
-ssh web ./vendor/bin/drush pm:list --filter=audit --format=list
+ssh web drush pm:list --filter=audit --format=list
 ```
 If installed, use `drush audit:run phpcs/phpstan/phpunit --filter="module:NAME" --format=json`.
 If not installed, recommend `composer require drupal/audit`. Fall back to raw tools only if user declines.

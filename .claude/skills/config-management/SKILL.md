@@ -17,7 +17,7 @@ description: >-
 
 ## Environment
 
-All commands via `ssh web ./vendor/bin/drush`.
+All commands via `ssh web drush`.
 Config sync directory: `config/sync/` (relative to project root).
 
 ## Config export/import workflow
@@ -25,19 +25,19 @@ Config sync directory: `config/sync/` (relative to project root).
 ### Standard workflow
 ```bash
 # Export (after making changes in UI or code)
-ssh web ./vendor/bin/drush cex -y
+ssh web drush cex -y
 
 # Import (when pulling changes from git)
-ssh web ./vendor/bin/drush cim -y
+ssh web drush cim -y
 
 # Preview what will change on import
-ssh web ./vendor/bin/drush cim --diff
+ssh web drush cim --diff
 ```
 
 ### Resolving import conflicts
 ```bash
 # Check current config status
-ssh web ./vendor/bin/drush config:status
+ssh web drush config:status
 
 # "Only in sync dir" — new config to import
 # "Only in DB" — needs export or was deleted intentionally
@@ -49,7 +49,7 @@ ssh web ./vendor/bin/drush config:status
 ### Installation
 ```bash
 ssh web composer require drupal/config_split
-ssh web ./vendor/bin/drush en config_split -y
+ssh web drush en config_split -y
 ```
 
 ### Directory structure
@@ -127,11 +127,11 @@ $config['smtp.settings']['smtp_password'] = getenv('SMTP_PASSWORD');
 
 ```bash
 # Check config sync status
-ssh web ./vendor/bin/drush config:status
+ssh web drush config:status
 
 # Validate config schema (check for missing schemas)
-ssh web ./vendor/bin/drush config:inspect
+ssh web drush config:inspect
 
 # Verify config split is active
-ssh web ./vendor/bin/drush config:get config_split.config_split.dev status
+ssh web drush config:get config_split.config_split.dev status
 ```

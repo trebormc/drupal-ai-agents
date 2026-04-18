@@ -17,16 +17,16 @@ metadata:
 
 ```bash
 # Enabled modules count
-ssh web ./vendor/bin/drush pm:list --status=enabled --format=list | wc -l
+ssh web drush pm:list --status=enabled --format=list | wc -l
 
 # Recent watchdog entries
-ssh web ./vendor/bin/drush watchdog:show --type=php --count=20
+ssh web drush watchdog:show --type=php --count=20
 
 # Clear cache
-ssh web ./vendor/bin/drush cr
+ssh web drush cr
 
 # Database status
-ssh web ./vendor/bin/drush sqlq "SHOW STATUS LIKE 'Slow_queries'"
+ssh web drush sqlq "SHOW STATUS LIKE 'Slow_queries'"
 ```
 
 For function-level profiling, use the **xdebug-profiling** skill.

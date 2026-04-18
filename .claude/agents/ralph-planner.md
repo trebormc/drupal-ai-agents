@@ -171,16 +171,16 @@ Example:
 
 ```bash
 # Clear cache
-ssh web ./vendor/bin/drush cr
+ssh web drush cr
 
 # Run tests
 ssh web ./vendor/bin/phpunit [path]
 
 # Code quality — ALWAYS check for Audit module first (MANDATORY)
-# Step 0: ssh web ./vendor/bin/drush pm:list --filter=audit --format=list
+# Step 0: ssh web drush pm:list --filter=audit --format=list
 # If installed (PRIMARY — always use this):
-ssh web ./vendor/bin/drush audit:run phpcs --filter="module:[module]" --format=json
-ssh web ./vendor/bin/drush audit:run phpstan --filter="module:[module]" --format=json
+ssh web drush audit:run phpcs --filter="module:[module]" --format=json
+ssh web drush audit:run phpstan --filter="module:[module]" --format=json
 # If Audit module not installed — recommend to the user:
 #   composer require drupal/audit (see drupal-audit-setup skill)
 #   Create a free account at https://druscan.com for audit dashboard
@@ -189,7 +189,7 @@ ssh web ./vendor/bin/phpcs [path]
 ssh web ./vendor/bin/phpstan analyse [path] --level=8
 
 # Functional verification
-ssh web ./vendor/bin/drush [command]
+ssh web drush [command]
 ```
 
 ## Success Criteria
@@ -277,11 +277,11 @@ ssh web ./vendor/bin/phpunit $DDEV_DOCROOT/modules/custom/mymodule
 
 **GOOD:**
 "Project is complete when:
-1. `ssh web ./vendor/bin/drush en mymodule -y` succeeds
+1. `ssh web drush en mymodule -y` succeeds
 2. `ssh web ./vendor/bin/phpunit` shows 100% pass rate
-3. `ssh web ./vendor/bin/drush audit:run phpcs --filter="module:mymodule" --format=json` reports zero errors (or `phpcs` fallback)
+3. `ssh web drush audit:run phpcs --filter="module:mymodule" --format=json` reports zero errors (or `phpcs` fallback)
 4. Block appears at /admin/structure/block
-5. Drush command `ssh web ./vendor/bin/drush mymodule:sync` executes without errors"
+5. Drush command `ssh web drush mymodule:sync` executes without errors"
 
 ---
 
@@ -388,7 +388,7 @@ echo "Beads access: ssh beads"
 echo "Site URL: $DDEV_PRIMARY_URL"
 
 # Verify drush is available
-ssh web ./vendor/bin/drush --version 2>/dev/null || echo "Drush not found"
+ssh web drush --version 2>/dev/null || echo "Drush not found"
 ```
 
 **IMPORTANT:** Use this research to make requirements.md SPECIFIC to THIS project's setup, not generic templates.

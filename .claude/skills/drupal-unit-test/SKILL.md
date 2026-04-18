@@ -16,7 +16,7 @@ description: >-
 ## Environment
 
 All commands via `ssh web`. Use `$DDEV_DOCROOT` for paths.
-Detect test gaps: `ssh web ./vendor/bin/drush audit:run phpunit --filter="module:MODULE" --format=json`
+Detect test gaps: `ssh web drush audit:run phpunit --filter="module:MODULE" --format=json`
 
 ## Drupal 10+11 Compatibility (CRITICAL)
 
@@ -38,7 +38,7 @@ Use **PHPDoc annotations only** — NEVER PHP 8 attributes. Drupal 10 = PHPUnit 
 5. Run PHPCS — **always try Audit module first**:
    ```bash
    # Preferred: Audit module (check if installed first)
-   ssh web ./vendor/bin/drush audit:run phpcs --filter="module:MODULE" --format=json
+   ssh web drush audit:run phpcs --filter="module:MODULE" --format=json
    # Fallback only if Audit module not installed:
    ssh web ./vendor/bin/phpcs --standard=Drupal,DrupalPractice $DDEV_DOCROOT/modules/custom/MODULE/tests/src/Unit/
    ```

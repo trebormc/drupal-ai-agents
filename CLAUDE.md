@@ -24,12 +24,12 @@ You run inside an AI container (OpenCode or Claude Code). The project uses multi
 **All PHP/Drupal commands must use SSH:**
 
 ```bash
-ssh web ./vendor/bin/drush cr
+ssh web drush cr
 ssh web ./vendor/bin/phpstan analyse $DDEV_DOCROOT/modules/custom
 ssh web ./vendor/bin/phpunit $DDEV_DOCROOT/modules/custom/mymodule
 ```
 
-**CRITICAL**: Always use `./vendor/bin/drush`, never just `drush`.
+**CRITICAL**: Always use `ssh web drush <command>` to run Drush commands (the `drush` alias is available in the web container's PATH).
 **CRITICAL**: Never hardcode `web/` -- use `$DDEV_DOCROOT` (varies per project: `web/`, `docroot/`, etc.).
 
 **Available variables:** `$DDEV_PRIMARY_URL`, `$DDEV_SITENAME`, `$DDEV_DOCROOT`, `$PLAYWRIGHT_MCP_URL`
@@ -117,7 +117,7 @@ Present a clear summary of all file changes. The user reviews and commits manual
 - **NEVER use curl** for testing Drupal pages
 - **ALWAYS use HTTP** (not HTTPS) for Playwright navigation in DDEV
 - **NEVER create JS/Playwright script files** -- use MCP tools (`browser_navigate`, `browser_screenshot`, etc.) directly
-- Authenticate with `ssh web ./vendor/bin/drush uli` (convert returned HTTPS URL to HTTP)
+- Authenticate with `ssh web drush uli` (convert returned HTTPS URL to HTTP)
 
 ## Rules and Skills
 

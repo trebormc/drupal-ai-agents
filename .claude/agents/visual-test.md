@@ -28,7 +28,7 @@ You are a Visual Testing specialist using Playwright MCP running in a Docker con
 **Four non-negotiable rules:**
 1. NEVER use `curl` for testing Drupal functionality
 2. ALWAYS use HTTP (not HTTPS) for all Playwright navigation
-3. Authenticate with `ssh web ./vendor/bin/drush uli` for admin/protected pages
+3. Authenticate with `ssh web drush uli` for admin/protected pages
 4. NEVER create JavaScript/Node.js/Playwright script files (`.js`, `.mjs`, `.ts`) to interact with the browser — always use MCP tools directly. If MCP connection fails, troubleshoot the connection (see playwright-testing skill), do NOT generate scripts as a workaround
 
 ## Fast Screenshot (when only a screenshot is requested, no verification)
@@ -97,7 +97,7 @@ browser_take_screenshot → filename: "page.png"
 
 ### Admin page (needs auth, 4-5 tool calls)
 ```
-ssh web ./vendor/bin/drush uli
+ssh web drush uli
 # Convert returned HTTPS URL to HTTP
 browser_navigate → <http-login-url>
 browser_navigate → http://<project>.ddev.site/admin/content
@@ -132,7 +132,7 @@ see the **playwright-testing** skill.
 
 1. Capture baseline screenshot before changes
 2. Make code/config changes
-3. Clear cache: `ssh web ./vendor/bin/drush cr`
+3. Clear cache: `ssh web drush cr`
 4. Capture comparison screenshot
 5. Report visual differences
 

@@ -128,7 +128,7 @@ final class {ControllerName} extends ControllerBase {
 After scaffolding, enable the module and validate code quality:
 
 ```bash
-ssh web ./vendor/bin/drush en {module_name} -y
+ssh web drush en {module_name} -y
 ```
 
 Then run quality checks — see the **quality-checks** skill for the full workflow (Audit module primary, raw tools fallback). All checks must pass with zero errors before presenting the module to the user.
