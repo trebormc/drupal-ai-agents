@@ -18,7 +18,7 @@ description: >-
 
 ## Environment
 
-All commands run via `docker exec $WEB_CONTAINER`. Xdebug output is stored
+All commands run via `ssh web`. Xdebug output is stored
 inside the web container at `/tmp/xdebug/`. **Use `$DDEV_DOCROOT` for paths.**
 
 ## Two Modes
@@ -31,8 +31,8 @@ inside the web container at `/tmp/xdebug/`. **Use `$DDEV_DOCROOT` for paths.**
 ## Setup (run once per session)
 
 ```bash
-docker exec $WEB_CONTAINER mkdir -p /tmp/xdebug
-docker exec $WEB_CONTAINER php -m | grep -i xdebug  # If missing: phpenmod xdebug && kill -USR2 $(pgrep -o php-fpm)
+ssh web mkdir -p /tmp/xdebug
+ssh web php -m | grep -i xdebug  # If missing: phpenmod xdebug && kill -USR2 $(pgrep -o php-fpm)
 ```
 
 ## Workflow A: Trace Mode (Debug Errors)
@@ -40,7 +40,7 @@ docker exec $WEB_CONTAINER php -m | grep -i xdebug  # If missing: phpenmod xdebu
 ### Step 1: Enable trace
 
 ```bash
-docker exec $WEB_CONTAINER bash -c "
+ssh web bash -c "
   PHP_VER=\$(php -r 'echo PHP_MAJOR_VERSION.\".\".PHP_MINOR_VERSION;')
   cat > /etc/php/\${PHP_VER}/fpm/conf.d/99-xdebug-custom.ini <<'EOF'
 xdebug.mode=trace
@@ -59,17 +59,17 @@ EOF
 
 ```bash
 # Via curl inside web container (or Playwright with ?XDEBUG_TRIGGER=1)
-docker exec $WEB_CONTAINER curl -s -b 'XDEBUG_TRIGGER=1' 'http://localhost/the-page' -o /dev/null -w '%{http_code}'
+ssh web curl -s -b 'XDEBUG_TRIGGER=1' 'http://localhost/the-page' -o /dev/null -w '%{http_code}'
 ```
 
 ### Step 3: Analyze the trace
 
 ```bash
 # Find latest trace file
-docker exec $WEB_CONTAINER ls -lt /tmp/xdebug/trace.*.xt | head -3
+ssh web ls -lt /tmp/xdebug/trace.*.xt | head -3
 
 # Quick analysis: top 25 slowest functions
-docker exec $WEB_CONTAINER php -r "
+ssh web php -r "
 \$lines = file('/tmp/xdebug/TRACE_FILE');
 \$entries = []; \$calls = [];
 foreach (\$lines as \$line) {
@@ -97,8 +97,8 @@ foreach (array_slice(\$calls, 0, 25) as \$n => \$d) {
 ### Step 4: Search for errors/patterns in trace
 
 ```bash
-docker exec $WEB_CONTAINER grep -n "Exception\|Error\|fatal" /tmp/xdebug/TRACE_FILE | head -20
-docker exec $WEB_CONTAINER grep "query\|execute\|select" /tmp/xdebug/TRACE_FILE | head -30
+ssh web grep -n "Exception\|Error\|fatal" /tmp/xdebug/TRACE_FILE | head -20
+ssh web grep "query\|execute\|select" /tmp/xdebug/TRACE_FILE | head -30
 ```
 
 ## Workflow B: Profile Mode (Performance Analysis)
@@ -106,7 +106,7 @@ docker exec $WEB_CONTAINER grep "query\|execute\|select" /tmp/xdebug/TRACE_FILE 
 ### Step 1: Enable profiler
 
 ```bash
-docker exec $WEB_CONTAINER bash -c "
+ssh web bash -c "
   PHP_VER=\$(php -r 'echo PHP_MAJOR_VERSION.\".\".PHP_MINOR_VERSION;')
   cat > /etc/php/\${PHP_VER}/fpm/conf.d/99-xdebug-custom.ini <<'EOF'
 xdebug.mode=profile
@@ -121,23 +121,23 @@ EOF
 ### Step 2: Trigger and analyze
 
 ```bash
-docker exec $WEB_CONTAINER curl -s -b 'XDEBUG_TRIGGER=1' 'http://localhost/slow-page' -o /dev/null -w '%{http_code}'
+ssh web curl -s -b 'XDEBUG_TRIGGER=1' 'http://localhost/slow-page' -o /dev/null -w '%{http_code}'
 ```
 
 ### Step 3: Analyze cachegrind
 
 ```bash
 # Find latest profile
-docker exec $WEB_CONTAINER ls -lt /tmp/xdebug/cachegrind.out.* | head -3
+ssh web ls -lt /tmp/xdebug/cachegrind.out.* | head -3
 
 # Analyze with callgrind_annotate (install if needed)
-docker exec $WEB_CONTAINER bash -c "
+ssh web bash -c "
   which callgrind_annotate || (apt-get update -qq && apt-get install -y -qq valgrind > /dev/null 2>&1)
   callgrind_annotate --inclusive=yes /tmp/xdebug/CACHEGRIND_FILE | head -80
 "
 
 # Or quick PHP analysis of top 20 expensive functions
-docker exec $WEB_CONTAINER php -r "
+ssh web php -r "
 \$lines = file('/tmp/xdebug/CACHEGRIND_FILE');
 \$fns = []; \$cur = '';
 foreach (\$lines as \$l) {
@@ -160,24 +160,24 @@ foreach (array_slice(\$fns, 0, 20) as \$fn => \$cost) {
 
 ```bash
 # Trace a Drush command (XDEBUG_MODE env var = single-command, zero impact)
-docker exec $WEB_CONTAINER bash -c 'XDEBUG_MODE=trace php -d xdebug.start_with_request=yes -d xdebug.output_dir=/tmp/xdebug -d xdebug.trace_format=1 -d xdebug.collect_return=1 -d xdebug.trace_output_name=trace.%t.%p ./vendor/bin/drush cr'
+ssh web bash -c 'XDEBUG_MODE=trace php -d xdebug.start_with_request=yes -d xdebug.output_dir=/tmp/xdebug -d xdebug.trace_format=1 -d xdebug.collect_return=1 -d xdebug.trace_output_name=trace.%t.%p ./vendor/bin/drush cr'
 
 # Profile a Drush command
-docker exec $WEB_CONTAINER bash -c 'XDEBUG_MODE=profile php -d xdebug.start_with_request=yes -d xdebug.output_dir=/tmp/xdebug -d xdebug.profiler_output_name=cachegrind.out.%t.%p ./vendor/bin/drush status'
+ssh web bash -c 'XDEBUG_MODE=profile php -d xdebug.start_with_request=yes -d xdebug.output_dir=/tmp/xdebug -d xdebug.profiler_output_name=cachegrind.out.%t.%p ./vendor/bin/drush status'
 ```
 
 ## ALWAYS: Disable and Cleanup
 
 ```bash
 # Disable Xdebug (CRITICAL — leaving it on kills performance)
-docker exec $WEB_CONTAINER bash -c "
+ssh web bash -c "
   PHP_VER=\$(php -r 'echo PHP_MAJOR_VERSION.\".\".PHP_MINOR_VERSION;')
   rm -f /etc/php/\${PHP_VER}/fpm/conf.d/99-xdebug-custom.ini
   kill -USR2 \$(pgrep -o php-fpm)
 "
 
 # Clean up output files
-docker exec $WEB_CONTAINER rm -rf /tmp/xdebug/*
+ssh web rm -rf /tmp/xdebug/*
 ```
 
 ## Quick Reference

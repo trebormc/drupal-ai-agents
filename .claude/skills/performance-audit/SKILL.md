@@ -17,16 +17,16 @@ metadata:
 
 ```bash
 # Enabled modules count
-docker exec $WEB_CONTAINER ./vendor/bin/drush pm:list --status=enabled --format=list | wc -l
+ssh web ./vendor/bin/drush pm:list --status=enabled --format=list | wc -l
 
 # Recent watchdog entries
-docker exec $WEB_CONTAINER ./vendor/bin/drush watchdog:show --type=php --count=20
+ssh web ./vendor/bin/drush watchdog:show --type=php --count=20
 
 # Clear cache
-docker exec $WEB_CONTAINER ./vendor/bin/drush cr
+ssh web ./vendor/bin/drush cr
 
 # Database status
-docker exec $WEB_CONTAINER ./vendor/bin/drush sqlq "SHOW STATUS LIKE 'Slow_queries'"
+ssh web ./vendor/bin/drush sqlq "SHOW STATUS LIKE 'Slow_queries'"
 ```
 
 For function-level profiling, use the **xdebug-profiling** skill.

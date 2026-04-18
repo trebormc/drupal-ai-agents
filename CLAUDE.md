@@ -17,22 +17,22 @@ You run inside an AI container (OpenCode or Claude Code). The project uses multi
 | Container | Access method | Purpose |
 |-----------|---------------|---------|
 | **Your container** | Direct | Agents, file access, bash |
-| **Web** (`$WEB_CONTAINER`) | `docker exec` | PHP, Drupal, Drush, Composer |
-| **Beads** (`$BEADS_CONTAINER`) | `bd` wrapper | Git-backed task tracking |
+| **Web** (`web`) | SSH | PHP, Drupal, Drush, Composer |
+| **Beads** (`beads`) | `bd` wrapper | Git-backed task tracking |
 | **Playwright MCP** (`$PLAYWRIGHT_MCP_URL`) | HTTP MCP | Chromium browser testing |
 
-**All PHP/Drupal commands must use docker exec:**
+**All PHP/Drupal commands must use SSH:**
 
 ```bash
-docker exec $WEB_CONTAINER ./vendor/bin/drush cr
-docker exec $WEB_CONTAINER ./vendor/bin/phpstan analyse $DDEV_DOCROOT/modules/custom
-docker exec $WEB_CONTAINER ./vendor/bin/phpunit $DDEV_DOCROOT/modules/custom/mymodule
+ssh web ./vendor/bin/drush cr
+ssh web ./vendor/bin/phpstan analyse $DDEV_DOCROOT/modules/custom
+ssh web ./vendor/bin/phpunit $DDEV_DOCROOT/modules/custom/mymodule
 ```
 
 **CRITICAL**: Always use `./vendor/bin/drush`, never just `drush`.
 **CRITICAL**: Never hardcode `web/` -- use `$DDEV_DOCROOT` (varies per project: `web/`, `docroot/`, etc.).
 
-**Available variables:** `$WEB_CONTAINER`, `$DB_CONTAINER`, `$DDEV_PRIMARY_URL`, `$DDEV_SITENAME`, `$DDEV_DOCROOT`
+**Available variables:** `$DDEV_PRIMARY_URL`, `$DDEV_SITENAME`, `$DDEV_DOCROOT`, `$PLAYWRIGHT_MCP_URL`
 
 ## Model Strategy
 
@@ -117,7 +117,7 @@ Present a clear summary of all file changes. The user reviews and commits manual
 - **NEVER use curl** for testing Drupal pages
 - **ALWAYS use HTTP** (not HTTPS) for Playwright navigation in DDEV
 - **NEVER create JS/Playwright script files** -- use MCP tools (`browser_navigate`, `browser_screenshot`, etc.) directly
-- Authenticate with `docker exec $WEB_CONTAINER ./vendor/bin/drush uli` (convert returned HTTPS URL to HTTP)
+- Authenticate with `ssh web ./vendor/bin/drush uli` (convert returned HTTPS URL to HTTP)
 
 ## Rules and Skills
 

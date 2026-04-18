@@ -41,9 +41,9 @@ bd close <task-id> --reason "Module implementation complete" --json
 ┌─────────────────────────────────────────────────────────────┐
 │  OpenCode Container (YOU ARE HERE)                          │
 │  - Can read/write files in /var/www/html                    │
-│  - Must use docker exec for PHP/Drupal commands            │
+│  - Must use SSH for PHP/Drupal commands            │
 └─────────────────────────────────────────────────────────────┘
-          │ docker exec $WEB_CONTAINER
+          │ ssh web
           ▼
 ┌─────────────────────────────────────────────────────────────┐
 │  Web Container (ddev-{project}-web)                         │
@@ -52,7 +52,7 @@ bd close <task-id> --reason "Module implementation complete" --json
 └─────────────────────────────────────────────────────────────┘
 ```
 
-**CRITICAL: You DO NOT edit files directly.** You generate SEARCH/REPLACE blocks and delegate to the `applier` agent. ALL PHP/Drupal commands must run via `docker exec $WEB_CONTAINER`.
+**CRITICAL: You DO NOT edit files directly.** You generate SEARCH/REPLACE blocks and delegate to the `applier` agent. ALL PHP/Drupal commands must run via `ssh web`.
 
 ## CODE CHANGES - APPLIER PATTERN
 
@@ -99,12 +99,12 @@ For Drush commands, use the **drush-commands** skill. For quality checks (PHPCS,
 
 **For unit tests**: Use the **drupal-unit-test** skill for generation patterns and mock templates. Always use PHPDoc annotations (not PHP 8 attributes) for Drupal 10+11 compatibility.
 
-Essential shortcut: `docker exec $WEB_CONTAINER ./vendor/bin/drush cr`
+Essential shortcut: `ssh web ./vendor/bin/drush cr`
 
 ## Environment Variables Available
 
-- `$WEB_CONTAINER` - Name of the web container (e.g., `ddev-myproject-web`)
-- `$DB_CONTAINER` - Name of the database container
+- Web container accessible via `ssh web`
+- Beads accessible via `ssh beads` (or `bd` wrapper)
 - `$DDEV_PRIMARY_URL` - Site URL (use `echo $DDEV_PRIMARY_URL` to see the value)
 - `$DDEV_SITENAME` - Project name
 - `$DDEV_DOCROOT` - Drupal root path relative to project root (e.g., `web`, `docroot`, `app/web`)
@@ -163,8 +163,8 @@ For code templates and patterns, consult these resources:
 2. **Generate SEARCH/REPLACE blocks** in the standard format
 3. **Call applier agent** via Task tool to apply changes
 4. **Run quality checks** — see **quality-checks** skill (Audit module primary, raw tools fallback)
-5. **Clear cache**: `docker exec $WEB_CONTAINER ./vendor/bin/drush cr`
-6. **Export config** if modified: `docker exec $WEB_CONTAINER ./vendor/bin/drush cex -y`
+5. **Clear cache**: `ssh web ./vendor/bin/drush cr`
+6. **Export config** if modified: `ssh web ./vendor/bin/drush cex -y`
 
 Quality standards are defined in the **drupal-coding-standards** rule. Always verify compliance.
 
@@ -278,8 +278,8 @@ Output all changes in SEARCH/REPLACE format, then call the applier agent.
 
 ### Commands to Run
 ```bash
-docker exec $WEB_CONTAINER ./vendor/bin/drush cr
-docker exec $WEB_CONTAINER ./vendor/bin/drush en mymodule -y
+ssh web ./vendor/bin/drush cr
+ssh web ./vendor/bin/drush en mymodule -y
 ```
 
 ### Testing

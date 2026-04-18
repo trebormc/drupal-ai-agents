@@ -26,10 +26,10 @@ New classes that aren't compiled will NOT appear in the browser.
 
 ```bash
 # 1. Recompile Tailwind CSS (ALWAYS after class changes)
-docker exec $WEB_CONTAINER npm run build --prefix $DDEV_DOCROOT/themes/custom/<THEME>
+ssh web npm run build --prefix $DDEV_DOCROOT/themes/custom/<THEME>
 
 # 2. Clear Drupal cache (renders may reference old CSS)
-docker exec $WEB_CONTAINER ./vendor/bin/drush cr
+ssh web ./vendor/bin/drush cr
 
 # 3. Verify in browser with hard refresh (Ctrl+Shift+R / Cmd+Shift+R)
 #    Or use Playwright with cache disabled for testing
@@ -42,9 +42,9 @@ most common cause of "Tailwind classes not working."
 
 ```bash
 # Navigate to theme directory inside container
-docker exec $WEB_CONTAINER bash -c "cd $DDEV_DOCROOT/themes/custom/<THEME> && npm init -y"
-docker exec $WEB_CONTAINER bash -c "cd $DDEV_DOCROOT/themes/custom/<THEME> && npm install -D tailwindcss"
-docker exec $WEB_CONTAINER bash -c "cd $DDEV_DOCROOT/themes/custom/<THEME> && npx tailwindcss init"
+ssh web bash -c "cd $DDEV_DOCROOT/themes/custom/<THEME> && npm init -y"
+ssh web bash -c "cd $DDEV_DOCROOT/themes/custom/<THEME> && npm install -D tailwindcss"
+ssh web bash -c "cd $DDEV_DOCROOT/themes/custom/<THEME> && npx tailwindcss init"
 ```
 
 ## Configuration files
@@ -146,13 +146,13 @@ Attach in your base template (e.g., `html.html.twig` or `page.html.twig`):
 
 ```bash
 # Development: watch mode (auto-recompiles on save)
-docker exec $WEB_CONTAINER npm run dev --prefix $DDEV_DOCROOT/themes/custom/<THEME>
+ssh web npm run dev --prefix $DDEV_DOCROOT/themes/custom/<THEME>
 
 # Production: one-time build with minification
-docker exec $WEB_CONTAINER npm run build --prefix $DDEV_DOCROOT/themes/custom/<THEME>
+ssh web npm run build --prefix $DDEV_DOCROOT/themes/custom/<THEME>
 
 # After build, ALWAYS clear Drupal cache
-docker exec $WEB_CONTAINER ./vendor/bin/drush cr
+ssh web ./vendor/bin/drush cr
 ```
 
 ## Responsive breakpoints
@@ -186,13 +186,13 @@ After ANY Tailwind class change:
 
 ```bash
 # 1. Build
-docker exec $WEB_CONTAINER npm run build --prefix $DDEV_DOCROOT/themes/custom/<THEME>
+ssh web npm run build --prefix $DDEV_DOCROOT/themes/custom/<THEME>
 
 # 2. Verify the class is in compiled CSS
-docker exec $WEB_CONTAINER grep "your-class" $DDEV_DOCROOT/themes/custom/<THEME>/css/styles.css
+ssh web grep "your-class" $DDEV_DOCROOT/themes/custom/<THEME>/css/styles.css
 
 # 3. Clear Drupal cache
-docker exec $WEB_CONTAINER ./vendor/bin/drush cr
+ssh web ./vendor/bin/drush cr
 
 # 4. Test in browser (use Playwright or hard refresh)
 ```

@@ -27,7 +27,7 @@ Playwright MCP tools (`browser_navigate`, `browser_take_screenshot`, etc.) are r
 
 - MCP URL: `http://playwright-mcp:8931/mcp` (or `$PLAYWRIGHT_MCP_URL`)
 - Site URL: `$DDEV_PRIMARY_URL` (returns HTTPS — **always convert to HTTP**)
-- Web Container: `$WEB_CONTAINER` (for `docker exec` commands like `drush uli`)
+- Web Container: accessible via `ssh web` (for commands like `drush uli`)
 
 ### If MCP tools are not available
 
@@ -56,10 +56,10 @@ echo $PLAYWRIGHT_MCP_URL
 ┌─────────────────────────────────────────────────────────────┐
 │  AI Container (OpenCode or Claude Code)                      │
 │  - Runs agents, reads files, executes bash                   │
-│  - Connects to Web via: docker exec $WEB_CONTAINER           │
+│  - Connects to Web via: ssh web           │
 │  - Uses Playwright via: MCP tools (native)                   │
 └──────────────┬──────────────────────┬───────────────────────┘
-               │ docker exec          │ MCP protocol
+               │ SSH                  │ MCP protocol
                ▼                      ▼
 ┌──────────────────────────┐  ┌───────────────────────────────┐
 │  Web Container           │  │  Playwright MCP Container     │
@@ -151,7 +151,7 @@ Screenshots auto-save to `<project-root>/screenshots/` via a Docker volume mount
 
 ```bash
 # 1. Generate one-time admin login link
-docker exec $WEB_CONTAINER ./vendor/bin/drush uli
+ssh web ./vendor/bin/drush uli
 # Output: https://project.ddev.site/user/reset/1/123456/abc/login
 
 # 2. CRITICAL: Convert HTTPS to HTTP
@@ -175,7 +175,7 @@ docker exec $WEB_CONTAINER ./vendor/bin/drush uli
 ### 403 Forbidden recovery flow
 
 1. `browser_navigate` → target URL
-2. If 403 → `docker exec $WEB_CONTAINER ./vendor/bin/drush uli`
+2. If 403 → `ssh web ./vendor/bin/drush uli`
 3. Convert HTTPS to HTTP in returned URL
 4. `browser_navigate` → http login URL
 5. `browser_navigate` → target URL again (now authenticated)
@@ -192,7 +192,7 @@ docker exec $WEB_CONTAINER ./vendor/bin/drush uli
 
 ### Admin page testing
 
-1. `docker exec $WEB_CONTAINER ./vendor/bin/drush uli`
+1. `ssh web ./vendor/bin/drush uli`
 2. Convert HTTPS → HTTP
 3. `browser_navigate` → http login URL
 4. `browser_navigate` → `http://<project>.ddev.site/admin/content`
@@ -233,7 +233,7 @@ docker exec $WEB_CONTAINER ./vendor/bin/drush uli
 | SSL/certificate errors | Convert HTTPS to HTTP in ALL URLs |
 | 403 Forbidden | Authenticate with `drush uli` first |
 | Element not found | Use `browser_snapshot` to see available elements, then `browser_wait_for` |
-| Site not accessible | `docker exec $WEB_CONTAINER ./vendor/bin/drush status` |
+| Site not accessible | `ssh web ./vendor/bin/drush status` |
 | Screenshots not saving | Use `filename` parameter in `browser_take_screenshot` — directory is auto-created by Docker volume mount |
 
 ## When to use curl (exceptions)

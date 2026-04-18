@@ -46,10 +46,10 @@ Advantages: native auto-waiting, parallel execution, visual regression with
 
 ```bash
 mkdir -p test/playwright
-docker exec $WEB_CONTAINER npx create-playwright@latest --lang=TypeScript --quiet test/playwright --no-browsers
+ssh web npx create-playwright@latest --lang=TypeScript --quiet test/playwright --no-browsers
 ddev add-on get Lullabot/ddev-playwright
 ddev install-playwright
-docker exec $WEB_CONTAINER sh -c "cd test/playwright && npm i @lullabot/playwright-drupal"
+ssh web sh -c "cd test/playwright && npm i @lullabot/playwright-drupal"
 ```
 
 ## Configuration -- playwright.config.ts

@@ -62,9 +62,9 @@ When analyzing the project, look for these files to understand the testing setup
 
 ## Execution
 
-All PHP/Drupal commands must use docker exec:
+All PHP/Drupal commands must use SSH:
 
 ```bash
-docker exec $WEB_CONTAINER ./vendor/bin/phpunit -c core --group MODULE
-docker exec $WEB_CONTAINER ./vendor/bin/behat --config=behat.yml
+ssh web ./vendor/bin/phpunit -c core --group MODULE
+ssh web ./vendor/bin/behat --config=behat.yml
 ```

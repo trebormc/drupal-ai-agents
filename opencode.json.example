@@ -37,6 +37,7 @@
       "git reset*": "deny",
       "git stash*": "deny",
       "git tag*": "deny",
+      "docker *": "deny",
       "git diff*": "allow",
       "git log*": "allow",
       "git status*": "allow",
@@ -47,7 +48,7 @@
   },
   "formatter": {
     "phpcbf": {
-      "command": ["docker", "exec", "$WEB_CONTAINER", "./vendor/bin/phpcbf", "--standard=Drupal,DrupalPractice", "$FILE"],
+      "command": ["ssh", "web", "./vendor/bin/phpcbf", "--standard=Drupal,DrupalPractice", "$FILE"],
       "extensions": [".php", ".module", ".inc", ".install", ".theme", ".profile"]
     }
   },

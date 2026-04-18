@@ -350,7 +350,7 @@ class MyTest extends KernelTestBase {
 
 ```bash
 export SIMPLETEST_DB="sqlite://localhost/:memory:"
-docker exec $WEB_CONTAINER ./vendor/bin/phpunit -c core --testsuite kernel $DDEV_DOCROOT/modules/custom/MODULE/
-docker exec $WEB_CONTAINER ./vendor/bin/phpunit -c core --filter testName $DDEV_DOCROOT/modules/custom/MODULE/tests/src/Kernel/
-docker exec $WEB_CONTAINER ./vendor/bin/phpunit -c core --group MODULE --testsuite kernel
+ssh web ./vendor/bin/phpunit -c core --testsuite kernel $DDEV_DOCROOT/modules/custom/MODULE/
+ssh web ./vendor/bin/phpunit -c core --filter testName $DDEV_DOCROOT/modules/custom/MODULE/tests/src/Kernel/
+ssh web ./vendor/bin/phpunit -c core --group MODULE --testsuite kernel
 ```

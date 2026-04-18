@@ -65,9 +65,9 @@ path/to/new/template.html.twig
 ┌─────────────────────────────────────────────────────────────┐
 │  OpenCode Container (YOU ARE HERE)                          │
 │  - Read files, generate SEARCH/REPLACE, call applier       │
-│  - Must use docker exec for PHP/Drupal commands            │
+│  - Must use SSH for PHP/Drupal commands            │
 └─────────────────────────────────────────────────────────────┘
-          │ docker exec $WEB_CONTAINER
+          │ ssh web
           ▼
 ┌─────────────────────────────────────────────────────────────┐
 │  Web Container (ddev-{project}-web)                         │
@@ -76,11 +76,11 @@ path/to/new/template.html.twig
 └─────────────────────────────────────────────────────────────┘
 ```
 
-**CRITICAL: ALL PHP/Drupal/npm commands must run via docker exec.**
+**CRITICAL: ALL PHP/Drupal/npm commands must run via SSH (`ssh web`).**
 
 ## Environment Variables
 
-`$WEB_CONTAINER` (docker exec target), `$DDEV_PRIMARY_URL` (site URL), `$DDEV_SITENAME`, `$DDEV_DOCROOT` (Drupal root, e.g. `web`). **Never hardcode `web/`** — if not set: `export DDEV_DOCROOT=$(grep "^docroot:" .ddev/config.yaml | awk '{print $2}')`
+`$DDEV_PRIMARY_URL` (site URL), `$DDEV_SITENAME`, `$DDEV_DOCROOT` (Drupal root, e.g. `web`). **Never hardcode `web/`** — if not set: `export DDEV_DOCROOT=$(grep "^docroot:" .ddev/config.yaml | awk '{print $2}')`
 
 ## Command Reference
 
@@ -88,10 +88,10 @@ For Drush commands see the **drush-commands** skill. After modifying templates, 
 
 | Task | Command |
 |------|---------|
-| Clear cache | `docker exec $WEB_CONTAINER ./vendor/bin/drush cr` |
-| Build theme | `docker exec $WEB_CONTAINER npm run build --prefix $DDEV_DOCROOT/themes/custom/<THEME>` |
-| Watch mode | `docker exec $WEB_CONTAINER npm run dev --prefix $DDEV_DOCROOT/themes/custom/<THEME>` |
-| Install deps | `docker exec $WEB_CONTAINER npm install --prefix $DDEV_DOCROOT/themes/custom/<THEME>` |
+| Clear cache | `ssh web ./vendor/bin/drush cr` |
+| Build theme | `ssh web npm run build --prefix $DDEV_DOCROOT/themes/custom/<THEME>` |
+| Watch mode | `ssh web npm run dev --prefix $DDEV_DOCROOT/themes/custom/<THEME>` |
+| Install deps | `ssh web npm install --prefix $DDEV_DOCROOT/themes/custom/<THEME>` |
 
 ## Theme Structure
 
@@ -202,9 +202,9 @@ you MUST recompile and clear caches:
 
 ```bash
 # 1. Recompile CSS
-docker exec $WEB_CONTAINER npm run build --prefix $DDEV_DOCROOT/themes/custom/<THEME>
+ssh web npm run build --prefix $DDEV_DOCROOT/themes/custom/<THEME>
 # 2. Clear Drupal cache
-docker exec $WEB_CONTAINER ./vendor/bin/drush cr
+ssh web ./vendor/bin/drush cr
 # 3. Hard refresh browser (Ctrl+Shift+R)
 ```
 
@@ -231,8 +231,8 @@ docker exec $WEB_CONTAINER ./vendor/bin/drush cr
 5. **Add interactivity** — Drupal behavior in `js/`, register in `mytheme.libraries.yml`, attach with `{{ attach_library() }}`.
 6. **Test and validate:**
    ```bash
-   docker exec $WEB_CONTAINER npm run build --prefix $DDEV_DOCROOT/themes/custom/mytheme
-   docker exec $WEB_CONTAINER ./vendor/bin/drush cr
+   ssh web npm run build --prefix $DDEV_DOCROOT/themes/custom/mytheme
+   ssh web ./vendor/bin/drush cr
    ```
    Check: all breakpoints, accessibility, no console errors, no debug code.
 
@@ -303,8 +303,8 @@ $DDEV_DOCROOT/themes/custom/mytheme/src/input.css (modified)
 
 ### Commands to Run
 ```bash
-docker exec $WEB_CONTAINER npm run build --prefix $DDEV_DOCROOT/themes/custom/mytheme
-docker exec $WEB_CONTAINER ./vendor/bin/drush cr
+ssh web npm run build --prefix $DDEV_DOCROOT/themes/custom/mytheme
+ssh web ./vendor/bin/drush cr
 ```
 
 ### Preview

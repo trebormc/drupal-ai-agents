@@ -44,7 +44,7 @@ navigate, fill forms, etc.
 ## Setup -- Dependencies
 
 ```bash
-docker exec $WEB_CONTAINER composer require --dev drupal/drupal-extension behat/mink-selenium2-driver
+ssh web composer require --dev drupal/drupal-extension behat/mink-selenium2-driver
 ```
 
 For Drupal 10/11, use `drupal/drupal-extension:^5`.
@@ -410,22 +410,22 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
 
 ```bash
 # All tests
-docker exec $WEB_CONTAINER ./vendor/bin/behat --config=behat.yml
+ssh web ./vendor/bin/behat --config=behat.yml
 
 # By tag
-docker exec $WEB_CONTAINER ./vendor/bin/behat --tags=@content
-docker exec $WEB_CONTAINER ./vendor/bin/behat --tags=@my_module
-docker exec $WEB_CONTAINER ./vendor/bin/behat --tags="@smoke&&~@javascript"
+ssh web ./vendor/bin/behat --tags=@content
+ssh web ./vendor/bin/behat --tags=@my_module
+ssh web ./vendor/bin/behat --tags="@smoke&&~@javascript"
 
 # Specific feature
-docker exec $WEB_CONTAINER ./vendor/bin/behat features/article.feature
+ssh web ./vendor/bin/behat features/article.feature
 
 # Specific scenario by line
-docker exec $WEB_CONTAINER ./vendor/bin/behat features/article.feature:15
+ssh web ./vendor/bin/behat features/article.feature:15
 
 # List available steps
-docker exec $WEB_CONTAINER ./vendor/bin/behat --definitions
+ssh web ./vendor/bin/behat --definitions
 
 # Generate snippets for undefined steps
-docker exec $WEB_CONTAINER ./vendor/bin/behat --dry-run --append-snippets
+ssh web ./vendor/bin/behat --dry-run --append-snippets
 ```

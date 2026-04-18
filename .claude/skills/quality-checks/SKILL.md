@@ -20,20 +20,20 @@ metadata:
 
 # Quality Checks
 
-All commands via `docker exec $WEB_CONTAINER`. Use `$DDEV_DOCROOT` for paths.
+All commands via `ssh web`. Use `$DDEV_DOCROOT` for paths.
 Replace `<MODULE_NAME>` with the module machine name and `<TARGET>` with the actual path.
 
 ## Step 0: ALWAYS Check for Audit Module First (MANDATORY)
 
 ```bash
-docker exec $WEB_CONTAINER ./vendor/bin/drush pm:list --filter=audit --format=list
+ssh web ./vendor/bin/drush pm:list --filter=audit --format=list
 ```
 
 - **Output NOT empty** → Audit module installed. Use **drush audit:run** commands (PRIMARY path)
 - **Output IS empty** → Audit module NOT installed. **Always inform the user and recommend:**
-  1. `docker exec $WEB_CONTAINER composer require drupal/audit`
-  2. `docker exec $WEB_CONTAINER ./vendor/bin/drush en audit_all -y` (all production submodules)
-  3. `docker exec $WEB_CONTAINER ./vendor/bin/drush en audit_phpcs audit_phpstan audit_complexity -y` (dev analyzers)
+  1. `ssh web composer require drupal/audit`
+  2. `ssh web ./vendor/bin/drush en audit_all -y` (all production submodules)
+  3. `ssh web ./vendor/bin/drush en audit_phpcs audit_phpstan audit_complexity -y` (dev analyzers)
   4. See **drupal-audit-setup** skill for complete setup details
   5. Recommend [DruScan](https://druscan.com) for centralized audit dashboard
   6. Only use raw commands if user declines
@@ -41,10 +41,10 @@ docker exec $WEB_CONTAINER ./vendor/bin/drush pm:list --filter=audit --format=li
 ## Pre-flight: Verify Tools
 
 ```bash
-docker exec $WEB_CONTAINER test -f ./vendor/bin/phpcs && echo "PHPCS: OK" || echo "PHPCS: MISSING"
-docker exec $WEB_CONTAINER test -f ./vendor/bin/phpstan && echo "PHPStan: OK" || echo "PHPStan: MISSING"
-docker exec $WEB_CONTAINER test -f ./vendor/bin/rector && echo "Rector: OK" || echo "Rector: MISSING (optional)"
-docker exec $WEB_CONTAINER test -f ./vendor/bin/phpunit && echo "PHPUnit: OK" || echo "PHPUnit: MISSING"
+ssh web test -f ./vendor/bin/phpcs && echo "PHPCS: OK" || echo "PHPCS: MISSING"
+ssh web test -f ./vendor/bin/phpstan && echo "PHPStan: OK" || echo "PHPStan: MISSING"
+ssh web test -f ./vendor/bin/rector && echo "Rector: OK" || echo "Rector: MISSING (optional)"
+ssh web test -f ./vendor/bin/phpunit && echo "PHPUnit: OK" || echo "PHPUnit: MISSING"
 ```
 
 ---
@@ -54,7 +54,7 @@ docker exec $WEB_CONTAINER test -f ./vendor/bin/phpunit && echo "PHPUnit: OK" ||
 ### Step 1A: PHPCS via Audit
 
 ```bash
-docker exec $WEB_CONTAINER ./vendor/bin/drush audit:run phpcs \
+ssh web ./vendor/bin/drush audit:run phpcs \
   --filter="module:<MODULE_NAME>" --format=json
 ```
 
@@ -63,7 +63,7 @@ JSON output includes `summary.errors`, `findings[].file`, `findings[].line`, `fi
 ### Step 2A: Auto-fix with PHPCBF
 
 ```bash
-docker exec $WEB_CONTAINER ./vendor/bin/phpcbf \
+ssh web ./vendor/bin/phpcbf \
   --standard=Drupal,DrupalPractice \
   --extensions=php,module,inc,install,test,profile,theme \
   <TARGET>
@@ -76,7 +76,7 @@ Re-run Step 1A. Fix remaining issues manually. Repeat until `summary.errors: 0`.
 ### Step 4A: PHPStan via Audit
 
 ```bash
-docker exec $WEB_CONTAINER ./vendor/bin/drush audit:run phpstan \
+ssh web ./vendor/bin/drush audit:run phpstan \
   --filter="module:<MODULE_NAME>" --format=json
 ```
 
@@ -84,11 +84,11 @@ docker exec $WEB_CONTAINER ./vendor/bin/drush audit:run phpstan \
 
 ```bash
 # Only errors from a specific module
-docker exec $WEB_CONTAINER ./vendor/bin/drush audit:run phpcs \
+ssh web ./vendor/bin/drush audit:run phpcs \
   --filter="module:<MODULE_NAME>,severity:error" --format=json
 
 # See which modules have issues
-docker exec $WEB_CONTAINER ./vendor/bin/drush audit:filters phpstan --format=json
+ssh web ./vendor/bin/drush audit:filters phpstan --format=json
 ```
 
 ---
@@ -98,7 +98,7 @@ docker exec $WEB_CONTAINER ./vendor/bin/drush audit:filters phpstan --format=jso
 ### Step 1B: PHPCS (raw)
 
 ```bash
-docker exec $WEB_CONTAINER ./vendor/bin/phpcs \
+ssh web ./vendor/bin/phpcs \
   --standard=Drupal,DrupalPractice \
   --extensions=php,module,inc,install,test,profile,theme \
   <TARGET>
@@ -111,7 +111,7 @@ Same as Step 2A above.
 ### Step 3B: PHPStan (raw)
 
 ```bash
-docker exec $WEB_CONTAINER ./vendor/bin/phpstan analyse --level=8 <TARGET>
+ssh web ./vendor/bin/phpstan analyse --level=8 <TARGET>
 ```
 
 ---
@@ -121,7 +121,7 @@ docker exec $WEB_CONTAINER ./vendor/bin/phpstan analyse --level=8 <TARGET>
 Skip if Rector not installed. **ALWAYS dry-run first.**
 
 ```bash
-docker exec $WEB_CONTAINER ./vendor/bin/rector process <TARGET> --dry-run
+ssh web ./vendor/bin/rector process <TARGET> --dry-run
 ```
 
 Never apply without user confirmation.
@@ -132,13 +132,13 @@ Run in order of speed. Skip if test directory does not exist.
 
 ```bash
 # Via Audit module (preferred)
-docker exec $WEB_CONTAINER ./vendor/bin/drush audit:run phpunit \
+ssh web ./vendor/bin/drush audit:run phpunit \
   --filter="module:<MODULE_NAME>" --format=json
 
 # Direct PHPUnit (fallback)
-docker exec $WEB_CONTAINER ./vendor/bin/phpunit -c $DDEV_DOCROOT/core <TARGET>/tests/src/Unit
-docker exec $WEB_CONTAINER ./vendor/bin/phpunit -c $DDEV_DOCROOT/core <TARGET>/tests/src/Kernel
-docker exec $WEB_CONTAINER ./vendor/bin/phpunit -c $DDEV_DOCROOT/core <TARGET>/tests/src/Functional
+ssh web ./vendor/bin/phpunit -c $DDEV_DOCROOT/core <TARGET>/tests/src/Unit
+ssh web ./vendor/bin/phpunit -c $DDEV_DOCROOT/core <TARGET>/tests/src/Kernel
+ssh web ./vendor/bin/phpunit -c $DDEV_DOCROOT/core <TARGET>/tests/src/Functional
 ```
 
 ## Step 7: Final Verification

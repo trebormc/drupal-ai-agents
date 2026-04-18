@@ -19,16 +19,16 @@ Execute updates following this EXACT sequence.
 
 ```bash
 # Verify DDEV and Drupal version
-docker exec $WEB_CONTAINER ./vendor/bin/drush status --field=drupal-version
+ssh web ./vendor/bin/drush status --field=drupal-version
 
 # Check for uncommitted changes (STOP if dirty)
 git status --porcelain
 
 # Check available updates
-docker exec $WEB_CONTAINER composer outdated --direct --format=json
+ssh web composer outdated --direct --format=json
 
 # Check for pending database updates (should be clean)
-docker exec $WEB_CONTAINER ./vendor/bin/drush updatedb:status
+ssh web ./vendor/bin/drush updatedb:status
 ```
 
 **STOP if**: Git working directory is dirty, DDEV not responding, or pending DB updates exist.
@@ -36,7 +36,7 @@ docker exec $WEB_CONTAINER ./vendor/bin/drush updatedb:status
 ## Phase 2: Backup
 
 ```bash
-docker exec $WEB_CONTAINER ./vendor/bin/drush sql:dump --result-file=/tmp/pre-update-backup.sql --gzip
+ssh web ./vendor/bin/drush sql:dump --result-file=/tmp/pre-update-backup.sql --gzip
 git rev-parse HEAD  # Note for rollback
 ```
 
@@ -44,40 +44,40 @@ git rev-parse HEAD  # Note for rollback
 
 ```bash
 # Update everything
-docker exec $WEB_CONTAINER composer update --with-all-dependencies
+ssh web composer update --with-all-dependencies
 
 # Core only
-docker exec $WEB_CONTAINER composer update "drupal/core-*" --with-all-dependencies
+ssh web composer update "drupal/core-*" --with-all-dependencies
 
 # Specific package
-docker exec $WEB_CONTAINER composer update drupal/package_name --with-all-dependencies
+ssh web composer update drupal/package_name --with-all-dependencies
 
 # Security only
-docker exec $WEB_CONTAINER composer audit
-docker exec $WEB_CONTAINER composer update --with-all-dependencies $(docker exec $WEB_CONTAINER composer audit --format=json | jq -r '.advisories | keys | .[]')
+ssh web composer audit
+ssh web composer update --with-all-dependencies $(ssh web composer audit --format=json | jq -r '.advisories | keys | .[]')
 ```
 
 ## Phase 4: Database Updates
 
 ```bash
-docker exec $WEB_CONTAINER ./vendor/bin/drush updatedb -y
-docker exec $WEB_CONTAINER ./vendor/bin/drush cache:rebuild
+ssh web ./vendor/bin/drush updatedb -y
+ssh web ./vendor/bin/drush cache:rebuild
 ```
 
 ## Phase 5: Configuration Sync
 
 ```bash
-docker exec $WEB_CONTAINER ./vendor/bin/drush config:status
-docker exec $WEB_CONTAINER ./vendor/bin/drush config:export -y
+ssh web ./vendor/bin/drush config:status
+ssh web ./vendor/bin/drush config:export -y
 ```
 
 ## Phase 6: Verification
 
 ```bash
-docker exec $WEB_CONTAINER ./vendor/bin/drush core:status
-docker exec $WEB_CONTAINER ./vendor/bin/drush watchdog:show --severity=error --count=10
-docker exec $WEB_CONTAINER ./vendor/bin/drush core:requirements
-docker exec $WEB_CONTAINER ./vendor/bin/phpunit -c $DDEV_DOCROOT/core $DDEV_DOCROOT/modules/custom --testdox 2>/dev/null || echo "No tests"
+ssh web ./vendor/bin/drush core:status
+ssh web ./vendor/bin/drush watchdog:show --severity=error --count=10
+ssh web ./vendor/bin/drush core:requirements
+ssh web ./vendor/bin/phpunit -c $DDEV_DOCROOT/core $DDEV_DOCROOT/modules/custom --testdox 2>/dev/null || echo "No tests"
 ```
 
 ## Phase 7: Present Summary
@@ -95,36 +95,36 @@ docker exec $WEB_CONTAINER ./vendor/bin/phpunit -c $DDEV_DOCROOT/core $DDEV_DOCR
 git checkout composer.json composer.lock config/sync/
 
 # Restore composer packages
-docker exec $WEB_CONTAINER composer install
+ssh web composer install
 
 # Restore database (if needed)
-docker exec $WEB_CONTAINER gunzip -c /tmp/pre-update-backup.sql.gz | docker exec -i $WEB_CONTAINER ./vendor/bin/drush sql:cli
+ssh web gunzip -c /tmp/pre-update-backup.sql.gz | ssh web ./vendor/bin/drush sql:cli
 
 # Clear caches
-docker exec $WEB_CONTAINER ./vendor/bin/drush cache:rebuild
+ssh web ./vendor/bin/drush cache:rebuild
 ```
 
 ## Error Handling
 
 ### Composer Conflicts
 ```bash
-docker exec $WEB_CONTAINER composer why-not drupal/package_name:^X.Y
+ssh web composer why-not drupal/package_name:^X.Y
 ```
 
 ### Database Update Failures
 ```bash
-docker exec $WEB_CONTAINER ./vendor/bin/drush sql:cli < /tmp/pre-update-backup.sql.gz
+ssh web ./vendor/bin/drush sql:cli < /tmp/pre-update-backup.sql.gz
 git checkout composer.lock
-docker exec $WEB_CONTAINER composer install
+ssh web composer install
 ```
 
 ## Command Reference
 
 | Task | Command |
 |------|---------|
-| Check outdated | `docker exec $WEB_CONTAINER composer outdated --direct` |
-| Security audit | `docker exec $WEB_CONTAINER composer audit` |
-| Update all | `docker exec $WEB_CONTAINER composer update --with-all-dependencies` |
-| Update core | `docker exec $WEB_CONTAINER composer update "drupal/core-*" --with-all-dependencies` |
-| Backup DB | `docker exec $WEB_CONTAINER ./vendor/bin/drush sql:dump --result-file=/tmp/backup.sql --gzip` |
-| Check requirements | `docker exec $WEB_CONTAINER ./vendor/bin/drush core:requirements` |
+| Check outdated | `ssh web composer outdated --direct` |
+| Security audit | `ssh web composer audit` |
+| Update all | `ssh web composer update --with-all-dependencies` |
+| Update core | `ssh web composer update "drupal/core-*" --with-all-dependencies` |
+| Backup DB | `ssh web ./vendor/bin/drush sql:dump --result-file=/tmp/backup.sql --gzip` |
+| Check requirements | `ssh web ./vendor/bin/drush core:requirements` |

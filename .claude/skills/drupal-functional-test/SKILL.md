@@ -316,7 +316,7 @@ $node = $this->drupalGetNodeByTitle('Test');
 ## Execution Command
 
 ```bash
-docker exec $WEB_CONTAINER ./vendor/bin/phpunit -c core --testsuite functional $DDEV_DOCROOT/modules/custom/MODULE/
-docker exec $WEB_CONTAINER ./vendor/bin/phpunit -c core --filter testFormSavesValues
-docker exec $WEB_CONTAINER ./vendor/bin/phpunit -c core --testsuite functional --group MODULE
+ssh web ./vendor/bin/phpunit -c core --testsuite functional $DDEV_DOCROOT/modules/custom/MODULE/
+ssh web ./vendor/bin/phpunit -c core --filter testFormSavesValues
+ssh web ./vendor/bin/phpunit -c core --testsuite functional --group MODULE
 ```

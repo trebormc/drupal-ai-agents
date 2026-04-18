@@ -48,22 +48,22 @@ See the `drupal-testing` rule for the complete decision tree. Quick summary:
 
 ```bash
 # All tests for a module
-docker exec $WEB_CONTAINER ./vendor/bin/phpunit -c core --group MODULE
+ssh web ./vendor/bin/phpunit -c core --group MODULE
 
 # By suite
-docker exec $WEB_CONTAINER ./vendor/bin/phpunit -c core --testsuite unit $DDEV_DOCROOT/modules/custom/MODULE/
-docker exec $WEB_CONTAINER ./vendor/bin/phpunit -c core --testsuite kernel $DDEV_DOCROOT/modules/custom/MODULE/
-docker exec $WEB_CONTAINER ./vendor/bin/phpunit -c core --testsuite functional $DDEV_DOCROOT/modules/custom/MODULE/
-docker exec $WEB_CONTAINER ./vendor/bin/phpunit -c core --testsuite functional-javascript $DDEV_DOCROOT/modules/custom/MODULE/
+ssh web ./vendor/bin/phpunit -c core --testsuite unit $DDEV_DOCROOT/modules/custom/MODULE/
+ssh web ./vendor/bin/phpunit -c core --testsuite kernel $DDEV_DOCROOT/modules/custom/MODULE/
+ssh web ./vendor/bin/phpunit -c core --testsuite functional $DDEV_DOCROOT/modules/custom/MODULE/
+ssh web ./vendor/bin/phpunit -c core --testsuite functional-javascript $DDEV_DOCROOT/modules/custom/MODULE/
 
 # Single test
-docker exec $WEB_CONTAINER ./vendor/bin/phpunit -c core --filter testMethodName
+ssh web ./vendor/bin/phpunit -c core --filter testMethodName
 
 # Coverage
-docker exec $WEB_CONTAINER sh -c "XDEBUG_MODE=coverage ./vendor/bin/phpunit --coverage-html=coverage $DDEV_DOCROOT/modules/custom/MODULE/"
+ssh web sh -c "XDEBUG_MODE=coverage ./vendor/bin/phpunit --coverage-html=coverage $DDEV_DOCROOT/modules/custom/MODULE/"
 
 # Behat
-docker exec $WEB_CONTAINER ./vendor/bin/behat --config=behat.yml
+ssh web ./vendor/bin/behat --config=behat.yml
 
 # Playwright
 npx playwright test

@@ -17,7 +17,7 @@ description: >-
 
 ## Environment
 
-All commands via `docker exec $WEB_CONTAINER ./vendor/bin/drush`.
+All commands via `ssh web ./vendor/bin/drush`.
 Config sync directory: `config/sync/` (relative to project root).
 
 ## Config export/import workflow
@@ -25,19 +25,19 @@ Config sync directory: `config/sync/` (relative to project root).
 ### Standard workflow
 ```bash
 # Export (after making changes in UI or code)
-docker exec $WEB_CONTAINER ./vendor/bin/drush cex -y
+ssh web ./vendor/bin/drush cex -y
 
 # Import (when pulling changes from git)
-docker exec $WEB_CONTAINER ./vendor/bin/drush cim -y
+ssh web ./vendor/bin/drush cim -y
 
 # Preview what will change on import
-docker exec $WEB_CONTAINER ./vendor/bin/drush cim --diff
+ssh web ./vendor/bin/drush cim --diff
 ```
 
 ### Resolving import conflicts
 ```bash
 # Check current config status
-docker exec $WEB_CONTAINER ./vendor/bin/drush config:status
+ssh web ./vendor/bin/drush config:status
 
 # "Only in sync dir" — new config to import
 # "Only in DB" — needs export or was deleted intentionally
@@ -48,8 +48,8 @@ docker exec $WEB_CONTAINER ./vendor/bin/drush config:status
 
 ### Installation
 ```bash
-docker exec $WEB_CONTAINER composer require drupal/config_split
-docker exec $WEB_CONTAINER ./vendor/bin/drush en config_split -y
+ssh web composer require drupal/config_split
+ssh web ./vendor/bin/drush en config_split -y
 ```
 
 ### Directory structure
@@ -127,11 +127,11 @@ $config['smtp.settings']['smtp_password'] = getenv('SMTP_PASSWORD');
 
 ```bash
 # Check config sync status
-docker exec $WEB_CONTAINER ./vendor/bin/drush config:status
+ssh web ./vendor/bin/drush config:status
 
 # Validate config schema (check for missing schemas)
-docker exec $WEB_CONTAINER ./vendor/bin/drush config:inspect
+ssh web ./vendor/bin/drush config:inspect
 
 # Verify config split is active
-docker exec $WEB_CONTAINER ./vendor/bin/drush config:get config_split.config_split.dev status
+ssh web ./vendor/bin/drush config:get config_split.config_split.dev status
 ```

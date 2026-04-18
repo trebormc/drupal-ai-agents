@@ -42,7 +42,7 @@ description: >-
 ---
 
 ## Environment
-All commands run via `docker exec $WEB_CONTAINER`.
+All commands run via `ssh web`.
 
 ## Instructions
 {Step-by-step actionable content}
@@ -84,7 +84,7 @@ If description doesn't match user intent, body NEVER loads.
 - [ ] Description has Spanish triggers
 - [ ] YAML frontmatter valid
 - [ ] Body has actionable instructions (not prose)
-- [ ] Commands use `docker exec $WEB_CONTAINER`
+- [ ] Commands use `ssh web`
 - [ ] No duplication with other skills or rules/
 - [ ] No conflicts with CLAUDE.md policies
 - [ ] File named exactly `SKILL.md`
@@ -116,7 +116,7 @@ Report as:
 | Underscores in name | Use hyphens |
 | Vague description | Add examples with `->` |
 | No anti-pattern | Add "Never use for X" |
-| Bare commands | Prefix `docker exec $WEB_CONTAINER` |
+| Bare commands | Prefix `ssh web` |
 | Body 200+ lines | Split into skill + rule reference |
 | English-only triggers | Add Spanish phrases |
 | Duplicates other skill | Merge or add anti-pattern boundary |

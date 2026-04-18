@@ -233,6 +233,6 @@ In Drupal 11 `goog:chromeOptions` is mandatory (without the `goog:` prefix it do
 
 ```bash
 chromedriver --port=9515 &
-docker exec $WEB_CONTAINER ./vendor/bin/phpunit -c core --testsuite functional-javascript $DDEV_DOCROOT/modules/custom/MODULE/
-docker exec $WEB_CONTAINER ./vendor/bin/phpunit -c core --testsuite functional-javascript --group MODULE
+ssh web ./vendor/bin/phpunit -c core --testsuite functional-javascript $DDEV_DOCROOT/modules/custom/MODULE/
+ssh web ./vendor/bin/phpunit -c core --testsuite functional-javascript --group MODULE
 ```

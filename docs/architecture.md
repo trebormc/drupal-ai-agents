@@ -4,17 +4,17 @@
 
 ```
 DDEV Network (ddev_default)
- ├─ opencode / claude-code → docker exec → web (PHP/Drupal)
- │                          → docker exec → beads (task tracking)
+ ├─ opencode / claude-code → SSH → web (PHP/Drupal)
+ │                          → SSH → beads (task tracking)
  │                          → HTTP MCP   → playwright-mcp (browser)
- ├─ ralph          → docker exec → opencode OR claude-code
- │                  → docker exec → beads
+ ├─ ralph          → SSH → opencode OR claude-code
+ │                  → SSH → beads
  ├─ beads          → bd CLI, git-backed task tracking
  ├─ playwright-mcp → headless Chromium, port 8931
  └─ web            → PHP/Drupal, database, drush, composer
 ```
 
-AI containers never access the database directly. They use `docker exec` to run commands inside the web container.
+AI containers never access the database directly. They use SSH to run commands inside the web container.
 
 ## Agent Architecture
 

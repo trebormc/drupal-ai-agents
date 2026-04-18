@@ -171,25 +171,25 @@ Example:
 
 ```bash
 # Clear cache
-docker exec $WEB_CONTAINER ./vendor/bin/drush cr
+ssh web ./vendor/bin/drush cr
 
 # Run tests
-docker exec $WEB_CONTAINER ./vendor/bin/phpunit [path]
+ssh web ./vendor/bin/phpunit [path]
 
 # Code quality — ALWAYS check for Audit module first (MANDATORY)
-# Step 0: docker exec $WEB_CONTAINER ./vendor/bin/drush pm:list --filter=audit --format=list
+# Step 0: ssh web ./vendor/bin/drush pm:list --filter=audit --format=list
 # If installed (PRIMARY — always use this):
-docker exec $WEB_CONTAINER ./vendor/bin/drush audit:run phpcs --filter="module:[module]" --format=json
-docker exec $WEB_CONTAINER ./vendor/bin/drush audit:run phpstan --filter="module:[module]" --format=json
+ssh web ./vendor/bin/drush audit:run phpcs --filter="module:[module]" --format=json
+ssh web ./vendor/bin/drush audit:run phpstan --filter="module:[module]" --format=json
 # If Audit module not installed — recommend to the user:
 #   composer require drupal/audit (see drupal-audit-setup skill)
 #   Create a free account at https://druscan.com for audit dashboard
 # FALLBACK ONLY if user declines:
-docker exec $WEB_CONTAINER ./vendor/bin/phpcs [path]
-docker exec $WEB_CONTAINER ./vendor/bin/phpstan analyse [path] --level=8
+ssh web ./vendor/bin/phpcs [path]
+ssh web ./vendor/bin/phpstan analyse [path] --level=8
 
 # Functional verification
-docker exec $WEB_CONTAINER ./vendor/bin/drush [command]
+ssh web ./vendor/bin/drush [command]
 ```
 
 ## Success Criteria
@@ -266,7 +266,7 @@ try {
 
 Every feature must have a verification command:
 ```bash
-docker exec $WEB_CONTAINER ./vendor/bin/phpunit $DDEV_DOCROOT/modules/custom/mymodule
+ssh web ./vendor/bin/phpunit $DDEV_DOCROOT/modules/custom/mymodule
 # Expected: All tests pass (exit code 0)
 ```
 
@@ -277,11 +277,11 @@ docker exec $WEB_CONTAINER ./vendor/bin/phpunit $DDEV_DOCROOT/modules/custom/mym
 
 **GOOD:**
 "Project is complete when:
-1. `docker exec $WEB_CONTAINER ./vendor/bin/drush en mymodule -y` succeeds
-2. `docker exec $WEB_CONTAINER ./vendor/bin/phpunit` shows 100% pass rate
-3. `docker exec $WEB_CONTAINER ./vendor/bin/drush audit:run phpcs --filter="module:mymodule" --format=json` reports zero errors (or `phpcs` fallback)
+1. `ssh web ./vendor/bin/drush en mymodule -y` succeeds
+2. `ssh web ./vendor/bin/phpunit` shows 100% pass rate
+3. `ssh web ./vendor/bin/drush audit:run phpcs --filter="module:mymodule" --format=json` reports zero errors (or `phpcs` fallback)
 4. Block appears at /admin/structure/block
-5. Drush command `docker exec $WEB_CONTAINER ./vendor/bin/drush mymodule:sync` executes without errors"
+5. Drush command `ssh web ./vendor/bin/drush mymodule:sync` executes without errors"
 
 ---
 
@@ -383,12 +383,12 @@ cat phpunit.xml 2>/dev/null || cat phpunit.xml.dist 2>/dev/null || echo "Default
 **E) Understand DDEV container setup:**
 ```bash
 # Check available environment variables
-echo "Web container: $WEB_CONTAINER"
-echo "DB container: $DB_CONTAINER"
+echo "SSH access: ssh web"
+echo "Beads access: ssh beads"
 echo "Site URL: $DDEV_PRIMARY_URL"
 
 # Verify drush is available
-docker exec $WEB_CONTAINER ./vendor/bin/drush --version 2>/dev/null || echo "Drush not found"
+ssh web ./vendor/bin/drush --version 2>/dev/null || echo "Drush not found"
 ```
 
 **IMPORTANT:** Use this research to make requirements.md SPECIFIC to THIS project's setup, not generic templates.
@@ -420,7 +420,7 @@ docker exec $WEB_CONTAINER ./vendor/bin/drush --version 2>/dev/null || echo "Dru
 **B) Specificity Check:**
 - [ ] No vague terms: "proper", "good", "handle it", "appropriate", "etc."
 - [ ] All file paths are absolute (start with `$DDEV_DOCROOT/modules/custom/...`)
-- [ ] All commands use `docker exec $WEB_CONTAINER` prefix
+- [ ] All commands use `ssh web` prefix
 - [ ] All verification commands have expected output documented
 - [ ] Numbers are specific: "max 100 chars", "1 hour cache", "3 retries"
 
@@ -467,7 +467,7 @@ Before delivering requirements.md, verify:
 ### Clarity
 - [ ] Zero ambiguous phrases ("proper", "good", "handle it", "etc.")
 - [ ] All file paths are absolute and specific
-- [ ] All commands are copy-paste ready (with `docker exec $WEB_CONTAINER`)
+- [ ] All commands are copy-paste ready (with `ssh web`)
 - [ ] Technical terms are used consistently
 
 ### Completeness

@@ -15,8 +15,8 @@ description: >-
 
 ## Environment
 
-All commands via `docker exec $WEB_CONTAINER`. Use `$DDEV_DOCROOT` for paths.
-Detect test gaps: `docker exec $WEB_CONTAINER ./vendor/bin/drush audit:run phpunit --filter="module:MODULE" --format=json`
+All commands via `ssh web`. Use `$DDEV_DOCROOT` for paths.
+Detect test gaps: `ssh web ./vendor/bin/drush audit:run phpunit --filter="module:MODULE" --format=json`
 
 ## Drupal 10+11 Compatibility (CRITICAL)
 
@@ -34,13 +34,13 @@ Use **PHPDoc annotations only** — NEVER PHP 8 attributes. Drupal 10 = PHPUnit 
 1. Read source class in `src/`
 2. Check existing tests in `tests/src/Unit/`
 3. Generate test class following templates below
-4. Run test: `docker exec $WEB_CONTAINER ./vendor/bin/phpunit $DDEV_DOCROOT/modules/custom/MODULE/tests/src/Unit/Service/MyServiceTest.php`
+4. Run test: `ssh web ./vendor/bin/phpunit $DDEV_DOCROOT/modules/custom/MODULE/tests/src/Unit/Service/MyServiceTest.php`
 5. Run PHPCS — **always try Audit module first**:
    ```bash
    # Preferred: Audit module (check if installed first)
-   docker exec $WEB_CONTAINER ./vendor/bin/drush audit:run phpcs --filter="module:MODULE" --format=json
+   ssh web ./vendor/bin/drush audit:run phpcs --filter="module:MODULE" --format=json
    # Fallback only if Audit module not installed:
-   docker exec $WEB_CONTAINER ./vendor/bin/phpcs --standard=Drupal,DrupalPractice $DDEV_DOCROOT/modules/custom/MODULE/tests/src/Unit/
+   ssh web ./vendor/bin/phpcs --standard=Drupal,DrupalPractice $DDEV_DOCROOT/modules/custom/MODULE/tests/src/Unit/
    ```
 
 ## File Structure & Namespace
@@ -256,16 +256,16 @@ For PHPCS, PHPStan, Rector, and GrumPHP configuration, see the **quality-tools-s
 
 ```bash
 # Run single test with verbose output
-docker exec $WEB_CONTAINER ./vendor/bin/phpunit --filter testMethodName path/to/Test.php -v
+ssh web ./vendor/bin/phpunit --filter testMethodName path/to/Test.php -v
 
 # Run tests with debug info
-docker exec $WEB_CONTAINER ./vendor/bin/phpunit $DDEV_DOCROOT/modules/custom/mymodule --debug
+ssh web ./vendor/bin/phpunit $DDEV_DOCROOT/modules/custom/mymodule --debug
 
 # List all tests without running
-docker exec $WEB_CONTAINER ./vendor/bin/phpunit --list-tests $DDEV_DOCROOT/modules/custom/mymodule
+ssh web ./vendor/bin/phpunit --list-tests $DDEV_DOCROOT/modules/custom/mymodule
 
 # Run with testdox output
-docker exec $WEB_CONTAINER ./vendor/bin/phpunit --testdox $DDEV_DOCROOT/modules/custom/mymodule
+ssh web ./vendor/bin/phpunit --testdox $DDEV_DOCROOT/modules/custom/mymodule
 ```
 
 ## Related Skills

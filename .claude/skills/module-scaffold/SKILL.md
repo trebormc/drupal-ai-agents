@@ -14,7 +14,7 @@ description: >-
 
 ## Environment
 
-All commands run via `docker exec $WEB_CONTAINER`. All modules go in
+All commands run via `ssh web`. All modules go in
 `$DDEV_DOCROOT/modules/custom/`. **Never hardcode `web/`** — use `$DDEV_DOCROOT`
 (detect with `grep "^docroot:" .ddev/config.yaml`).
 
@@ -128,7 +128,7 @@ final class {ControllerName} extends ControllerBase {
 After scaffolding, enable the module and validate code quality:
 
 ```bash
-docker exec $WEB_CONTAINER ./vendor/bin/drush en {module_name} -y
+ssh web ./vendor/bin/drush en {module_name} -y
 ```
 
 Then run quality checks — see the **quality-checks** skill for the full workflow (Audit module primary, raw tools fallback). All checks must pass with zero errors before presenting the module to the user.

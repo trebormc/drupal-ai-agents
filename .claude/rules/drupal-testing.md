@@ -195,25 +195,25 @@ modules/custom/my_module/
 
 ```bash
 # Unit tests
-docker exec $WEB_CONTAINER ./vendor/bin/phpunit -c core --testsuite unit $DDEV_DOCROOT/modules/custom/MODULE/
+ssh web ./vendor/bin/phpunit -c core --testsuite unit $DDEV_DOCROOT/modules/custom/MODULE/
 
 # Kernel tests (requires SIMPLETEST_DB)
-docker exec $WEB_CONTAINER ./vendor/bin/phpunit -c core --testsuite kernel $DDEV_DOCROOT/modules/custom/MODULE/
+ssh web ./vendor/bin/phpunit -c core --testsuite kernel $DDEV_DOCROOT/modules/custom/MODULE/
 
 # Functional tests (requires SIMPLETEST_DB + SIMPLETEST_BASE_URL)
-docker exec $WEB_CONTAINER ./vendor/bin/phpunit -c core --testsuite functional $DDEV_DOCROOT/modules/custom/MODULE/
+ssh web ./vendor/bin/phpunit -c core --testsuite functional $DDEV_DOCROOT/modules/custom/MODULE/
 
 # FunctionalJavascript (requires ChromeDriver running)
-docker exec $WEB_CONTAINER ./vendor/bin/phpunit -c core --testsuite functional-javascript $DDEV_DOCROOT/modules/custom/MODULE/
+ssh web ./vendor/bin/phpunit -c core --testsuite functional-javascript $DDEV_DOCROOT/modules/custom/MODULE/
 
 # By group
-docker exec $WEB_CONTAINER ./vendor/bin/phpunit -c core --group MODULE
+ssh web ./vendor/bin/phpunit -c core --group MODULE
 
 # Specific test
-docker exec $WEB_CONTAINER ./vendor/bin/phpunit -c core --filter testMethodName
+ssh web ./vendor/bin/phpunit -c core --filter testMethodName
 
 # Behat
-docker exec $WEB_CONTAINER ./vendor/bin/behat --config=behat.yml
+ssh web ./vendor/bin/behat --config=behat.yml
 
 # Playwright
 npx playwright test

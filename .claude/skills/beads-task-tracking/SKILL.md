@@ -17,7 +17,7 @@ description: >-
 
 ## Environment
 
-Beads runs in its own DDEV container (`ddev-{project}-beads`). A wrapper script at `/usr/local/bin/bd` is installed in your container, so all `bd` commands work directly -- they are transparently delegated to the Beads container via `docker exec $BEADS_CONTAINER`.
+Beads runs in its own DDEV container (`ddev-{project}-beads`). A wrapper script at `/usr/local/bin/bd` is installed in your container, so all `bd` commands work directly -- they are transparently delegated to the Beads container via SSH.
 
 The `.beads/` directory lives in the project root (`/var/www/html/.beads/`) and is shared across all containers through the project volume.
 
