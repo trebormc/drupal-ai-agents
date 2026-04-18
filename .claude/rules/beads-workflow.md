@@ -35,7 +35,6 @@ bd create "New task" -p 1 --json                # Create task (P0-P3)
 bd create "Remaining work" -p 2 --json          # File follow-ups
 bd close <id> --reason "Done" --json            # Close completed
 bd update <id> --notes "Paused at: ..."         # Document state
-bd sync                                          # Sync Beads state only
 ```
 
 **Lessons Learned check**: Before finishing, review your session — if you solved any non-trivial problems (failed commands, wrong APIs, environment quirks), ensure they are documented in `LESSONS_LEARNED.md`. Mention in your summary: "X lessons documented in LESSONS_LEARNED.md".
@@ -52,7 +51,6 @@ bd sync                                          # Sync Beads state only
 | Update status | `bd update <id> --status in_progress` |
 | Add notes | `bd update <id> --notes "..."` |
 | Close | `bd close <id> --reason "Done" --json` |
-| Sync | `bd sync` |
 
 ## Priority Levels
 
@@ -60,6 +58,14 @@ bd sync                                          # Sync Beads state only
 | P1 | High - important features |
 | P2 | Medium - normal tasks |
 | P3 | Low - nice-to-haves |
+
+## SSH Wrapper Limitations
+
+The `bd` wrapper forwards commands to the Beads container via SSH. Arguments with spaces and special characters are escaped automatically via `printf %q`. Keep in mind:
+
+- **Always use `--json` flag** on create, close, and show for parseable output
+- **Never use `bd edit`** -- it opens an interactive editor that will hang
+- If a command fails unexpectedly, verify the subcommand exists with `bd --help`
 
 ## Commit Convention (Reference Only)
 

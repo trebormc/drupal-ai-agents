@@ -79,9 +79,6 @@ bd ready --json
 
 # Show details of a specific task
 bd show <id> --json
-
-# Sync state (persist to git)
-bd sync
 ```
 
 ## Session End ("Land the Plane") - MANDATORY
@@ -98,8 +95,6 @@ bd close <id> --reason "Done: implemented service and unit tests" --json
 # 3. Document paused state for in-progress tasks
 bd update <id> --notes "Paused at: form validation logic, needs edge case handling"
 
-# 4. Sync Beads state
-bd sync
 ```
 
 ## Quick Reference
@@ -115,7 +110,6 @@ bd sync
 | Mark active | `bd update <id> --status in_progress` |
 | Add notes | `bd update <id> --notes "..."` |
 | Close task | `bd close <id> --reason "Done" --json` |
-| Sync state | `bd sync` |
 
 ## Integration with Ralph Loop
 
@@ -150,5 +144,4 @@ The loop exits automatically when `bd ready` returns an empty array `[]`.
 2. **NEVER run git commit or git push** -- leave all git operations to the user
 3. **Always use `--json` flag** on create, close, and show for parseable output
 4. **Always close tasks with a reason** -- this documents what was accomplished
-5. **Always sync before ending** -- `bd sync` persists state for the next session
-6. **Reference task IDs in commit messages** -- suggest format: `"Add feature X (bd-a1b2)"`
+5. **Reference task IDs in commit messages** -- suggest format: `"Add feature X (bd-a1b2)"`

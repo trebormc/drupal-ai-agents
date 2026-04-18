@@ -17,7 +17,7 @@ description: Git workflow rules — agents must not commit or push
 - Present a clear summary of all file changes
 - Suggest appropriate commit messages
 - List modified files for user review
-- Use `bd sync` to sync Beads state (does not commit code)
+- Close completed Beads tasks with `bd close <id> --reason "Done" --json`
 
 ## User Workflow
 

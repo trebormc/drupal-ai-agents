@@ -109,7 +109,7 @@ After generating blocks, delegate to the `applier` agent with the blocks as inpu
 
 **Agents MUST NOT:** run `git commit`, `git push`, or `git add`.
 
-Present a clear summary of all file changes. The user reviews and commits manually. Use `bd sync` for Beads state only (does not commit code).
+Present a clear summary of all file changes. The user reviews and commits manually.
 
 ## Web Testing
 
@@ -169,7 +169,6 @@ bd close bd-abc --reason "Completed and tested" --json
 bd create "TODO: remaining work" -p 2 --json    # File remaining items
 bd close bd-xyz --reason "Done" --json           # Close completed tasks
 bd update bd-abc --notes "Paused at: ..."        # Context for in-progress
-bd sync                                          # Sync Beads state
 # Present summary of changes for user review
 ```
 
