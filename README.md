@@ -349,6 +349,7 @@ This configuration package is part of [DDEV AI Workspace](https://github.com/tre
 | [ddev-claude-code](https://github.com/trebormc/ddev-claude-code) | [Claude Code](https://docs.anthropic.com/en/docs/claude-code) CLI container. Reads agents from `/agents-claude`. | Consumer |
 | [ddev-ralph](https://github.com/trebormc/ddev-ralph) | Autonomous AI task orchestrator. Uses `ralph-planner` agent and Beads workflow. | Consumer |
 | [ddev-beads](https://github.com/trebormc/ddev-beads) | [Beads](https://github.com/steveyegge/beads) git-backed task tracker. | Task tracking |
+| [ddev-ai-ssh](https://github.com/trebormc/ddev-ai-ssh) | SSH access to the web container. Generates per-project keys, installs sshd. | SSH infrastructure |
 | [ddev-playwright-mcp](https://github.com/trebormc/ddev-playwright-mcp) | Headless Playwright browser for visual testing. | Browser automation |
 
 ## Disclaimer
