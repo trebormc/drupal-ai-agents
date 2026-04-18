@@ -5,6 +5,7 @@ description: >
   Analyzes the code under test, decides the appropriate test type according to
   the rules defined in drupal-testing, and uses the corresponding skill to generate it.
   Supports Unit, Kernel, Functional, FunctionalJavascript, Behat and Playwright.
+model: ${MODEL_NORMAL}
 ---
 
 # Drupal Test Generator Agent
