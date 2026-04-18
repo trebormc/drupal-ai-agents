@@ -98,7 +98,7 @@ git checkout composer.json composer.lock config/sync/
 ssh web composer install
 
 # Restore database (if needed)
-ssh web gunzip -c /tmp/pre-update-backup.sql.gz | ssh web drush sql:cli
+ssh web bash -c 'gunzip -c /tmp/pre-update-backup.sql.gz | drush sql:cli'
 
 # Clear caches
 ssh web drush cache:rebuild

@@ -9,7 +9,7 @@ description: >-
   - user: "create a skill for deploying" -> scaffold SKILL.md with proper spec
   - user: "review my skills" -> audit all SKILL.md files for compliance
   - user: "create a skill for linting" -> scaffold SKILL.md following spec
-  Never create skills outside the config/skills/ directory structure.
+  Never create skills outside the .claude/skills/ directory structure.
 ---
 
 ## What I do
@@ -21,7 +21,7 @@ waste tokens.
 ## Directory structure
 
 ```
-config/skills/{skill-name}/
+.claude/skills/{skill-name}/
 └── SKILL.md
 ```
 
@@ -95,7 +95,7 @@ If description doesn't match user intent, body NEVER loads.
 When reviewing existing skills:
 
 ```bash
-find config/skills -name "SKILL.md" | while read f; do
+find .claude/skills -name "SKILL.md" | while read f; do
   dir=$(basename $(dirname "$f"))
   name=$(grep "^name:" "$f" | head -1 | awk '{print $2}')
   lines=$(wc -l < "$f")

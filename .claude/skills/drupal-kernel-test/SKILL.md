@@ -346,11 +346,16 @@ class MyTest extends KernelTestBase {
 5. Do not create unnecessary fixtures. Only what the test needs.
 6. Do not forget to reload entities. After modifying, use `Entity::load($id)` to verify persisted state.
 
-## Execution Command
+## Running Tests (User Reference)
+
+These commands run via `ssh web` (the web container has PHPUnit and the database):
 
 ```bash
-export SIMPLETEST_DB="sqlite://localhost/:memory:"
 ssh web ./vendor/bin/phpunit -c core --testsuite kernel $DDEV_DOCROOT/modules/custom/MODULE/
 ssh web ./vendor/bin/phpunit -c core --filter testName $DDEV_DOCROOT/modules/custom/MODULE/tests/src/Kernel/
 ssh web ./vendor/bin/phpunit -c core --group MODULE --testsuite kernel
 ```
+
+Environment variables like `SIMPLETEST_DB` are already configured in the web
+container via `phpunit.xml` or DDEV defaults. Do not `export` them in the agent
+container (they would not reach the web container via SSH).

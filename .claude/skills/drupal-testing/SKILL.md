@@ -65,8 +65,8 @@ ssh web sh -c "XDEBUG_MODE=coverage ./vendor/bin/phpunit --coverage-html=coverag
 # Behat
 ssh web ./vendor/bin/behat --config=behat.yml
 
-# Playwright
-npx playwright test
+# Playwright (run on host, not from agent container)
+# npx playwright test
 ```
 
 ## Test Directory Structure

@@ -229,10 +229,12 @@ In Drupal 11 `goog:chromeOptions` is mandatory (without the `goog:` prefix it do
 4. Tests with 15+ interactions. That is an E2E flow -> Behat or Playwright.
 5. Testing things that do not need JS. Use Functional test.
 
-## Execution Command
+## Running Tests (User Reference)
+
+ChromeDriver is already available inside the DDEV web container. Do not start it
+from the agent container (it would not be reachable by PHPUnit in web).
 
 ```bash
-chromedriver --port=9515 &
 ssh web ./vendor/bin/phpunit -c core --testsuite functional-javascript $DDEV_DOCROOT/modules/custom/MODULE/
 ssh web ./vendor/bin/phpunit -c core --testsuite functional-javascript --group MODULE
 ```

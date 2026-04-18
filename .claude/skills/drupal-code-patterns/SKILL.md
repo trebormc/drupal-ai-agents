@@ -278,7 +278,7 @@ $build['dynamic_part'] = [
 ];
 ```
 
-For comprehensive caching strategies, delegate to the **drupal-perf** agent.
+For comprehensive caching strategies, use the **performance-audit** skill.
 
 ## Batch API
 

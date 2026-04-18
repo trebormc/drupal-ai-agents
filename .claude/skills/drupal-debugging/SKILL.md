@@ -87,11 +87,11 @@ ssh web drush route:list | grep mymodule
 ## Container & Log Debugging
 
 ```bash
-# Web container error logs
-ssh web tail -f /var/log/apache2/error.log
+# Web container error logs (last 50 lines)
+ssh web tail -n 50 /var/log/apache2/error.log
 
-# Database container logs
-ssh web tail -f /var/log/mysql/error.log
+# Database container logs (last 50 lines)
+ssh web tail -n 50 /var/log/mysql/error.log
 
 # Test database connection
 ssh web drush sql:connect
@@ -140,7 +140,7 @@ With Twig debugging enabled, HTML comments show template suggestions and the act
 | Problem | Fix |
 |---------|-----|
 | Template not being used | Check filename matches Drupal suggestion exactly. Enable Twig debug, check HTML comments, `drush cr` |
-| Tailwind classes not working | Recompile: `npm run build --prefix $DDEV_DOCROOT/themes/custom/THEME`, `drush cr`, hard refresh (Ctrl+Shift+R) |
+| Tailwind classes not working | Recompile: `ssh web npm run build --prefix $DDEV_DOCROOT/themes/custom/THEME`, `ssh web drush cr`, hard refresh (Ctrl+Shift+R) |
 | JavaScript not executing | Verify library attached (`{{ attach_library() }}`), check console for errors, verify `mytheme.libraries.yml` syntax, `drush cr` |
 | Cache issues | Disable render/page/dynamic_page caches in `settings.local.php` using `cache.backend.null` |
 | Template suggestions not appearing | `ssh web drush twig:debug`, `drush cr` |
