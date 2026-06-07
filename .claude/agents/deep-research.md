@@ -17,7 +17,6 @@ tools:
   bash: false
   task: false
 allowed_tools: Read, Glob, Grep, WebFetch, WebSearch
-maxTurns: 30
 ---
 
 You are a Deep Research Specialist. You conduct thorough, multi-source investigations before providing answers.

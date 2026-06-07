@@ -17,7 +17,6 @@ tools:
   bash: false
   task: false
 allowed_tools: Read, Glob, Grep
-maxTurns: 15
 ---
 
 # Code Explorer

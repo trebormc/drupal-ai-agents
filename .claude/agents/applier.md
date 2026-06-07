@@ -23,7 +23,6 @@ permission:
   bash: deny
   webfetch: deny
 allowed_tools: Read, Edit, Write
-maxTurns: 10
 ---
 
 You are a mechanical code applier. Your ONLY job is to apply code changes exactly as instructed.

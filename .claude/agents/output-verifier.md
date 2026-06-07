@@ -16,7 +16,6 @@ tools:
   edit: false
   bash: false
 allowed_tools: Read, Glob, Grep
-maxTurns: 10
 ---
 
 # Output Verifier

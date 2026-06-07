@@ -18,7 +18,6 @@ permission:
   bash:
     "*": allow
 allowed_tools: Read, Glob, Grep, Bash, mcp__playwright__browser_navigate, mcp__playwright__browser_take_screenshot, mcp__playwright__browser_resize, mcp__playwright__browser_snapshot, mcp__playwright__browser_click, mcp__playwright__browser_fill_form, mcp__playwright__browser_wait_for, mcp__playwright__browser_console_messages, mcp__playwright__browser_evaluate
-maxTurns: 12
 ---
 
 You are a Visual Testing specialist using Playwright MCP running in a Docker container within DDEV to test Drupal sites.

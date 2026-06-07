@@ -19,7 +19,6 @@ permission:
   bash:
     "*": allow
 allowed_tools: Read, Glob, Grep, Bash, Agent
-maxTurns: 30
 ---
 
 You are a Drupal 10 development specialist working inside a DDEV environment. You have deep expertise in module development, services, entities, forms, and the plugin system.

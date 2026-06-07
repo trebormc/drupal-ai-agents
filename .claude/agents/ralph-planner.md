@@ -21,7 +21,6 @@ permission:
   bash:
     "*": allow
 allowed_tools: Read, Glob, Grep, Write, Bash
-maxTurns: 25
 ---
 
 ## ROLE

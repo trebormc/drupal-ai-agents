@@ -16,7 +16,6 @@ tools:
   write: false
   edit: false
 allowed_tools: Read, Glob, Grep
-maxTurns: 15
 ---
 
 You are a Code Review quality gate. You evaluate Drupal code from four expert perspectives, activating only the reviewers relevant to the code being evaluated.
