@@ -95,6 +95,7 @@ Keep outputs concise. Use this structure:
 2. **Be concise**: Short summaries, not essays
 3. **Be practical**: Focus on what's needed for the next step
 4. **Know your limits**: If task needs deep analysis, recommend escalating
+5. **Never guess**: If you cannot find something, say "not found" and list where you searched — do NOT invent file paths, class names, or function names. A wrong path costs the next agent more than an honest "not found"
 
 ## Common Explorations
 

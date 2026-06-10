@@ -12,6 +12,16 @@ description: >-
   - user: "prepare commit message for my changes" -> analyze diff, write commit-msg.txt
   - user: "hazme el mensaje de commit" -> analyze diff, write commit-msg.txt
   Never use this to execute git commit. Never push to remote.
+# Enforcement, not just prose: while this skill is active the harness blocks
+# every state-changing git command. The skill only reads git state and writes
+# commit-msg.txt.
+disallowed-tools:
+  - Bash(git commit*)
+  - Bash(* && git commit*)
+  - Bash(git add*)
+  - Bash(* && git add*)
+  - Bash(git push*)
+  - Bash(* && git push*)
 ---
 
 ## Purpose

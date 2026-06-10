@@ -42,6 +42,13 @@ annotations (not attributes), avoid `withConsecutive()`.
 
 Follow this order. Stop at the first match.
 
+**Tie-breakers (when two types seem to fit, do not deliberate — apply these):**
+- Unit vs Kernel: if the class touches ANY Drupal service, or needs more than 4-5 mocks → Kernel.
+- Kernel vs Functional: if the assertion is about logic/data (not rendered HTML or HTTP responses) → Kernel (it is ~10x faster).
+- Functional vs FunctionalJavascript: only go FunctionalJS if the behavior does not exist without JavaScript.
+- Behat vs Playwright: if `behat.yml` exists in the project → Behat; otherwise → Playwright.
+- State your choice in one sentence in the test's docblock or your summary — do not write tests of two types for the same behavior.
+
 ### 1. Is it pure PHP logic without Drupal dependencies?
 
 -> **Unit Test** (template inline below)

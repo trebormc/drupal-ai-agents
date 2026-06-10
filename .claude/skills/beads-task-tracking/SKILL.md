@@ -45,6 +45,8 @@ bd ready --json
 
 ## Creating Tasks
 
+**`bd create` is NOT idempotent — running it twice creates two tasks.** Before creating, check the task does not already exist (`bd ready --json` or `bd list --json`). If a previous create attempt failed ambiguously (e.g., SSH error), verify with `bd ready --json` before retrying.
+
 ```bash
 # Create a task with priority (P0-P3)
 bd create "Implement user authentication" -p 1 --json

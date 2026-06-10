@@ -35,6 +35,8 @@ See the `drupal-testing` rule for the complete decision tree. Quick summary:
 | E2E flows, acceptance (Behat project) | Behat | `drupal-behat-test` |
 | Visual regression, cross-browser, E2E (no Behat) | Playwright | `drupal-playwright-test` |
 
+**Tie-breakers (apply them, do not deliberate):** touches any Drupal service or needs >4-5 mocks → Kernel. Assertion about logic/data, not HTML/HTTP → Kernel over Functional. No-JS behavior → never FunctionalJS. `behat.yml` exists → Behat, else Playwright. Pick ONE type per behavior.
+
 ## Workflow
 
 1. **Detect Drupal version** — check `core/lib/Drupal.php` or `composer.json`

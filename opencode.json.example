@@ -4,6 +4,7 @@
   "small_model": "${MODEL_CHEAP}",
   "autoupdate": true,
   "instructions": [
+    "rules/coding-behavior.md",
     "rules/beads-workflow.md",
     "rules/drupal-coding-standards.md",
     "rules/security-rules.md",
