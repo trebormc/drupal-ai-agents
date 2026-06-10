@@ -26,10 +26,12 @@ description: >-
 Playwright MCP tools (`browser_navigate`, `browser_take_screenshot`, etc.) are registered as native tools via the MCP server configuration. They should be available directly — no manual HTTP/SSE protocol is needed.
 
 - MCP URL: `http://playwright-mcp:8931/mcp` (or `$PLAYWRIGHT_MCP_URL`)
-- Site URL: `$DDEV_PRIMARY_URL` (returns HTTPS — **always convert to HTTP**)
+- Site URL: use `$DDEV_HTTP_URL` (already HTTP). `$DDEV_PRIMARY_URL` is HTTPS — if you use it, convert to HTTP first
 - Web Container: accessible via `ssh web` (for commands like `drush uli`)
 
 ### If MCP tools are not available
+
+**This is a RECOVERY procedure only. If the browser_* tools are visible, skip this entire section.**
 
 If the browser tools are not showing up as available tools:
 
@@ -96,7 +98,7 @@ echo $PLAYWRIGHT_MCP_URL
 | `browser_handle_dialog` | Handle alerts | `accept` |
 | `browser_drag` | Drag and drop | `startRef`, `endRef` |
 
-### Tool Discovery
+### Tool Discovery (RECOVERY only — skip if the tools above work)
 
 If tool names have changed (new Playwright MCP version), list available tools dynamically:
 
@@ -229,7 +231,7 @@ ssh web drush uli
 | Problem | Fix |
 |---------|-----|
 | MCP tools not available | Check MCP registration in `.claude/settings.local.json` or `opencode.json` |
-| Playwright not responding | `curl -s http://playwright-mcp:8931/sse -H "Accept: text/event-stream" \| head -1` → ask user to `ddev restart` |
+| Playwright not responding | Run the MCP health-check curl from "If MCP tools are not available" above; if it fails, ask the user to run `ddev restart` |
 | SSL/certificate errors | Convert HTTPS to HTTP in ALL URLs |
 | 403 Forbidden | Authenticate with `drush uli` first |
 | Element not found | Use `browser_snapshot` to see available elements, then `browser_wait_for` |

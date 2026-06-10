@@ -128,18 +128,22 @@ Never apply without user confirmation.
 
 ## Step 6: PHPUnit Tests
 
-Run in order of speed. Skip if test directory does not exist.
+Run in order of speed (Unit -> Kernel -> Functional). Skip any suite whose directory does not exist (check with `ssh web test -d <TARGET>/tests/src/Unit`).
 
 ```bash
 # Via Audit module (preferred)
 ssh web drush audit:run phpunit \
   --filter="module:<MODULE_NAME>" --format=json
 
-# Direct PHPUnit (fallback)
-ssh web ./vendor/bin/phpunit -c $DDEV_DOCROOT/core <TARGET>/tests/src/Unit
-ssh web ./vendor/bin/phpunit -c $DDEV_DOCROOT/core <TARGET>/tests/src/Kernel
-ssh web ./vendor/bin/phpunit -c $DDEV_DOCROOT/core <TARGET>/tests/src/Functional
+# Direct PHPUnit (fallback) — if the project has phpunit.xml at the root:
+ssh web ./vendor/bin/phpunit <TARGET>/tests/src/Unit
+
+# Direct PHPUnit (fallback) — if there is NO project phpunit.xml:
+ssh web env SIMPLETEST_DB=mysql://db:db@db/db SIMPLETEST_BASE_URL=http://localhost \
+  ./vendor/bin/phpunit -c $DDEV_DOCROOT/core <TARGET>/tests/src/Unit
 ```
+
+See the **drupal-testing** rule for the full canonical pattern and setup-error recovery table.
 
 ## Step 7: Final Verification
 

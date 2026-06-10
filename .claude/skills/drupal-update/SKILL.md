@@ -38,21 +38,28 @@ ssh web drush updatedb:status
 ```bash
 ssh web drush sql:dump --result-file=/tmp/pre-update-backup.sql --gzip
 git rev-parse HEAD  # Note for rollback
+
+# VERIFY the backup before continuing (file exists and is non-empty):
+ssh web test -s /tmp/pre-update-backup.sql.gz && echo "BACKUP OK" || echo "STOP: backup failed"
 ```
+
+**If the output is not "BACKUP OK": STOP. Tell the user the backup failed. Do NOT continue the update.**
 
 ## Phase 3: Composer Updates
 
+Pick ONE variant:
+
 ```bash
-# Update everything
+# Update everything — routine maintenance window, full regression test planned
 ssh web composer update --with-all-dependencies
 
-# Core only
+# Core only — when you only want the Drupal core release (safest scope)
 ssh web composer update "drupal/core-*" --with-all-dependencies
 
-# Specific package
+# Specific package — targeted fix or single contrib update
 ssh web composer update drupal/package_name --with-all-dependencies
 
-# Security only
+# Security only — when the goal is just to patch advisories
 ssh web composer audit
 ssh web composer update --with-all-dependencies $(ssh web composer audit --format=json | jq -r '.advisories | keys | .[]')
 ```
@@ -77,7 +84,10 @@ ssh web drush config:export -y
 ssh web drush core:status
 ssh web drush watchdog:show --severity=error --count=10
 ssh web drush core:requirements
-ssh web ./vendor/bin/phpunit -c $DDEV_DOCROOT/core $DDEV_DOCROOT/modules/custom --testdox 2>/dev/null || echo "No tests"
+
+# Run custom module tests if any exist (Form ROOT shown; if no project phpunit.xml,
+# use the canonical Form CORE pattern from the drupal-testing skill):
+ssh web ./vendor/bin/phpunit $DDEV_DOCROOT/modules/custom --testdox 2>/dev/null || echo "No tests"
 ```
 
 ## Phase 7: Present Summary
@@ -90,33 +100,36 @@ ssh web ./vendor/bin/phpunit -c $DDEV_DOCROOT/core $DDEV_DOCROOT/modules/custom 
 
 ## Rollback Procedure
 
-```bash
-# Reset Git changes
-git checkout composer.json composer.lock config/sync/
+Git restore commands must be run BY THE USER (agents cannot run `git checkout` — see git-workflow rule). Give the user step 1, then run steps 2-4 yourself:
 
-# Restore composer packages
+```bash
+# 1. ASK THE USER to run on the host:
+#    git checkout composer.json composer.lock config/sync/
+
+# 2. Restore composer packages
 ssh web composer install
 
-# Restore database (if needed)
+# 3. Restore database (if needed)
 ssh web bash -c 'gunzip -c /tmp/pre-update-backup.sql.gz | drush sql:cli'
 
-# Clear caches
+# 4. Clear caches
 ssh web drush cache:rebuild
 ```
 
 ## Error Handling
 
 ### Composer Conflicts
+
 ```bash
+# Find what blocks the update:
 ssh web composer why-not drupal/package_name:^X.Y
 ```
 
+Then either update the blocking package FIRST (`ssh web composer update <blocker> --with-all-dependencies`) or report the conflict to the user. NEVER use `--ignore-platform-reqs` or `--force` as a workaround.
+
 ### Database Update Failures
-```bash
-ssh web drush sql:cli < /tmp/pre-update-backup.sql.gz
-git checkout composer.lock
-ssh web composer install
-```
+
+Run the Rollback Procedure above (restore DB from the verified backup, then have the user reset composer files).
 
 ## Command Reference
 

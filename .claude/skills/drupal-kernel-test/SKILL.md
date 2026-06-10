@@ -72,8 +72,9 @@ use Drupal\KernelTests\KernelTestBase;
 class NameTest extends KernelTestBase {
 
   /**
-   * Required modules. List dependencies BEFORE the module under test.
-   * Only the strictly necessary ones -- each extra module slows things down.
+   * Required modules. List dependencies BEFORE the module under test
+   * (modules install in array order). Only the strictly necessary ones --
+   * each extra module slows things down.
    */
   protected static $modules = [
     'system',
@@ -346,16 +347,28 @@ class MyTest extends KernelTestBase {
 5. Do not create unnecessary fixtures. Only what the test needs.
 6. Do not forget to reload entities. After modifying, use `Entity::load($id)` to verify persisted state.
 
-## Running Tests (User Reference)
+## Running Tests
 
-These commands run via `ssh web` (the web container has PHPUnit and the database):
+First pick the config form ONCE per session: `ssh web test -f phpunit.xml && echo "ROOT" || echo "CORE"`
 
 ```bash
-ssh web ./vendor/bin/phpunit -c core --testsuite kernel $DDEV_DOCROOT/modules/custom/MODULE/
-ssh web ./vendor/bin/phpunit -c core --filter testName $DDEV_DOCROOT/modules/custom/MODULE/tests/src/Kernel/
-ssh web ./vendor/bin/phpunit -c core --group MODULE --testsuite kernel
+# Form ROOT (project phpunit.xml exists — it already sets SIMPLETEST_DB):
+ssh web ./vendor/bin/phpunit $DDEV_DOCROOT/modules/custom/MODULE/tests/src/Kernel
+ssh web ./vendor/bin/phpunit --filter testName $DDEV_DOCROOT/modules/custom/MODULE/tests/src/Kernel
+
+# Form CORE (no project phpunit.xml — pass env vars explicitly):
+ssh web env SIMPLETEST_DB=mysql://db:db@db/db SIMPLETEST_BASE_URL=http://localhost \
+  ./vendor/bin/phpunit -c $DDEV_DOCROOT/core $DDEV_DOCROOT/modules/custom/MODULE/tests/src/Kernel
 ```
 
-Environment variables like `SIMPLETEST_DB` are already configured in the web
-container via `phpunit.xml` or DDEV defaults. Do not `export` them in the agent
-container (they would not reach the web container via SSH).
+Never use `-c core` alone and never rely on `--testsuite` — see the **drupal-testing** rule for the full canonical pattern. Do not `export` env vars in the agent container (they would not reach the web container via SSH) — pass them inline with `env` as shown.
+
+## Troubleshooting
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| "Unknown entity type X" | Schema not installed or module missing | Add `$this->installEntitySchema('X')` in setUp() AND the providing module to `$modules` |
+| "Base table or view not found" | Missing schema install | Add the matching `installSchema()` / `installEntitySchema()` call in setUp() |
+| "Service not found" | Providing module not enabled | Add the module that defines the service to `$modules` |
+| `Class not found` | Stale autoloader or wrong namespace | `ssh web composer dump-autoload`; verify namespace matches directory path |
+| "Could not connect to database" | SIMPLETEST_DB not set | Use Form CORE with explicit env vars (above) |

@@ -4,15 +4,23 @@ description: >-
   Reference patterns and templates for common Drupal 10/11 development tasks:
   forms, block plugins, routing, controllers, hooks, caching, Batch API,
   Queue API, and AJAX forms. Use when implementing these patterns in custom
-  modules. For module scaffolding (info.yml, services.yml), use drupal-module-scaffold.
+  modules. For module scaffolding (info.yml, services.yml), use module-scaffold.
   Examples:
   - user: "create a form" -> use Form template pattern
   - user: "add a block plugin" -> use Block Plugin template
   - user: "implement hook_form_alter" -> use Hooks patterns
   - user: "add AJAX to my form" -> use AJAX Form pattern
   - user: "batch process for importing data" -> use Batch API pattern
-  Never use for module scaffolding (use drupal-module-scaffold) or theming (use drupal-theme agent).
+  Never use for module scaffolding (use module-scaffold) or theming (use drupal-theme agent).
 ---
+
+## About the "Reference:" paths below
+
+Some patterns point to the contrib Examples module for extended reference. These templates are SELF-SUFFICIENT — the references are optional extra reading. Before following one, check it exists:
+
+```bash
+ssh web test -d $DDEV_DOCROOT/modules/contrib/examples && echo "examples available" || echo "examples not installed — skip the references"
+```
 
 ## Service Class
 
@@ -411,3 +419,17 @@ final class AjaxExampleForm extends FormBase {
 
 }
 ```
+
+## After Applying Any Pattern
+
+```bash
+# 1. Register new classes/files and rebuild caches:
+ssh web drush cr
+
+# 2. If you added/changed a route, verify it exists:
+ssh web drush route | grep mymodule
+
+# 3. Run quality checks (see the quality-checks skill) before presenting the code.
+```
+
+Where to see the result: forms/controllers at their route path, blocks via Block Layout (`/admin/structure/block`) after placing them.

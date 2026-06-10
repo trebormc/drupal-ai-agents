@@ -57,6 +57,7 @@ ssh web test -f test/playwright/playwright.config.ts && echo "OK" || echo "NOT F
 
 If not found, inform the user that Playwright needs to be set up on the host first.
 Do NOT attempt to install Playwright or DDEV add-ons from within the container.
+**Playwright installs and RUNS on the HOST machine**: you generate the test files; the USER runs `npm install` and `npx playwright test` on the host.
 
 ## Directory Structure
 
@@ -74,6 +75,8 @@ test/playwright/
 
 ## Configuration Reference -- playwright.config.ts
 
+**ALWAYS use HTTP, never HTTPS, in baseURL and all navigation** — DDEV uses self-signed certificates that fail even with `ignoreHTTPSErrors`.
+
 When the user needs a config file, generate it with these DDEV-specific settings:
 
 ```typescript
@@ -86,6 +89,8 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   reporter: [['html', { open: 'never' }], ['list']],
   use: {
+    // REPLACE myproject with the real project name — get it with: echo $DDEV_SITENAME
+    // (or hardcode the value of $DDEV_HTTP_URL, which is already HTTP)
     baseURL: process.env.DDEV_PRIMARY_URL?.replace('https://', 'http://')
              || 'http://myproject.ddev.site',
     trace: 'on-first-retry',
@@ -252,3 +257,12 @@ cd test/playwright && npx playwright test --project=chromium
 # Update visual baselines
 cd test/playwright && npx playwright test --update-snapshots
 ```
+
+## Troubleshooting
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `ERR_CERT_*` / certificate errors | HTTPS URL used | baseURL and all navigation must be `http://` |
+| Connection refused | Wrong project name in baseURL | Use the real site name (`echo $DDEV_SITENAME` → `http://<name>.ddev.site`) |
+| Auth fixture fails | `drush uli` returned HTTPS URL | The fixture must replace `https://` with `http://` before `page.goto()` |
+| `npx: command not found` inside container | Tests run on the HOST | Ask the user to run them on the host machine |

@@ -175,16 +175,15 @@ ssh web drush cr
 # Run tests
 ssh web ./vendor/bin/phpunit [path]
 
-# Code quality — ALWAYS check for Audit module first (MANDATORY)
-# Step 0: ssh web drush pm:list --filter=audit --format=list
-# If installed (PRIMARY — always use this):
+# Code quality — check ONCE whether the Audit module is installed:
+ssh web drush pm:list --filter=audit --format=list
+# If output is NOT empty (Audit installed) — use these:
 ssh web drush audit:run phpcs --filter="module:[module]" --format=json
 ssh web drush audit:run phpstan --filter="module:[module]" --format=json
-# If Audit module not installed — recommend to the user:
-#   composer require drupal/audit (see drupal-audit-setup skill)
-#   Create a free account at https://druscan.com for audit dashboard
-# FALLBACK ONLY if user declines:
-ssh web ./vendor/bin/phpcs [path]
+# If output IS empty (Audit NOT installed) — this is an autonomous run, do NOT wait
+# for the user: use the raw fallback below, and add a note to the final summary
+# recommending `composer require drupal/audit` (see drupal-audit-setup skill):
+ssh web ./vendor/bin/phpcs --standard=Drupal,DrupalPractice [path]
 ssh web ./vendor/bin/phpstan analyse [path] --level=8
 
 # Functional verification

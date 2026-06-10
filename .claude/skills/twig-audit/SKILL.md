@@ -15,6 +15,39 @@ metadata:
 
 **Principle: Twig is for presentation ONLY. Preprocess handles logic.**
 
+## Audit Workflow
+
+1. Run the detection greps below on the theme/module templates.
+2. Read EVERY flagged template in full (grep hits need context to confirm).
+3. Classify each confirmed hit against the anti-pattern list (severity: drilling/raw = CRITICAL, logic/isolation = HIGH, attributes = MEDIUM).
+4. Produce the report using the Audit Report Format at the end.
+
+## Detection Commands
+
+Replace `TPL` with the templates directory, e.g. `$DDEV_DOCROOT/themes/custom/*/templates/`:
+
+```bash
+# Anti-pattern 1: render array drilling — matches content.field_x[0]['#markup'] and ['#items']
+grep -rn "\[.['\"]#" TPL ; grep -rn "\['#" TPL
+
+# Anti-pattern 2: business logic — comparisons/calculations on .value inside if/set
+grep -rnE "\{% *(if|set) .*\.value" TPL
+
+# Anti-pattern 3: raw filter usage — every hit must be justified
+grep -rn "|raw" TPL
+
+# Anti-pattern 4: non-isolated includes — check each hit for "with_context = false" or "only"
+grep -rn "include(" TPL ; grep -rn "{% embed" TPL
+
+# Anti-pattern 6: direct entity access bypassing the render system
+grep -rn "\.entity\." TPL
+
+# Anti-pattern 7: attributes built as strings
+grep -rnE "class=\"[^\"]*\{\{" TPL
+```
+
+A grep hit is a CANDIDATE, not a confirmed issue — always read the template before reporting.
+
 ## Anti-Patterns to Detect
 
 ### 1. Render Array Drilling (CRITICAL — Breaks Cache)
@@ -57,6 +90,8 @@ metadata:
 {{ include('mytheme:card', {heading: title}, with_context = false) }}
 {% embed 'mytheme:card' with {heading: title} only %}
 ```
+
+Use `include` (+ `with_context = false`) when only passing simple values; use `embed` (+ `only`) when the component has blocks/slots to fill. Both isolate the component from the parent template's variables.
 
 ### 5. Content Not Rendered (Loses Cache Metadata)
 ```twig

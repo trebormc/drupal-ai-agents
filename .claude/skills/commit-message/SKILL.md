@@ -154,13 +154,21 @@ Before writing the file:
 
 ## Step 4: Save the File
 
-Write the message to `commit-msg.txt` in the project root. Then inform the user:
+Write the message to `commit-msg.txt` in the project root and verify it:
+
+```bash
+test -f commit-msg.txt && head -3 commit-msg.txt
+```
+
+Then inform the user:
 
 1. Show the generated message
 2. Remind them how to use it:
    - `git add <files>` (if not already staged)
    - `git commit -F commit-msg.txt`
    - `rm commit-msg.txt`
+
+**You only GENERATE the message. NEVER run `git add` or `git commit` yourself.**
 
 ## Examples
 

@@ -10,7 +10,7 @@ description: >-
   - user: "enable my module" -> run drush en module_name via ssh web
   - user: "clear cache" -> run drush cr via ssh web
   - user: "update the database" -> run drush updb via ssh web
-  Never use for config export/import workflows (use drupal-config-management).
+  Never use for config export/import workflows (use config-management).
 ---
 
 ## Environment

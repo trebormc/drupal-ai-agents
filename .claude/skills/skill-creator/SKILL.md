@@ -56,7 +56,7 @@ All commands run via `ssh web`.
 ### name (REQUIRED)
 - 1-64 chars, lowercase alphanumeric + single hyphens
 - Must match directory name exactly
-- Valid: `drupal-module-scaffold` | Invalid: `drupal_module`, `MySkill`
+- Valid: `module-scaffold`, `quality-checks` | Invalid: `drupal_module`, `MySkill`
 
 ### description (REQUIRED, 1-1024 chars)
 This is the ONLY text the LLM sees during skill selection. Structure:

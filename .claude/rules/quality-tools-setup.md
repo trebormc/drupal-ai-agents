@@ -147,6 +147,11 @@ grumphp:
 ## PHPUnit Configuration
 
 ### phpunit.xml (project root, for DDEV)
+
+Placing this file at the PROJECT ROOT is what enables the simple "Form ROOT" test commands (no `-c` flag, no env vars) — see the **drupal-testing** rule's canonical pattern. Without it, tests must use "Form CORE" (`-c $DDEV_DOCROOT/core` + explicit env vars).
+
+Remember: this template hardcodes `web/` — adapt to the real `$DDEV_DOCROOT` as noted at the top of this rule.
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -158,7 +163,8 @@ grumphp:
     <env name="SIMPLETEST_BASE_URL" value="http://localhost"/>
     <env name="SIMPLETEST_DB" value="mysql://db:db@db/db"/>
     <env name="BROWSERTEST_OUTPUT_DIRECTORY" value="/var/www/html/sites/simpletest/browser_output"/>
-    <env name="MINK_DRIVER_ARGS_WEBDRIVER" value='["chrome", {"browserName":"chrome","chromeOptions":{"args":["--disable-gpu","--headless","--no-sandbox"]}}, "http://chrome:9515"]'/>
+    <!-- goog:chromeOptions works on Drupal 10 and 11 (mandatory on 11) -->
+    <env name="MINK_DRIVER_ARGS_WEBDRIVER" value='["chrome", {"browserName":"chrome","goog:chromeOptions":{"args":["--disable-gpu","--headless","--no-sandbox"]}}, "http://chrome:9515"]'/>
   </php>
   <testsuites>
     <testsuite name="unit">

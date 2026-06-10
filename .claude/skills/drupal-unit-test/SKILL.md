@@ -34,7 +34,8 @@ Use **PHPDoc annotations only** — NEVER PHP 8 attributes. Drupal 10 = PHPUnit 
 1. Read source class in `src/`
 2. Check existing tests in `tests/src/Unit/`
 3. Generate test class following templates below
-4. Run test: `ssh web ./vendor/bin/phpunit $DDEV_DOCROOT/modules/custom/MODULE/tests/src/Unit/Service/MyServiceTest.php`
+4. Run test (Form ROOT — requires project phpunit.xml; if missing, use Form CORE from the **drupal-testing** skill):
+   `ssh web ./vendor/bin/phpunit $DDEV_DOCROOT/modules/custom/MODULE/tests/src/Unit/Service/MyServiceTest.php`
 5. Run PHPCS — **always try Audit module first**:
    ```bash
    # Preferred: Audit module (check if installed first)
@@ -215,7 +216,9 @@ $this->assertNotNull($result);
 
 ## PHPUnit Configuration (phpunit.xml)
 
-Adapt `web/` paths to match `$DDEV_DOCROOT` if different:
+Place this file at the PROJECT ROOT. It is what enables the simple "Form ROOT" commands (no `-c` flag, no env vars).
+
+**WARNING — BEFORE copying this template**: it uses `web/` as the docroot. Check the real docroot with `grep "^docroot:" .ddev/config.yaml` and replace EVERY `web/` below if it differs (e.g. `docroot/`):
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -267,6 +270,16 @@ ssh web ./vendor/bin/phpunit --list-tests $DDEV_DOCROOT/modules/custom/mymodule
 # Run with testdox output
 ssh web ./vendor/bin/phpunit --testdox $DDEV_DOCROOT/modules/custom/mymodule
 ```
+
+## Troubleshooting
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `Class not found` | Stale autoloader or wrong namespace | `ssh web composer dump-autoload`; verify namespace matches the directory path |
+| Cannot mock final class | `createMock()` on a final class | Mock the interface instead; if there is none, test through a wrapper or use a Kernel test |
+| setUp needs more than 4-5 mocks | Class is too coupled for unit testing | Switch to a Kernel test (**drupal-kernel-test** skill) |
+| Data provider error on Drupal 11 | Provider method is not static | Make all `@dataProvider` methods `public static function` |
+| `SIMPLETEST_DB` / DB connection errors | Unit test accidentally touching Drupal | Pure unit tests need no DB — remove the dependency or switch to Kernel test |
 
 ## Related Skills
 

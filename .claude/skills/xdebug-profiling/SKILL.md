@@ -32,7 +32,17 @@ inside the web container at `/tmp/xdebug/`. **Use `$DDEV_DOCROOT` for paths.**
 
 ```bash
 ssh web mkdir -p /tmp/xdebug
-ssh web php -m | grep -i xdebug  # If missing: phpenmod xdebug && kill -USR2 $(pgrep -o php-fpm)
+
+# Verify Xdebug is available — expected output: "xdebug"
+ssh web php -m | grep -i xdebug
+```
+
+If the grep output is EMPTY, do not invent paths: ask the user to run `ddev xdebug on` on the HOST, then re-check.
+
+After EVERY config change below, verify it took effect:
+
+```bash
+ssh web php -i | grep "xdebug.mode"
 ```
 
 ## Workflow A: Trace Mode (Debug Errors)
@@ -64,34 +74,45 @@ ssh web curl -s -b 'XDEBUG_TRIGGER=1' 'http://localhost/the-page' -o /dev/null -
 
 ### Step 3: Analyze the trace
 
-```bash
-# Find latest trace file
-ssh web ls -lt /tmp/xdebug/trace.*.xt | head -3
+**3a. Write the analyzer script ONCE per session** (copy this block EXACTLY — the quoted 'EOF' prevents any variable expansion):
 
-# Quick analysis: top 25 slowest functions
-ssh web php -r "
-\$lines = file('/tmp/xdebug/TRACE_FILE');
-\$entries = []; \$calls = [];
-foreach (\$lines as \$line) {
-    \$f = explode(\"\t\", trim(\$line));
-    if (count(\$f) < 5) continue;
-    if (\$f[2] === '0' && isset(\$f[5])) {
-        \$entries[\$f[1]] = ['name' => \$f[5], 'start' => (float)\$f[3], 'file' => \$f[8] ?? '', 'line' => \$f[9] ?? ''];
-    } elseif (\$f[2] === '1' && isset(\$entries[\$f[1]])) {
-        \$d = (float)\$f[3] - \$entries[\$f[1]]['start'];
-        \$n = \$entries[\$f[1]]['name'];
-        if (!isset(\$calls[\$n])) \$calls[\$n] = ['count' => 0, 'total' => 0, 'file' => \$entries[\$f[1]]['file'], 'line' => \$entries[\$f[1]]['line']];
-        \$calls[\$n]['count']++;
-        \$calls[\$n]['total'] += \$d;
+```bash
+ssh web "cat > /tmp/analyze-trace.php" <<'EOF'
+<?php
+// Usage: php /tmp/analyze-trace.php /tmp/xdebug/trace.XXXX.xt
+$lines = file($argv[1]);
+$entries = []; $calls = [];
+foreach ($lines as $line) {
+  $f = explode("\t", trim($line));
+  if (count($f) < 5) continue;
+  if ($f[2] === '0' && isset($f[5])) {
+    $entries[$f[1]] = ['name' => $f[5], 'start' => (float) $f[3], 'file' => $f[8] ?? '', 'line' => $f[9] ?? ''];
+  }
+  elseif ($f[2] === '1' && isset($entries[$f[1]])) {
+    $d = (float) $f[3] - $entries[$f[1]]['start'];
+    $n = $entries[$f[1]]['name'];
+    if (!isset($calls[$n])) {
+      $calls[$n] = ['count' => 0, 'total' => 0, 'file' => $entries[$f[1]]['file'], 'line' => $entries[$f[1]]['line']];
     }
+    $calls[$n]['count']++;
+    $calls[$n]['total'] += $d;
+  }
 }
-uasort(\$calls, fn(\$a, \$b) => \$b['total'] <=> \$a['total']);
-printf(\"%-45s %6s %10s %s\n\", 'Function', 'Calls', 'Time(s)', 'Location');
-echo str_repeat('-', 90) . \"\n\";
-foreach (array_slice(\$calls, 0, 25) as \$n => \$d) {
-    printf(\"%-45s %6d %10.4f %s:%s\n\", substr(\$n, 0, 45), \$d['count'], \$d['total'], basename(\$d['file']), \$d['line']);
+uasort($calls, fn($a, $b) => $b['total'] <=> $a['total']);
+printf("%-45s %6s %10s %s\n", 'Function', 'Calls', 'Time(s)', 'Location');
+echo str_repeat('-', 90) . "\n";
+foreach (array_slice($calls, 0, 25) as $n => $d) {
+  printf("%-45s %6d %10.4f %s:%s\n", substr($n, 0, 45), $d['count'], $d['total'], basename($d['file']), $d['line']);
 }
-"
+EOF
+```
+
+**3b. Find the trace file and run the analyzer:**
+
+```bash
+ssh web ls -lt /tmp/xdebug/trace.*.xt | head -3
+# Replace TRACE_FILE with the newest filename from the listing above:
+ssh web php /tmp/analyze-trace.php /tmp/xdebug/TRACE_FILE
 ```
 
 ### Step 4: Search for errors/patterns in trace
@@ -136,24 +157,32 @@ ssh web bash -c "
   callgrind_annotate --inclusive=yes /tmp/xdebug/CACHEGRIND_FILE | head -80
 "
 
-# Or quick PHP analysis of top 20 expensive functions
-ssh web php -r "
-\$lines = file('/tmp/xdebug/CACHEGRIND_FILE');
-\$fns = []; \$cur = '';
-foreach (\$lines as \$l) {
-    \$l = trim(\$l);
-    if (strpos(\$l, 'fn=') === 0) \$cur = substr(\$l, 3);
-    elseif (preg_match('/^(\d+) (\d+)$/', \$l, \$m) && \$cur) {
-        \$fns[\$cur] = (\$fns[\$cur] ?? 0) + (int)\$m[2];
-    }
+# Or: quick PHP analysis of top 20 expensive functions.
+# First write the analyzer script ONCE (copy EXACTLY — quoted 'EOF' prevents expansion):
+ssh web "cat > /tmp/analyze-cachegrind.php" <<'EOF'
+<?php
+// Usage: php /tmp/analyze-cachegrind.php /tmp/xdebug/cachegrind.out.XXXX
+$lines = file($argv[1]);
+$fns = []; $cur = '';
+foreach ($lines as $l) {
+  $l = trim($l);
+  if (strpos($l, 'fn=') === 0) {
+    $cur = substr($l, 3);
+  }
+  elseif (preg_match('/^(\d+) (\d+)$/', $l, $m) && $cur) {
+    $fns[$cur] = ($fns[$cur] ?? 0) + (int) $m[2];
+  }
 }
-arsort(\$fns);
-printf(\"%-55s %12s\n\", 'Function', 'Cost');
-echo str_repeat('-', 68) . \"\n\";
-foreach (array_slice(\$fns, 0, 20) as \$fn => \$cost) {
-    printf(\"%-55s %12d\n\", substr(\$fn, 0, 55), \$cost);
+arsort($fns);
+printf("%-55s %12s\n", 'Function', 'Cost');
+echo str_repeat('-', 68) . "\n";
+foreach (array_slice($fns, 0, 20) as $fn => $cost) {
+  printf("%-55s %12d\n", substr($fn, 0, 55), $cost);
 }
-"
+EOF
+
+# Then run it (replace CACHEGRIND_FILE with the newest filename from ls):
+ssh web php /tmp/analyze-cachegrind.php /tmp/xdebug/CACHEGRIND_FILE
 ```
 
 ## Workflow C: CLI Debugging (No PHP-FPM restart needed)

@@ -44,12 +44,14 @@ navigate, fill forms, etc.
 ## Setup -- Dependencies
 
 ```bash
-ssh web composer require --dev drupal/drupal-extension behat/mink-selenium2-driver
+ssh web composer require --dev drupal/drupal-extension behat/mink-selenium2-driver behat/mink-browserkit-driver
 ```
 
 For Drupal 10/11, use `drupal/drupal-extension:^5`.
 
 ## Configuration -- behat.yml
+
+**WARNING — BEFORE copying**: `drupal_root: 'web'` is a placeholder. Check the real docroot with `grep "^docroot:" .ddev/config.yaml` and set `drupal_root` to that value ($DDEV_DOCROOT).
 
 ```yaml
 default:
@@ -63,17 +65,20 @@ default:
         - FeatureContext
   extensions:
     Drupal\MinkExtension:
-      goutte: ~
+      # browserkit_http is the headless driver (goutte is deprecated in Mink Extension)
+      browserkit_http: ~
       selenium2:
         wd_host: 'http://127.0.0.1:4444/wd/hub'
         capabilities:
           browser: chrome
           extra_capabilities:
+            # goog:chromeOptions works on Drupal 10 and 11 (mandatory on 11)
             goog:chromeOptions:
               args:
                 - '--disable-gpu'
                 - '--headless'
                 - '--no-sandbox'
+      # Always HTTP in DDEV (self-signed certs break HTTPS)
       base_url: 'http://localhost'
       ajax_timeout: 10
     Drupal\DrupalExtension:
@@ -306,7 +311,9 @@ Then I should see the heading "Page Title"
 Then the "Title" field should contain "My Value"
 ```
 
-## FeatureContext -- Custom Steps
+## FeatureContext -- Custom Steps (OPTIONAL)
+
+Only write custom steps when the predefined steps above are insufficient. Prefer predefined steps — they are tested and need no maintenance.
 
 ```php
 <?php
@@ -429,3 +436,12 @@ ssh web ./vendor/bin/behat --definitions
 # Generate snippets for undefined steps
 ssh web ./vendor/bin/behat --dry-run --append-snippets
 ```
+
+## Troubleshooting
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| Drupal bootstrap error / "Drupal not found" | Wrong `drupal_root` in behat.yml | Set `drupal_root` to the project's $DDEV_DOCROOT value |
+| "No specifications found" | Wrong features path or running from wrong dir | Check `paths` in behat.yml; run with `--config=` pointing to the right file |
+| Selenium/driver connection errors | Selenium/Chrome service not running | Verify `wd_host` URL; only `@javascript` scenarios need it — others run on browserkit_http |
+| Step "is undefined" | Custom step not loaded | Verify FeatureContext is listed in `contexts` and the class file path matches |

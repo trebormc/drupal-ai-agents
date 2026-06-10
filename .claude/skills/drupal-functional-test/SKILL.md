@@ -51,6 +51,8 @@ protected static $modules = ['my_module']; // Required modules.
 
 ## Base Template
 
+NOTE: if the flow needs JavaScript/AJAX, switch to the **drupal-functionaljs-test** skill. `assertSession()->statusCodeEquals()` works HERE but does NOT work in FunctionalJavascript tests.
+
 ```php
 <?php
 declare(strict_types=1);
@@ -58,6 +60,7 @@ declare(strict_types=1);
 namespace Drupal\Tests\MODULE\Functional;
 
 use Drupal\Tests\BrowserTestBase;
+use Drupal\user\UserInterface;
 
 /**
  * Tests DESCRIPTION.
@@ -68,6 +71,8 @@ class NameTest extends BrowserTestBase {
 
   protected $defaultTheme = 'stark';
   protected static $modules = ['node', 'block', 'MODULE'];
+
+  protected UserInterface $adminUser;
 
   protected function setUp(): void {
     parent::setUp();
@@ -312,11 +317,28 @@ $node = $this->drupalGetNodeByTitle('Test');
 3. Do not forget `$defaultTheme`. Without it the test fails.
 4. Do not depend on theme markup. Search by text or classes you control.
 5. Do not use `assertSession()->statusCodeEquals()` if you will later migrate to FunctionalJS (it does not support it).
+6. Data provider methods must be `public static function` (Drupal 10+11 compatibility).
 
 ## Execution Command
 
+First pick the config form ONCE per session: `ssh web test -f phpunit.xml && echo "ROOT" || echo "CORE"`
+
 ```bash
-ssh web ./vendor/bin/phpunit -c core --testsuite functional $DDEV_DOCROOT/modules/custom/MODULE/
-ssh web ./vendor/bin/phpunit -c core --filter testFormSavesValues
-ssh web ./vendor/bin/phpunit -c core --testsuite functional --group MODULE
+# Form ROOT (project phpunit.xml exists):
+ssh web ./vendor/bin/phpunit $DDEV_DOCROOT/modules/custom/MODULE/tests/src/Functional
+ssh web ./vendor/bin/phpunit --filter testFormSavesValues $DDEV_DOCROOT/modules/custom/MODULE/tests/src/Functional
+
+# Form CORE (no project phpunit.xml — pass env vars explicitly):
+ssh web env SIMPLETEST_DB=mysql://db:db@db/db SIMPLETEST_BASE_URL=http://localhost \
+  ./vendor/bin/phpunit -c $DDEV_DOCROOT/core $DDEV_DOCROOT/modules/custom/MODULE/tests/src/Functional
 ```
+
+## Troubleshooting
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| Unexpected 403 in test | Test user lacks permission | Pass the exact permissions array to `drupalCreateUser([...])` |
+| "Theme not found" | Missing `$defaultTheme` | Add `protected $defaultTheme = 'stark';` |
+| "Test site directory exists already" | Stale test site from aborted run | `ssh web rm -rf $DDEV_DOCROOT/sites/simpletest/` then retry |
+| "Failed to connect" / base URL errors | SIMPLETEST_BASE_URL not set | Use Form CORE with explicit env vars (above) |
+| `Class not found` | Stale autoloader | `ssh web composer dump-autoload` |

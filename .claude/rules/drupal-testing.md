@@ -191,33 +191,54 @@ modules/custom/my_module/
 └── my_module.info.yml
 ```
 
-## Quick Command Reference
+## Running PHPUnit (Canonical Pattern)
+
+Replace `MODULE` with the module machine name in all commands below.
+
+**STEP 1 — Pick the config form. Run this ONCE, then use the matching form for the whole session:**
 
 ```bash
-# Unit tests
-ssh web ./vendor/bin/phpunit -c core --testsuite unit $DDEV_DOCROOT/modules/custom/MODULE/
+ssh web test -f phpunit.xml && echo "ROOT" || echo "CORE"
+```
 
-# Kernel tests (requires SIMPLETEST_DB)
-ssh web ./vendor/bin/phpunit -c core --testsuite kernel $DDEV_DOCROOT/modules/custom/MODULE/
+**STEP 2 — Run tests with the matching form:**
 
-# Functional tests (requires SIMPLETEST_DB + SIMPLETEST_BASE_URL)
-ssh web ./vendor/bin/phpunit -c core --testsuite functional $DDEV_DOCROOT/modules/custom/MODULE/
+```bash
+# Form ROOT (project has phpunit.xml at project root — it already sets env vars):
+ssh web ./vendor/bin/phpunit $DDEV_DOCROOT/modules/custom/MODULE/tests/src/Unit
+ssh web ./vendor/bin/phpunit $DDEV_DOCROOT/modules/custom/MODULE/tests/src/Kernel
+ssh web ./vendor/bin/phpunit $DDEV_DOCROOT/modules/custom/MODULE/tests/src/Functional
 
-# FunctionalJavascript (requires ChromeDriver running)
-ssh web ./vendor/bin/phpunit -c core --testsuite functional-javascript $DDEV_DOCROOT/modules/custom/MODULE/
+# Form CORE (no project phpunit.xml — use Drupal core config + explicit env vars):
+ssh web env SIMPLETEST_DB=mysql://db:db@db/db SIMPLETEST_BASE_URL=http://localhost \
+  ./vendor/bin/phpunit -c $DDEV_DOCROOT/core $DDEV_DOCROOT/modules/custom/MODULE/tests/src/Unit
+```
 
-# By group
-ssh web ./vendor/bin/phpunit -c core --group MODULE
+Rules for BOTH forms:
+- Always pass the test directory (or file) as an explicit path argument. Do NOT rely on `--testsuite` — suite definitions differ between configs.
+- Narrow with `--filter testMethodName` or `--group MODULE` before the path argument.
+- NEVER use `-c core` — the working directory in the web container is the project root, so `core/` only exists there when the docroot IS the project root. Always use `-c $DDEV_DOCROOT/core`.
 
-# Specific test
-ssh web ./vendor/bin/phpunit -c core --filter testMethodName
+```bash
+# Single test method (example with Form ROOT)
+ssh web ./vendor/bin/phpunit --filter testMethodName $DDEV_DOCROOT/modules/custom/MODULE/tests/src/Unit
 
-# Behat
+# Behat (uses behat.yml, not phpunit.xml — no config form needed)
 ssh web ./vendor/bin/behat --config=behat.yml
 
-# Playwright
-npx playwright test
+# Playwright (runs on the HOST, not inside containers — ask the user to run it)
+# npx playwright test
 ```
+
+**If a test fails to START (setup error, not an assertion failure):**
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `Class not found` | Stale autoloader | `ssh web composer dump-autoload`, then retry |
+| `Could not connect to database` / `SQLSTATE` | SIMPLETEST_DB not set | Use Form CORE with explicit env vars |
+| `Failed to connect to localhost` | SIMPLETEST_BASE_URL not set | Use Form CORE with explicit env vars |
+| `Test site directory exists already` | Stale test site | `ssh web rm -rf $DDEV_DOCROOT/sites/simpletest/` then retry |
+| ChromeDriver/WebDriver errors (FunctionalJS) | Driver not running | See **drupal-functionaljs-test** skill troubleshooting |
 
 ## Recommended Coverage
 

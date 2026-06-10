@@ -64,8 +64,8 @@ migration_dependencies:
 | List migrations | `ssh web drush migrate:status` |
 | Run migration | `ssh web drush migrate:import my_migration` |
 | Run with limit | `ssh web drush migrate:import my_migration --limit=10` |
-| Rollback | `ssh web drush migrate:rollback my_migration` |
-| Reset stuck | `ssh web drush migrate:reset my_migration` |
+| Rollback (undo imported rows) | `ssh web drush migrate:rollback my_migration` |
+| Reset stuck "Importing" status | `ssh web drush migrate:reset-status my_migration` |
 | Run all in group | `ssh web drush migrate:import --group=my_group` |
 | Update existing | `ssh web drush migrate:import my_migration --update` |
 
@@ -150,12 +150,25 @@ final class MyCustomSource extends SqlBase {
 - **drupal-testing** — Create PHPUnit tests for migration source plugins and process logic
 - **drupal-debugging** — Debug migration errors, inspect entities, check watchdog logs
 
-## Verification
+## Verification (after EVERY import)
 
 ```bash
-# Check migration status after run
+# 1. Check status: Imported count must be > 0 and Status must be "Idle"
 ssh web drush migrate:status --format=table
 
-# Verify migrated content count
+# 2. Verify migrated content count matches expectations
 ssh web drush sqlq "SELECT COUNT(*) FROM node WHERE type = 'article'"
+
+# 3. Check for migration errors
+ssh web drush migrate:messages my_migration
+ssh web drush ws --count=10 --severity=Error
 ```
+
+## If a migration fails
+
+| Symptom | Fix |
+|---------|-----|
+| Status stuck at "Importing" | `ssh web drush migrate:reset-status my_migration`, then re-import |
+| Wrong/partial data imported | `ssh web drush migrate:rollback my_migration`, fix the migration config, re-import with `--limit=5` first |
+| Source DB connection error | Verify the `d7` database key exists in settings.php and the source DB is reachable |
+| Row-level errors | Read them with `ssh web drush migrate:messages my_migration` and fix the process pipeline for those fields |

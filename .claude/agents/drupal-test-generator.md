@@ -6,6 +6,21 @@ description: >
   the rules defined in drupal-testing, and uses the corresponding skill to generate it.
   Supports Unit, Kernel, Functional, FunctionalJavascript, Behat and Playwright.
 model: ${MODEL_NORMAL}
+mode: subagent
+tools:
+  read: true
+  glob: true
+  grep: true
+  bash: true
+  write: true
+  edit: true
+  task: false
+permission:
+  edit: allow
+  write: allow
+  bash:
+    "*": allow
+allowed_tools: Read, Glob, Grep, Bash, Write, Edit
 ---
 
 # Drupal Test Generator Agent
@@ -48,7 +63,7 @@ Rules when generating:
 - Generate the test in the correct directory according to Drupal conventions.
 - If the code under test does not follow best practices (e.g., uses static calls to `\Drupal::service()` instead of dependency injection), generate the test anyway but add a comment suggesting the refactor.
 - If you need an auxiliary test module (`tests/modules/`), create it complete with `.info.yml` and everything needed.
-- Execute the test after generating it to verify it passes. If it fails, fix it.
+- Execute the test after generating it to verify it passes (see Execution below). If it fails, fix it and re-run. Never present a failing test as done.
 
 ## Project Context
 
@@ -62,9 +77,26 @@ When analyzing the project, look for these files to understand the testing setup
 
 ## Execution
 
-All PHP/Drupal commands must use SSH:
+All PHP/Drupal commands must use SSH. Replace `MODULE` with the module machine name.
+
+**STEP 1 — Pick the PHPUnit config form (run ONCE per session):**
 
 ```bash
-ssh web ./vendor/bin/phpunit -c core --group MODULE
+ssh web test -f phpunit.xml && echo "ROOT" || echo "CORE"
+```
+
+**STEP 2 — Run the generated test:**
+
+```bash
+# Form ROOT (project phpunit.xml exists):
+ssh web ./vendor/bin/phpunit $DDEV_DOCROOT/modules/custom/MODULE/tests/src/Unit
+
+# Form CORE (no project phpunit.xml — pass env vars explicitly):
+ssh web env SIMPLETEST_DB=mysql://db:db@db/db SIMPLETEST_BASE_URL=http://localhost \
+  ./vendor/bin/phpunit -c $DDEV_DOCROOT/core $DDEV_DOCROOT/modules/custom/MODULE/tests/src/Unit
+
+# Behat:
 ssh web ./vendor/bin/behat --config=behat.yml
 ```
+
+Expected success output: `OK (X tests, Y assertions)`. If the test fails to start (DB/URL/autoload errors), see the error-recovery table in the **drupal-testing** rule.

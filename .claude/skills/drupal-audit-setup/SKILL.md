@@ -72,9 +72,15 @@ This enables `audit` (base) plus all 18 production-ready submodules:
 
 ### Development-only submodules (enable separately)
 
-These are marked **experimental** and require dev dependencies (phpcs, phpstan, phploc binaries). Enable only in local/development environments:
+These are marked **experimental** and require dev dependencies (phpcs, phpstan, phploc binaries). Enable only in local/development environments.
+
+Check which binaries exist BEFORE enabling (only enable submodules whose binary is OK):
 
 ```bash
+ssh web test -f ./vendor/bin/phpcs && echo "phpcs OK" || echo "phpcs MISSING"
+ssh web test -f ./vendor/bin/phpstan && echo "phpstan OK" || echo "phpstan MISSING"
+ssh web test -f ./vendor/bin/phploc && echo "phploc OK" || echo "phploc MISSING"
+
 ssh web drush en audit_phpcs audit_phpstan audit_complexity -y
 ```
 

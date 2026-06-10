@@ -16,20 +16,35 @@ metadata:
 ## Diagnostic Commands
 
 ```bash
-# Enabled modules count
+# Enabled modules count — over ~100 on a simple site suggests module bloat
 ssh web drush pm:list --status=enabled --format=list | wc -l
 
-# Recent watchdog entries
+# Recent PHP errors — repeated warnings/notices on every request cost performance
 ssh web drush watchdog:show --type=php --count=20
 
-# Clear cache
-ssh web drush cr
-
-# Database status
+# Slow queries counter — a value > 0 that grows on reload means slow SQL to investigate
 ssh web drush sqlq "SHOW STATUS LIKE 'Slow_queries'"
 ```
 
 For function-level profiling, use the **xdebug-profiling** skill.
+
+## Baseline Measurement (do this BEFORE and AFTER any change)
+
+```bash
+# Page timing from inside the web container (timing measurement only — this is
+# NOT functional testing; functional testing still uses Playwright, never curl):
+ssh web curl -s -o /dev/null -w "first: %{time_total}s\n" http://localhost/PATH
+ssh web curl -s -o /dev/null -w "second (warm cache): %{time_total}s\n" http://localhost/PATH
+```
+
+Record both numbers. After your fix, re-run and compare — if there is no measurable improvement, the bottleneck is elsewhere.
+
+## How to Detect N+1 Queries
+
+1. Profile the slow page with the **xdebug-profiling** skill (profile mode).
+2. In the analyzer output, look for entity load / query functions with a very high call COUNT (e.g. `Drupal\Core\Entity\...::load` called 200 times).
+3. Find the loop in the code calling `load()` per item and replace with `loadMultiple()`.
+4. Alternative: if the devel/webprofiler module is installed, enable its DB query log and look for many near-identical queries.
 
 ## Caching Strategy
 
@@ -99,16 +114,16 @@ $nids = $query->execute();
 ## Performance Audit Checklist
 
 ### Database
-- [ ] No N+1 queries
-- [ ] Proper indexes on custom tables
-- [ ] Entity queries use accessCheck()
+- [ ] No N+1 queries (check: "How to Detect N+1 Queries" above)
+- [ ] Proper indexes on custom tables (check: `ssh web drush sqlq "EXPLAIN SELECT ..."`)
+- [ ] Entity queries use accessCheck() (check: `grep -rn "entityQuery" $DDEV_DOCROOT/modules/custom/`)
 - [ ] Batch API for bulk operations (>50 items)
 
 ### Render System
-- [ ] Cache tags on all render arrays
+- [ ] Cache tags on all render arrays (check: `grep -rn "'#cache'" $DDEV_DOCROOT/modules/custom/`)
 - [ ] Cache contexts appropriate
 - [ ] Lazy builders for expensive/dynamic parts
-- [ ] No logic in Twig templates
+- [ ] No logic in Twig templates (check with the **twig-audit** skill)
 
 ### Views Specific
 - [ ] Query caching enabled

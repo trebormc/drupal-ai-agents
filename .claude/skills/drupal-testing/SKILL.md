@@ -46,28 +46,39 @@ See the `drupal-testing` rule for the complete decision tree. Quick summary:
 
 ## Test Execution Commands
 
+Replace `MODULE` with the module machine name.
+
+**STEP 1 — Pick the config form. Run ONCE, then use the matching form for the whole session:**
+
 ```bash
-# All tests for a module
-ssh web ./vendor/bin/phpunit -c core --group MODULE
+ssh web test -f phpunit.xml && echo "ROOT" || echo "CORE"
+```
 
-# By suite
-ssh web ./vendor/bin/phpunit -c core --testsuite unit $DDEV_DOCROOT/modules/custom/MODULE/
-ssh web ./vendor/bin/phpunit -c core --testsuite kernel $DDEV_DOCROOT/modules/custom/MODULE/
-ssh web ./vendor/bin/phpunit -c core --testsuite functional $DDEV_DOCROOT/modules/custom/MODULE/
-ssh web ./vendor/bin/phpunit -c core --testsuite functional-javascript $DDEV_DOCROOT/modules/custom/MODULE/
+```bash
+# Form ROOT (project phpunit.xml exists — it already sets env vars):
+ssh web ./vendor/bin/phpunit $DDEV_DOCROOT/modules/custom/MODULE/tests/src/Unit
+ssh web ./vendor/bin/phpunit $DDEV_DOCROOT/modules/custom/MODULE/tests/src/Kernel
+ssh web ./vendor/bin/phpunit $DDEV_DOCROOT/modules/custom/MODULE/tests/src/Functional
+ssh web ./vendor/bin/phpunit $DDEV_DOCROOT/modules/custom/MODULE/tests/src/FunctionalJavascript
 
-# Single test
-ssh web ./vendor/bin/phpunit -c core --filter testMethodName
+# Form CORE (no project phpunit.xml — Drupal core config + explicit env vars):
+ssh web env SIMPLETEST_DB=mysql://db:db@db/db SIMPLETEST_BASE_URL=http://localhost \
+  ./vendor/bin/phpunit -c $DDEV_DOCROOT/core $DDEV_DOCROOT/modules/custom/MODULE/tests/src/Unit
 
-# Coverage
-ssh web sh -c "XDEBUG_MODE=coverage ./vendor/bin/phpunit --coverage-html=coverage $DDEV_DOCROOT/modules/custom/MODULE/"
+# Single test method (add --filter before the path; works with both forms)
+ssh web ./vendor/bin/phpunit --filter testMethodName $DDEV_DOCROOT/modules/custom/MODULE/tests/src/Unit
 
-# Behat
+# Coverage (requires Xdebug; report written to /tmp/coverage in the web container)
+ssh web env XDEBUG_MODE=coverage ./vendor/bin/phpunit --coverage-html /tmp/coverage \
+  $DDEV_DOCROOT/modules/custom/MODULE/tests/src/Unit
+
+# Behat (uses behat.yml, not phpunit.xml)
 ssh web ./vendor/bin/behat --config=behat.yml
 
-# Playwright (run on host, not from agent container)
-# npx playwright test
+# Playwright (runs on the HOST — ask the user to run: npx playwright test)
 ```
+
+**Rules:** always pass the test directory as an explicit path; never rely on `--testsuite`; never use `-c core` (use `-c $DDEV_DOCROOT/core` only in Form CORE). If a test fails to start (DB/URL/autoload errors), see the error table in the **drupal-testing** rule.
 
 ## Test Directory Structure
 

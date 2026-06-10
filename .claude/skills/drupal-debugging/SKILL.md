@@ -31,9 +31,10 @@ For Xdebug tracing/profiling (function call trees, execution timing), use the **
 
 | Command | Purpose |
 |---------|---------|
-| `ssh web drush cache:get config:core.extension` | Get specific cache item |
 | `ssh web drush cache:clear render` | Clear only render cache |
-| `ssh web drush cache:clear page` | Clear only page cache |
+| `ssh web drush cache:clear router` | Rebuild routing cache |
+| `ssh web drush cache:clear css-js` | Clear CSS/JS aggregation cache |
+| `ssh web drush cr` | Full cache rebuild (when in doubt, use this) |
 
 ## Configuration Debugging
 
@@ -77,11 +78,11 @@ ssh web drush sql:query "SELECT * FROM users_field_data LIMIT 5"
 # Recent watchdog entries via SQL
 ssh web drush sql:query "SELECT * FROM watchdog ORDER BY wid DESC LIMIT 20"
 
-# Entity type info
-ssh web drush entity:info
+# List all entity types
+ssh web drush php:eval "print_r(array_keys(\Drupal::entityTypeManager()->getDefinitions()));"
 
-# Check route definitions
-ssh web drush route:list | grep mymodule
+# Check route definitions (grep runs in YOUR container — this works)
+ssh web drush route | grep mymodule
 ```
 
 ## Container & Log Debugging
@@ -104,14 +105,14 @@ ssh web drush sql:connect
 | Class not found | `ssh web composer dump-autoload && ssh web drush cr` |
 | Service not found | Check services.yml syntax, then `ssh web drush cr` |
 | Plugin not discovered | `ssh web drush php:eval "print_r(array_keys(\Drupal::service('plugin.manager.block')->getDefinitions()));"` |
-| Route not working | `ssh web drush route:list \| grep mymodule` |
+| Route not working | Run `ssh web drush route` and search the output for your route; if missing, `ssh web drush cr` |
 | Entity field missing | `ssh web drush php:eval "print_r(\Drupal::entityDefinitionUpdateManager()->getChangeSummary());"` |
 
 ## Twig Debugging
 
 ```bash
-# Enable Twig debugging via Drush
-ssh web drush twig:debug
+# Enable Twig debugging via Drush (Drush 12.5+; use manual setup below for older Drush)
+ssh web drush twig:debug on
 
 # Check theme registry
 ssh web drush php:eval "print_r(array_keys(\Drupal::service('theme.registry')->get()));"
@@ -156,7 +157,7 @@ With Twig debugging enabled, HTML comments show template suggestions and the act
 |---------|-----|
 | "Class not found" in tests | `ssh web composer dump-autoload`. Verify namespace matches directory path |
 | Kernel: "Entity type not found" | Add module to `$modules`, call `$this->installEntitySchema('entity_type')` in `setUp()` |
-| Functional: "Route not found" | Verify module in `$modules`, try `$this->rebuildContainer()`, check `drush route:list \| grep module` |
+| Functional: "Route not found" | Verify module in `$modules`, try `$this->rebuildContainer()`, check the route exists with `ssh web drush route` |
 | "SQLSTATE no such table" | Call `$this->installEntitySchema('user')`, `$this->installSchema('node', ['node_access'])` in `setUp()` |
 | "Service not found" | Ensure module with service is in `$modules`. Get via `$this->container->get('service.id')` |
 | Tests pass locally, fail in CI | Check hardcoded paths/URLs, timezone settings, race conditions, use transactions |

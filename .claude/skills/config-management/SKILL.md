@@ -1,5 +1,5 @@
 ---
-name: drupal-config-management
+name: config-management
 description: >-
   Manages Drupal configuration: export, import, config_split setup, schema
   validation, and environment-specific overrides via settings.php. Use when
@@ -34,6 +34,13 @@ ssh web drush cim -y
 ssh web drush cim --diff
 ```
 
+### Verify after export/import (ALWAYS)
+
+```bash
+# After cex or cim, this should report "No differences":
+ssh web drush config:status
+```
+
 ### Resolving import conflicts
 ```bash
 # Check current config status
@@ -43,6 +50,15 @@ ssh web drush config:status
 # "Only in DB" — needs export or was deleted intentionally
 # "Different" — conflict to resolve
 ```
+
+### If cex/cim fails
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| "Site UUID ... does not match" on cim | Sync dir from a different site | Only if intentional: `ssh web drush config:set system.site uuid <uuid-from-sync-dir> -y`, then retry |
+| Unmet dependency / unknown module on cim | Config references a missing module | `ssh web composer require drupal/<module>` + `ssh web drush en <module> -y`, then retry |
+| Validation/schema error on cim | Invalid config in sync dir | Read the named file in `config/sync/`, fix it (or re-export from a working env), retry |
+| cex writes nothing | No changes to export | Confirm with `ssh web drush config:status` — that is normal |
 
 ## Config Split setup
 

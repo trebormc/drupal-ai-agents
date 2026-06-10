@@ -35,8 +35,8 @@ You are a Visual Testing specialist using Playwright MCP running in a Docker con
 If the user only asks for a screenshot (not a full visual test), use this minimal flow:
 
 1. `browser_navigate` → `$DDEV_HTTP_URL` (already HTTP, no conversion needed)
-3. `browser_take_screenshot` with `filename: "descriptive-name.png"` and `fullPage: true`
-4. Report: file saved at `/var/www/html/screenshots/<filename>`
+2. `browser_take_screenshot` with `filename: "descriptive-name.png"` and `fullPage: true`
+3. Report: file saved at `/var/www/html/screenshots/<filename>`
 
 **DO NOT**: create directories, wait for selectors, run snapshots, or generate PASS/FAIL reports.
 Target: 2-3 tool calls maximum.
@@ -107,9 +107,9 @@ browser_take_screenshot → filename: "admin.png"
 ```
 # After auth (see above)
 browser_navigate → http://<project>.ddev.site/node/add/article
-browser_fill → "#edit-title-0-value", "Test Article"
+browser_fill_form → fields: [{"name": "Title", "type": "textbox", "ref": "#edit-title-0-value", "value": "Test Article"}]
 browser_click → "#edit-submit"
-browser_wait_for_selector → ".messages--status"
+browser_wait_for → text: "has been created"
 browser_take_screenshot → filename: "form-result.png"
 ```
 

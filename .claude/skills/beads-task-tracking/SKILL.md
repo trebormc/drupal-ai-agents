@@ -27,12 +27,21 @@ The `.beads/` directory lives in the project root (`/var/www/html/.beads/`) and 
 # 1. Initialize Beads if not already done
 ls -la .beads/ 2>/dev/null || bd init --quiet
 
-# 2. Get context from previous sessions
+# 2. Get context from previous sessions (prints a project/task summary — if it
+#    prints without error, Beads is working)
 bd prime
 
 # 3. See what tasks are ready
 bd ready --json
 ```
+
+### If bd fails
+
+| Symptom | Cause | Fix |
+|---------|-------|-----|
+| `bd: command not found` or SSH errors | Beads container down | Ask the user to run `ddev restart` on the host |
+| Unknown subcommand / flag error | Wrong syntax | Check available commands with `bd --help` |
+| Command hangs | You ran `bd edit` | Never use `bd edit` — use `bd update <id> --flags` |
 
 ## Creating Tasks
 

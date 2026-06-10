@@ -41,6 +41,7 @@ declare(strict_types=1);
 namespace Drupal\Tests\MODULE\FunctionalJavascript;
 
 use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
+use Drupal\user\UserInterface;
 
 /**
  * Tests DESCRIPTION.
@@ -52,8 +53,11 @@ class NameTest extends WebDriverTestBase {
   protected $defaultTheme = 'stark';
   protected static $modules = ['node', 'MODULE'];
 
+  protected UserInterface $adminUser;
+
   protected function setUp(): void {
     parent::setUp();
+    $this->adminUser = $this->drupalCreateUser(['access content', 'administer MODULE']);
   }
 
   public function testAjaxInteraction(): void {
@@ -219,7 +223,7 @@ Drupal 10.3+ and 11:
      value='["chrome", {"browserName":"chrome","goog:chromeOptions":{"args":["--disable-gpu","--headless","--no-sandbox","--disable-dev-shm-usage"]}}, "http://127.0.0.1:9515"]'/>
 ```
 
-In Drupal 11 `goog:chromeOptions` is mandatory (without the `goog:` prefix it does not work).
+Version guard: Drupal 10 (PHPUnit 9) still accepts plain `chromeOptions` (deprecated since 10.3); in Drupal 11 `goog:chromeOptions` is MANDATORY (without the `goog:` prefix it does not work). When in doubt, use `goog:chromeOptions` — it works on both.
 
 ## Anti-Patterns
 
@@ -229,12 +233,28 @@ In Drupal 11 `goog:chromeOptions` is mandatory (without the `goog:` prefix it do
 4. Tests with 15+ interactions. That is an E2E flow -> Behat or Playwright.
 5. Testing things that do not need JS. Use Functional test.
 
-## Running Tests (User Reference)
+## Running Tests
 
 ChromeDriver is already available inside the DDEV web container. Do not start it
 from the agent container (it would not be reachable by PHPUnit in web).
 
+First pick the config form ONCE per session: `ssh web test -f phpunit.xml && echo "ROOT" || echo "CORE"`
+
 ```bash
-ssh web ./vendor/bin/phpunit -c core --testsuite functional-javascript $DDEV_DOCROOT/modules/custom/MODULE/
-ssh web ./vendor/bin/phpunit -c core --testsuite functional-javascript --group MODULE
+# Form ROOT (project phpunit.xml exists — it must define MINK_DRIVER_ARGS_WEBDRIVER):
+ssh web ./vendor/bin/phpunit $DDEV_DOCROOT/modules/custom/MODULE/tests/src/FunctionalJavascript
+
+# Form CORE (no project phpunit.xml — pass ALL env vars explicitly, including the webdriver):
+ssh web env SIMPLETEST_DB=mysql://db:db@db/db SIMPLETEST_BASE_URL=http://localhost \
+  MINK_DRIVER_ARGS_WEBDRIVER='["chrome", {"browserName":"chrome","goog:chromeOptions":{"args":["--disable-gpu","--headless","--no-sandbox","--disable-dev-shm-usage"]}}, "http://127.0.0.1:9515"]' \
+  ./vendor/bin/phpunit -c $DDEV_DOCROOT/core $DDEV_DOCROOT/modules/custom/MODULE/tests/src/FunctionalJavascript
 ```
+
+## Troubleshooting
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| Connection refused to ChromeDriver | Driver URL wrong or driver not running | Check the URL in MINK_DRIVER_ARGS_WEBDRIVER; verify the driver runs in the web container |
+| Test flaky (passes sometimes) | Race condition after AJAX/JS | Replace any `sleep()` with `assertWaitOnAjaxRequest()` or `waitForElementVisible()` |
+| `statusCodeEquals()` fails/undefined | Not supported in WebDriverTestBase | Assert on page text/elements instead |
+| Chrome capability errors on D11 | Plain `chromeOptions` used | Use `goog:chromeOptions` |

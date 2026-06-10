@@ -1,5 +1,5 @@
 ---
-name: drupal-module-scaffold
+name: module-scaffold
 description: >-
   Scaffolds a new Drupal 10/11 custom module with proper PSR-4 structure,
   services.yml, routing.yml, info.yml, permissions.yml, and config schema.
@@ -19,6 +19,8 @@ All commands run via `ssh web`. All modules go in
 (detect with `grep "^docroot:" .ddev/config.yaml`).
 
 ## Module structure
+
+Replace every `{module_name}` placeholder with the module machine name (lowercase, underscores, e.g. `event_manager`) and `{Module Name}` with the human-readable name.
 
 ```
 $DDEV_DOCROOT/modules/custom/{module_name}/
@@ -125,10 +127,18 @@ final class {ControllerName} extends ControllerBase {
 
 ## Verification
 
-After scaffolding, enable the module and validate code quality:
+After scaffolding, enable the module and CONFIRM it is enabled:
 
 ```bash
 ssh web drush en {module_name} -y
+
+# Verify (non-empty output = enabled):
+ssh web drush pm:list --filter={module_name} --status=enabled --format=list
 ```
 
-Then run quality checks — see the **quality-checks** skill for the full workflow (Audit module primary, raw tools fallback). All checks must pass with zero errors before presenting the module to the user.
+If `drush en` fails:
+- "Unable to install ... missing dependency" → add the dependency to `dependencies:` in the .info.yml (format: `project:module`) or install it, then retry
+- YAML parse error → re-read the .yml file you generated; fix indentation (2 spaces, no tabs)
+- Module not found → check the directory name equals `{module_name}` exactly, then `ssh web drush cr` and retry
+
+Then run quality checks — see the **quality-checks** skill for the full workflow (Audit module primary, raw tools fallback; the raw fallback works without the Audit module — do not block on installing it). All checks must pass with zero errors before presenting the module to the user.

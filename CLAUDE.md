@@ -32,7 +32,7 @@ ssh web ./vendor/bin/phpunit $DDEV_DOCROOT/modules/custom/mymodule
 **CRITICAL**: Always use `ssh web drush <command>` to run Drush commands (the `drush` alias is available in the web container's PATH).
 **CRITICAL**: Never hardcode `web/` -- use `$DDEV_DOCROOT` (varies per project: `web/`, `docroot/`, etc.).
 
-**Available variables:** `$DDEV_PRIMARY_URL`, `$DDEV_SITENAME`, `$DDEV_DOCROOT`, `$PLAYWRIGHT_MCP_URL`
+**Available variables:** `$DDEV_PRIMARY_URL` (HTTPS), `$DDEV_HTTP_URL` (HTTP — use for browser testing), `$DDEV_SITENAME`, `$DDEV_DOCROOT`, `$PLAYWRIGHT_MCP_URL`
 
 ## Model Strategy
 
@@ -115,9 +115,9 @@ Present a clear summary of all file changes. The user reviews and commits manual
 
 - Use the **visual-test** agent or Playwright MCP tools directly
 - **NEVER use curl** for testing Drupal pages
-- **ALWAYS use HTTP** (not HTTPS) for Playwright navigation in DDEV
-- **NEVER create JS/Playwright script files** -- use MCP tools (`browser_navigate`, `browser_screenshot`, etc.) directly
-- Authenticate with `ssh web drush uli` (convert returned HTTPS URL to HTTP)
+- **ALWAYS use HTTP** (not HTTPS) for Playwright navigation in DDEV — navigate to `$DDEV_HTTP_URL`
+- **NEVER create JS/Playwright script files** -- use MCP tools (`browser_navigate`, `browser_take_screenshot`, etc.) directly
+- Authenticate with `ssh web drush uli` (replace `https://` with `http://` in the returned URL before navigating)
 
 ## Rules and Skills
 

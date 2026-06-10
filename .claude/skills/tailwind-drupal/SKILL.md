@@ -73,6 +73,7 @@ ssh web bash -c "cd $DDEV_DOCROOT/themes/custom/<THEME> && npx tailwindcss init"
 ```javascript
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  // NOTE: all content paths are relative to the THEME directory (where this file lives)
   content: [
     // Drupal theme templates
     './templates/**/*.html.twig',
@@ -179,6 +180,8 @@ breakpoint prefixes for larger screens.
 | Classes in PHP not found | `.php`/`.module`/`.theme` files not in content | Add `'../../modules/custom/**/*.php'` to content |
 | Watch mode not detecting | File outside content paths | Add missing glob pattern to content array |
 | `@apply` not working | Custom class not in @layer | Wrap in `@layer components { }` |
+| `npm run build` fails | Missing node_modules | `ssh web npm install --prefix $DDEV_DOCROOT/themes/custom/<THEME>` then rebuild |
+| `npm: command not found` | Command run in wrong container | Prefix the command with `ssh web ` |
 
 ## Verification
 
@@ -188,8 +191,10 @@ After ANY Tailwind class change:
 # 1. Build
 ssh web npm run build --prefix $DDEV_DOCROOT/themes/custom/<THEME>
 
-# 2. Verify the class is in compiled CSS
-ssh web grep "your-class" $DDEV_DOCROOT/themes/custom/<THEME>/css/styles.css
+# 2. Verify the compiled file exists AND contains the new class (replace CLASS):
+ssh web test -f $DDEV_DOCROOT/themes/custom/<THEME>/css/styles.css && echo "FILE OK"
+ssh web grep -c "CLASS" $DDEV_DOCROOT/themes/custom/<THEME>/css/styles.css
+# Output 0 or "FILE OK" missing → build failed or class not in a scanned path (check content array)
 
 # 3. Clear Drupal cache
 ssh web drush cr
