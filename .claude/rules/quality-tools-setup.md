@@ -47,6 +47,8 @@ parameters:
 
 **Note**: `mglaman/phpstan-drupal` is essential — it registers module/theme namespaces that PHPStan cannot discover from Composer autoloading alone.
 
+**Level guidance**: level 8 is the target for NEW custom code. If the project already has a `phpstan.neon` with a lower level, respect it. On legacy projects with many pre-existing errors, generate a baseline (`ssh web ./vendor/bin/phpstan analyse --generate-baseline`, with user approval) so only new errors fail — never "fix" unrelated legacy files to make a level pass, and never baseline errors in code you just wrote.
+
 ## PHPCS Configuration
 
 ### Installation

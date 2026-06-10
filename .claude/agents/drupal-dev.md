@@ -113,7 +113,7 @@ ssh web ./vendor/bin/phpstan analyse --level=8 <TARGET>
 ssh web drush cr
 ```
 
-- If a check reports errors: fix them (new SEARCH/REPLACE blocks → applier), then re-run that check. Repeat until clean.
+- If a check reports errors: fix them (new SEARCH/REPLACE blocks → applier), then re-run that check. Repeat until clean. Errors in files you did NOT touch are not yours to fix — see the baseline guidance in the **quality-checks** skill.
 - If a tool binary is missing (`No such file`), see the **quality-checks** skill pre-flight section.
 - Do NOT present code to the user with failing checks. If you genuinely cannot fix an error, present the code AND the remaining errors explicitly.
 

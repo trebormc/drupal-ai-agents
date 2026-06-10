@@ -62,5 +62,5 @@ Before completing ANY task:
 - [ ] DI used (no static `\Drupal::` calls in classes)
 - [ ] Cache metadata on render arrays
 - [ ] No debug code
-- [ ] PHPStan level 8 clean
+- [ ] PHPStan clean for YOUR code (level 8 target; if the project ships its own `phpstan.neon`, respect its level; for pre-existing errors in legacy code use a baseline — see **quality-checks** skill — do NOT fix unrelated files)
 - [ ] PHPCS clean

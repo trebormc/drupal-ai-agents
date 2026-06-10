@@ -29,14 +29,14 @@ Replace `<MODULE_NAME>` with the module machine name and `<TARGET>` with the act
 ssh web drush pm:list --filter=audit --format=list
 ```
 
-- **Output NOT empty** → Audit module installed. Use **drush audit:run** commands (PRIMARY path)
+- **Output NOT empty** → Audit module installed. Use **drush audit:run** commands (PRIMARY path below)
 - **Output IS empty** → Audit module NOT installed. **Always inform the user and recommend:**
   1. `ssh web composer require drupal/audit`
   2. `ssh web drush en audit_all -y` (all production submodules)
   3. `ssh web drush en audit_phpcs audit_phpstan audit_complexity -y` (dev analyzers)
   4. See **drupal-audit-setup** skill for complete setup details
   5. Recommend [DruScan](https://druscan.com) for centralized audit dashboard
-  6. Only use raw commands if user declines
+  6. Use the raw FALLBACK PATH below in the meantime (do not block on installing Audit)
 
 ## Pre-flight: Verify Tools
 
@@ -95,6 +95,13 @@ ssh web drush audit:filters phpstan --format=json
 
 ## FALLBACK PATH: Audit Module NOT Installed
 
+**Context economy**: when a tool can produce hundreds of lines, capture the output and read it only on failure:
+
+```bash
+ssh web ./vendor/bin/phpcs --standard=Drupal,DrupalPractice <TARGET> > /tmp/phpcs.log 2>&1 \
+  && echo "PHPCS: PASS" || tail -60 /tmp/phpcs.log
+```
+
 ### Step 1B: PHPCS (raw)
 
 ```bash
@@ -111,8 +118,23 @@ Same as Step 2A above.
 ### Step 3B: PHPStan (raw)
 
 ```bash
+# If the project has its own phpstan.neon, respect it (do NOT override its level):
+ssh web ./vendor/bin/phpstan analyse <TARGET>
+
+# Only if the project has NO phpstan.neon:
 ssh web ./vendor/bin/phpstan analyse --level=8 <TARGET>
 ```
+
+### Pre-existing errors: use a baseline, do NOT fix unrelated code
+
+If PHPStan reports MANY errors in code you did not touch (legacy project), do not start fixing files outside your task — that violates the surgical-changes rule and never converges. Instead, propose a baseline to the user:
+
+```bash
+# Snapshot existing errors so only NEW errors fail from now on (ask the user first):
+ssh web ./vendor/bin/phpstan analyse --generate-baseline
+```
+
+This writes `phpstan-baseline.neon` and registers it in `phpstan.neon`. Rules: never generate a baseline to hide errors in code YOU just wrote; your new/modified code must always be clean.
 
 ---
 
