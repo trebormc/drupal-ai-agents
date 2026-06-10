@@ -218,13 +218,13 @@ During sync, [ddev-agents-sync](https://github.com/trebormc/ddev-agents-sync) ge
 
 ## Rules
 
-Rules are loaded as global instructions. Some are path-scoped (activate only for matching file types), others apply globally.
+All rules are always-on global instructions, loaded in both tools: Claude Code reads `.claude/rules/` natively; OpenCode loads them via the `instructions` glob (`~/.config/opencode/rules/*.md`) in `opencode.json`. Adding a new rule requires no registration.
 
 | File | Scope | Purpose |
 |------|-------|---------|
 | `coding-behavior.md` | Global | LLM behavioral guardrails: surface assumptions, simplicity first, surgical changes, verifiable goals |
-| `drupal-coding-standards.md` | `*.php` | Strict types, 2-space indent, type hints, DI, cache metadata, quality checklist |
-| `twig-patterns.md` | `*.twig` | Presentation only, render full fields, cache bubbling, anti-patterns |
+| `drupal-coding-standards.md` | Global | Strict types, 2-space indent, type hints, DI, cache metadata, quality checklist |
+| `twig-patterns.md` | Global | Presentation only, render full fields, cache bubbling, anti-patterns |
 | `drupal-testing.md` | Global | Test type decision tree, D10 vs D11 differences, common rules |
 | `beads-workflow.md` | Global | Beads task tracking: session start, during work, session end |
 | `quality-tools-setup.md` | Global | PHPStan, PHPCS, Rector, GrumPHP, PHPUnit setup (Audit module priority) |

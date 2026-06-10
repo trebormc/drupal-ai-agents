@@ -4,14 +4,7 @@
   "small_model": "${MODEL_CHEAP}",
   "autoupdate": true,
   "instructions": [
-    "rules/coding-behavior.md",
-    "rules/beads-workflow.md",
-    "rules/drupal-coding-standards.md",
-    "rules/security-rules.md",
-    "rules/ddev-environment.md",
-    "rules/git-workflow.md",
-    "rules/quality-tools-setup.md",
-    "rules/lessons-learned.md"
+    "~/.config/opencode/rules/*.md"
   ],
   "permission": {
     "edit": "allow",

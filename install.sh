@@ -77,10 +77,11 @@ if [ -f "$SCRIPT_DIR/.claude/settings.json" ]; then
     echo "  Installed .claude/settings.json"
 fi
 
-# Copy orchestrator
+# Copy orchestrator as AGENTS.md — OpenCode only auto-loads
+# ~/.config/opencode/AGENTS.md as its global rules file (never CLAUDE.md there)
 if [ -f "$SCRIPT_DIR/CLAUDE.md" ]; then
-    cp "$SCRIPT_DIR/CLAUDE.md" "$TARGET/"
-    echo "  Installed CLAUDE.md orchestrator"
+    cp "$SCRIPT_DIR/CLAUDE.md" "$TARGET/AGENTS.md"
+    echo "  Installed orchestrator as AGENTS.md"
 fi
 
 # Copy config template with model token substitution if no config exists
