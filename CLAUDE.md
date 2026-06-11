@@ -45,7 +45,7 @@ Agents use model tokens that resolve to real model names at sync time:
 | `MODEL_CHEAP` | Haiku 4.5 | Exploration, fast tasks |
 | `MODEL_APPLIER` | Haiku 4.5 | Mechanical code application |
 
-To change models globally, edit `.env.agents` in the agent repository.
+To change models, define only the variables you want to override (variable-level cascade, higher wins): repo `.env.agents` < `~/.ddev/agents-sync/.env.agents` on the host (all projects) < `.ddev/.env.agents` (one project).
 
 ## Agents
 
