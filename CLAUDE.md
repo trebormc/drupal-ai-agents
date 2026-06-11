@@ -121,7 +121,11 @@ Present a clear summary of all file changes. The user reviews and commits manual
 
 ## Rules and Skills
 
-**Rules** auto-load based on file paths (see `.claude/rules/`). Path-scoped rules activate only for matching files (e.g., `drupal-coding-standards` for `*.php`, `twig-patterns` for `*.twig`). Global rules (git-workflow, beads-workflow) apply always.
+**Rules** are always-on instructions. Every rule file is loaded in BOTH tools:
+- **Claude Code**: loads every file in `.claude/rules/` automatically at session start (native feature).
+- **OpenCode**: has no auto-loaded rules directory — rules load via the `instructions` glob in `opencode.json`: `~/.config/opencode/rules/*.md`. The `~/` form is required: plain relative paths resolve against the project (not the config dir) and fail silently.
+
+Adding a new rule = drop a `.md` file in `.claude/rules/` — no registration needed for either tool.
 
 **Skills** are auto-discovered from `.claude/skills/`. Key skills:
 
