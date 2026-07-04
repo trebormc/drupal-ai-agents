@@ -40,10 +40,14 @@ Agents use model tokens that resolve to real model names at sync time:
 
 | Token | Default | Used for |
 |-------|---------|----------|
+| `MODEL_GENIUS` | same as SMART | Hardest tasks: important code reviews, architecture decisions |
 | `MODEL_SMART` | Opus 4.6 | Quality gates, planning, research |
 | `MODEL_NORMAL` | Sonnet 4.5 | Development, review |
 | `MODEL_CHEAP` | Haiku 4.5 | Exploration, fast tasks |
 | `MODEL_APPLIER` | Haiku 4.5 | Mechanical code application |
+| `MODEL_VISION` | same as NORMAL | Image/screenshot interpretation — must accept image input |
+
+`GENIUS` falls back to `SMART` and `VISION` falls back to `NORMAL` when not defined. Most NORMAL/CHEAP models cannot see images — anything that must interpret a screenshot goes through `MODEL_VISION` (the `visual-analyzer` agent).
 
 To change models, define only the variables you want to override (variable-level cascade, higher wins): repo `.env.agents` < `~/.ddev/agents-sync/.env.agents` on the host (all projects) < `.ddev/.env.agents` (one project).
 
@@ -56,11 +60,12 @@ To change models, define only the variables you want to override (variable-level
 | `drupal-test-generator` | NORMAL | Test generation: analyzes code, picks test type, generates tests |
 | `code-explorer` | CHEAP | Codebase exploration (use before specialized agents) |
 | `applier` | APPLIER | Apply SEARCH/REPLACE blocks mechanically |
-| `code-review` | SMART | Quality gate: correctness, security, Drupal quality, performance |
+| `code-review` | GENIUS | Quality gate: correctness, security, Drupal quality, performance |
 | `output-verifier` | SMART | Validate outputs against requirements |
 | `deep-research` | NORMAL | Multi-source investigation, technical comparisons |
 | `ralph-planner` | SMART | Generate requirements.md for autonomous execution |
-| `visual-test` | NORMAL | Playwright MCP browser automation |
+| `visual-test` | VISION | Playwright MCP browser automation |
+| `visual-analyzer` | VISION | Interprets image/screenshot content: design review, UI analysis, comparisons |
 
 ### When to Use Each Agent
 
@@ -73,6 +78,7 @@ To change models, define only the variables you want to override (variable-level
 | Validate code quality (pre/post implementation) | `code-review` |
 | Validate non-code outputs (plans, configs, docs) | `output-verifier` |
 | Browser screenshots and visual verification | `visual-test` |
+| Interpret what a screenshot/image SHOWS (design, UI, comparisons) | `visual-analyzer` |
 | Technical research across multiple sources | `deep-research` |
 | Generate requirements.md for Ralph autonomous loop | `ralph-planner` |
 | Apply SEARCH/REPLACE blocks mechanically | `applier` |
@@ -132,6 +138,8 @@ Adding a new rule = drop a `.md` file in `.claude/rules/` — no registration ne
 | Skill | Purpose |
 |-------|---------|
 | `quality-checks` | PHPCS, PHPStan, Rector, PHPUnit (Audit module primary) |
+| `code-analysis` | Standalone quality report: BLOCKERS vs SUGGESTIONS, second-opinion runs |
+| `screenshot-analysis` | Interpret screenshot/image content (requires vision model) |
 | `drupal-testing` | Test orchestrator: analyzes code, delegates to specialized test skills |
 | `drupal-unit-test` | Unit test generation and mock patterns |
 | `drupal-kernel-test` | Kernel tests: services, entities, DB, config, plugins |

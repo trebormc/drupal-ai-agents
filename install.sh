@@ -20,18 +20,23 @@ if [ -f "$SCRIPT_DIR/.env.agents" ]; then
   # shellcheck disable=SC1091
   source "$SCRIPT_DIR/.env.agents"
   set +a
-  # Use OpenCode model values for standalone install
+  # Use OpenCode model values for standalone install.
+  # Fallbacks for env files predating these tokens: GENIUS->SMART, VISION->NORMAL.
+  export MODEL_GENIUS="${OC_MODEL_GENIUS:-$OC_MODEL_SMART}"
   export MODEL_SMART="$OC_MODEL_SMART"
   export MODEL_NORMAL="$OC_MODEL_NORMAL"
   export MODEL_CHEAP="$OC_MODEL_CHEAP"
   export MODEL_APPLIER="$OC_MODEL_APPLIER"
+  export MODEL_VISION="${OC_MODEL_VISION:-$OC_MODEL_NORMAL}"
   echo "  Loaded model aliases from .env.agents"
 else
   echo "  WARNING: .env.agents not found, using defaults"
-  export MODEL_SMART="opencode/kimi-k2.5"
-  export MODEL_NORMAL="opencode/minimax-m2.5"
-  export MODEL_CHEAP="opencode/gpt-5-nano"
+  export MODEL_GENIUS="opencode/glm-5.2"
+  export MODEL_SMART="opencode/glm-5.2"
+  export MODEL_NORMAL="opencode/deepseek-v4-pro"
+  export MODEL_CHEAP="opencode/deepseek-v4-flash"
   export MODEL_APPLIER="opencode/gpt-5-nano"
+  export MODEL_VISION="opencode/minimax-m3"
 fi
 
 # Create target directory
@@ -43,7 +48,7 @@ if [ -d "$SCRIPT_DIR/.claude/agents" ]; then
     for src in "$SCRIPT_DIR/.claude/agents/"*.md; do
         [ -f "$src" ] || continue
         name=$(basename "$src")
-        envsubst '${MODEL_SMART},${MODEL_NORMAL},${MODEL_CHEAP},${MODEL_APPLIER}' \
+        envsubst '${MODEL_GENIUS},${MODEL_SMART},${MODEL_NORMAL},${MODEL_CHEAP},${MODEL_APPLIER},${MODEL_VISION}' \
           < "$src" > "$TARGET/agent/$name"
         # Remove allowed_tools line (OpenCode doesn't need it)
         sed -i '/^allowed_tools:/d' "$TARGET/agent/$name"
@@ -87,7 +92,7 @@ fi
 # Copy config template with model token substitution if no config exists
 if [ ! -f "$TARGET/opencode.json" ]; then
     if [ -f "$SCRIPT_DIR/opencode.json.example" ]; then
-        envsubst '${MODEL_SMART},${MODEL_NORMAL},${MODEL_CHEAP},${MODEL_APPLIER}' \
+        envsubst '${MODEL_GENIUS},${MODEL_SMART},${MODEL_NORMAL},${MODEL_CHEAP},${MODEL_APPLIER},${MODEL_VISION}' \
           < "$SCRIPT_DIR/opencode.json.example" > "$TARGET/opencode.json"
         echo "  Created opencode.json from template (review and customize!)"
     fi

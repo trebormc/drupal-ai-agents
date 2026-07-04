@@ -9,7 +9,7 @@ The **brain** of the [DDEV AI Workspace](https://github.com/trebormc/ddev-ai-wor
 >
 > Created by [Robert Menetray](https://menetray.com) · Sponsored by [DruScan](https://druscan.com)
 
-This repository is **not** a DDEV add-on. It is a configuration package that gets synced into OpenCode and Claude Code containers via [ddev-agents-sync](https://github.com/trebormc/ddev-agents-sync). It provides 10 specialized agents, 13 rules, and 24 skills tailored for Drupal development. The agents understand Drupal APIs, coding standards, caching, render arrays, the module/theme ecosystem, and quality tools like PHPStan, PHPCS, and PHPUnit.
+This repository is **not** a DDEV add-on. It is a configuration package that gets synced into OpenCode and Claude Code containers via [ddev-agents-sync](https://github.com/trebormc/ddev-agents-sync). It provides 11 specialized agents, 13 rules, and 31 skills tailored for Drupal development. The agents understand Drupal APIs, coding standards, caching, render arrays, the module/theme ecosystem, and quality tools like PHPStan, PHPCS, and PHPUnit.
 
 ## Quick Install
 
@@ -95,7 +95,7 @@ drupal-ai-agents/
 │   │   ├── security-rules.md
 │   │   ├── services-conventions.md
 │   │   └── twig-patterns.md
-│   └── skills/                       24 reusable skills
+│   └── skills/                       31 reusable skills
 │       ├── beads-task-tracking/SKILL.md
 │       ├── commit-message/SKILL.md
 │       ├── config-management/SKILL.md
@@ -134,10 +134,14 @@ Agent `.md` files use **model tokens** instead of hardcoded model names. This ma
 
 | Token | Default | Use for |
 |-------|---------|---------|
+| `${MODEL_GENIUS}` | same as SMART | Hardest tasks: important code reviews, architecture decisions |
 | `${MODEL_SMART}` | Opus 4.6 | Quality gates, planning, research |
 | `${MODEL_NORMAL}` | Sonnet 4.5 | General-purpose tasks |
 | `${MODEL_CHEAP}` | Haiku 4.5 | Fast, cost-effective agents |
 | `${MODEL_APPLIER}` | Haiku 4.5 | Mechanical code application |
+| `${MODEL_VISION}` | same as NORMAL | Image/screenshot interpretation — MUST accept image input |
+
+When not defined in `.env.agents`, `GENIUS` falls back to `SMART` and `VISION` falls back to `NORMAL`, so older override files keep working. Override `GENIUS` with a stronger model when available; `VISION` must be vision-capable or image analysis agents cannot see screenshots.
 
 ### Changing models
 
@@ -145,16 +149,20 @@ Edit `.env.agents` to change which models all agents use:
 
 ```bash
 # OpenCode models (provider/model-id format)
-OC_MODEL_SMART=opencode/kimi-k2.5
-OC_MODEL_NORMAL=opencode/minimax-m2.5
-OC_MODEL_CHEAP=opencode/gpt-5-nano
+OC_MODEL_GENIUS=opencode/glm-5.2
+OC_MODEL_SMART=opencode/glm-5.2
+OC_MODEL_NORMAL=opencode/deepseek-v4-pro
+OC_MODEL_CHEAP=opencode/deepseek-v4-flash
 OC_MODEL_APPLIER=opencode/gpt-5-nano
+OC_MODEL_VISION=opencode/minimax-m3
 
 # Claude Code models (native aliases)
+CC_MODEL_GENIUS=opus
 CC_MODEL_SMART=opus
 CC_MODEL_NORMAL=sonnet
 CC_MODEL_CHEAP=haiku
 CC_MODEL_APPLIER=haiku
+CC_MODEL_VISION=sonnet
 ```
 
 When synced via [ddev-agents-sync](https://github.com/trebormc/ddev-agents-sync), `envsubst` replaces tokens with the correct values for each tool. To override without forking this repo, create a private repo with just `.env.agents` and add it as a second entry in `AGENTS_REPOS`.
@@ -203,9 +211,10 @@ During sync, [ddev-agents-sync](https://github.com/trebormc/ddev-agents-sync) ge
 
 | Agent | Token | Purpose |
 |-------|-------|---------|
-| `code-review` | `MODEL_SMART` | Quality gate: correctness, security, Drupal quality, performance |
+| `code-review` | `MODEL_GENIUS` | Quality gate: correctness, security, Drupal quality, performance |
 | `output-verifier` | `MODEL_SMART` | Validate outputs with high confidence |
-| `visual-test` | `MODEL_NORMAL` | Playwright browser screenshots and UI checks |
+| `visual-test` | `MODEL_VISION` | Playwright browser screenshots and UI checks |
+| `visual-analyzer` | `MODEL_VISION` | Interprets image/screenshot content: design review, comparisons |
 
 ### Utilities
 
@@ -251,6 +260,7 @@ Reusable skill definitions that agents can invoke:
 | `drupal-functionaljs-test` | FunctionalJavascript: AJAX, modals, autocompletes, WebDriverTestBase |
 | `drupal-behat-test` | Behat: BDD, acceptance testing, Gherkin scenarios |
 | `drupal-playwright-test` | Playwright: visual regression, cross-browser, E2E test files |
+| `drupal-test-suite-audit` | Audit and refactor an existing test suite: remove zero-value tests, close DI gaps |
 
 ### Development
 
@@ -269,9 +279,12 @@ Reusable skill definitions that agents can invoke:
 | Skill | Description |
 |-------|-------------|
 | `quality-checks` | Full quality pipeline: Audit module primary, raw PHPCS/PHPStan fallback |
+| `code-analysis` | Standalone quality report: BLOCKERS vs SUGGESTIONS, cross-tool second opinion |
 | `drupal-audit-setup` | Install and configure the Drupal Audit module |
 | `performance-audit` | Caching, queries, lazy builders, bottlenecks, N+1 detection |
 | `twig-audit` | Template anti-patterns, cache bubbling, raw filter misuse |
+| `phpstan-phpcs-conflict-resolution` | Resolve PHPCS/PHPStan conflicts and suppression mechanics |
+| `drupal-security-coverage-prep` | Audit against the drupal.org security review checklist |
 
 ### Browser and UI
 
@@ -279,6 +292,14 @@ Reusable skill definitions that agents can invoke:
 |-------|-------------|
 | `playwright-testing` | Interactive browser testing with Playwright MCP (navigation, screenshots) |
 | `tailwind-drupal` | TailwindCSS setup and usage in Drupal themes |
+| `screenshot-analysis` | Interpret screenshot/image content: design review, comparisons (vision model) |
+
+### Contribution
+
+| Skill | Description |
+|-------|-------------|
+| `drupal-org-contribution-prep` | Prepare a module for drupal.org: CI, suite registration, hygiene |
+| `drupal-multi-version-compat` | Drupal 10/11/12 compatibility and Project Update Bot triage |
 
 ### Workflow and Utilities
 
@@ -315,7 +336,7 @@ allowed_tools: Read, Glob, Grep
 You are a code review specialist...
 ```
 
-The agent is auto-discovered from the `.claude/agents/` directory. Use model tokens (`${MODEL_SMART}`, `${MODEL_NORMAL}`, `${MODEL_CHEAP}`, `${MODEL_APPLIER}`) so the sync script resolves them correctly for each tool.
+The agent is auto-discovered from the `.claude/agents/` directory. Use model tokens (`${MODEL_GENIUS}`, `${MODEL_SMART}`, `${MODEL_NORMAL}`, `${MODEL_CHEAP}`, `${MODEL_APPLIER}`, `${MODEL_VISION}`) so the sync script resolves them correctly for each tool.
 
 ### Adding rules
 
