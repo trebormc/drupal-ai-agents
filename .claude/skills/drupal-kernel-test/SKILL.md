@@ -127,6 +127,15 @@ Installs tables defined in `hook_schema()`. Only for custom tables, not for enti
 $this->installSchema('my_module', ['my_module_tracking']);
 ```
 
+Some core entities need a companion table installed separately. **Saving a `node`
+requires the `node_access` table** or it throws "Base table or view not found:
+node_access":
+
+```php
+$this->installEntitySchema('node');
+$this->installSchema('node', ['node_access']);
+```
+
 ### Container Access
 
 ```php
@@ -164,6 +173,7 @@ class ArticleAnalyzerTest extends KernelTestBase {
     parent::setUp();
     $this->installEntitySchema('user');
     $this->installEntitySchema('node');
+    $this->installSchema('node', ['node_access']);
     $this->installConfig(['system', 'node', 'filter', 'my_module']);
 
     NodeType::create(['type' => 'article', 'name' => 'Article'])->save();
@@ -368,7 +378,15 @@ Never use `-c core` alone and never rely on `--testsuite` — see the **drupal-t
 | Error | Cause | Fix |
 |-------|-------|-----|
 | "Unknown entity type X" | Schema not installed or module missing | Add `$this->installEntitySchema('X')` in setUp() AND the providing module to `$modules` |
+| "Base table or view not found: node_access" | Saving a node needs the node_access table | Add `$this->installSchema('node', ['node_access'])` in setUp() (alongside `installEntitySchema('node')`) |
 | "Base table or view not found" | Missing schema install | Add the matching `installSchema()` / `installEntitySchema()` call in setUp() |
 | "Service not found" | Providing module not enabled | Add the module that defines the service to `$modules` |
 | `Class not found` | Stale autoloader or wrong namespace | `ssh web composer dump-autoload`; verify namespace matches directory path |
 | "Could not connect to database" | SIMPLETEST_DB not set | Use Form CORE with explicit env vars (above) |
+
+## Before blaming your code
+
+When a kernel test fails during unrelated work, rule out the environment BEFORE debugging logic:
+
+- **Diff-check against HEAD first.** Confirm the failure is yours, not pre-existing: `git show HEAD:path/to/File.php` and compare against the working tree. Pre-existing failures (missing config-schema keys, wrong analyzer weights, environment-specific fixtures) need their own task — do not chase them mid-change.
+- **Verify fixture directories exist.** If `setUp()` references a fixtures path (e.g. `tests/fixtures/...`) and the test "detects 0 results", the fixture files were probably never committed. Run `ls` on the path before assuming the code under test is broken.

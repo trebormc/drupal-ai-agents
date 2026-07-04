@@ -138,6 +138,21 @@ This writes `phpstan-baseline.neon` and registers it in `phpstan.neon`. Rules: n
 
 ---
 
+## Safe-Fix Rules (avoid breaking the site or tests)
+
+Learned from real regressions — apply on every PHPCBF / PHPStan-fixing pass:
+
+- **PHPCBF can fatally break `.module` files.** Its use-statement fixer inserts `use` imports right after the `@file` docblock — ABOVE `declare(strict_types=1)` — causing a PHP fatal ("strict_types declaration must be the very first statement") that takes the whole site down. The only order that satisfies both PHP and Drupal coder is: `<?php` → `@file` docblock → `declare(strict_types=1);` → `use` statements. **After ANY PHPCBF pass, lint every touched file:**
+  ```bash
+  # Lints only PHP-parseable extensions, skips deleted files; prints nothing when all is clean.
+  ssh web bash -c 'cd "$(git rev-parse --show-toplevel)" && for f in $(git diff --name-only --diff-filter=d -- "*.php" "*.module" "*.install" "*.theme" "*.inc" "*.profile"); do php -l "$f" >/dev/null || echo "BROKEN: $f"; done'
+  ```
+- **After bulk / regex edits, verify with PHPStan, not just `php -l`.** Syntax linting passes on code with silently-deleted constants or members; only PHPStan catches "access to undefined constant/member". Normalize to a canonical shape first, then match only that exact shape.
+
+For genuine **PHPCS ↔ PHPStan conflicts** and PHPStan **suppression mechanics** — why `@phpstan-ignore` silently misses, the hook-docblock `missingType.iterableValue` conflict, and why narrowing a native type hint breaks mock-based unit tests — use the dedicated **phpstan-phpcs-conflict-resolution** skill.
+
+---
+
 ## Step 5: Rector Deprecation Check (OPTIONAL)
 
 Skip if Rector not installed. **ALWAYS dry-run first.**
