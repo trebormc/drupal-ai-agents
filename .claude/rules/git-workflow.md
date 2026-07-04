@@ -1,27 +1,23 @@
 ---
-description: Git workflow rules — agents must not commit or push
+description: Git workflow rules — git write access is controlled by configurable flags
 ---
 
 # Git Workflow
 
-## Agents MUST NOT
+Git write access is **configurable** through two flags in `.env.agents`
+(`GIT_ALLOW_COMMIT` and `GIT_ALLOW_OPERATIONS`, both default to `false`).
+The section below reflects the policy currently in effect for this environment —
+it is generated at sync time, so treat it as authoritative.
 
-- Run `git commit` commands
-- Run `git push` commands
-- Run `git add` commands
-- Run `git checkout`, `git reset`, `git merge`, `git rebase`
-- Create commits automatically after making changes
+${GIT_POLICY}
 
-## Agents SHOULD
+## Always
 
-- Present a clear summary of all file changes
-- Suggest appropriate commit messages
-- List modified files for user review
-- Close completed Beads tasks with `bd close <id> --reason "Done" --json`
-
-## User Workflow
-
-1. Agent makes changes and presents summary
-2. User reviews all changes
-3. User runs `git add`, `git commit`, `git push` manually
-4. User has full control over what gets committed
+- Present a clear summary of all file changes and list the modified files.
+- Suggest clear, conventional commit messages (reference Beads task IDs, e.g.
+  `"Add feature X (bd-a1b2)"`).
+- Close completed Beads tasks with `bd close <id> --reason "Done" --json`.
+- Never rewrite or destroy remote history: no force-push and no remote-branch
+  deletion, whatever the flags allow.
+- When a git write is blocked, do not try to work around it — present the
+  changes and let the user run the command manually.

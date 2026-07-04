@@ -12,7 +12,7 @@ description: >-
   - user: "create a task" -> bd create "Title" -p 1 --json
   - user: "what tasks are left" -> bd ready --json
   - user: "start tracking work" -> bd init, bd create tasks
-  Never use `bd edit` (opens interactive editor). Never run git commit or push.
+  Never use `bd edit` (opens interactive editor). Git access follows the git-workflow rule.
 ---
 
 ## Environment
@@ -152,7 +152,7 @@ The loop exits automatically when `bd ready` returns an empty array `[]`.
 ## Rules
 
 1. **NEVER use `bd edit`** -- it opens an interactive editor that will hang
-2. **NEVER run git commit or git push** -- leave all git operations to the user
+2. **Git access follows the git-workflow rule** -- by default leave all git operations to the user
 3. **Always use `--json` flag** on create, close, and show for parseable output
 4. **Always close tasks with a reason** -- this documents what was accomplished
 5. **Reference task IDs in commit messages** -- suggest format: `"Add feature X (bd-a1b2)"`

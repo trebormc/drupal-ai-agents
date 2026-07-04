@@ -113,9 +113,14 @@ After generating blocks, delegate to the `applier` agent with the blocks as inpu
 
 ## Git Policy
 
-**Agents MUST NOT:** run `git commit`, `git push`, or `git add`.
-
-Present a clear summary of all file changes. The user reviews and commits manually.
+Git write access is **configurable** via two flags in `.env.agents`:
+`GIT_ALLOW_COMMIT` (git add/commit) and `GIT_ALLOW_OPERATIONS` (push, pull,
+merge, rebase, checkout, reset, …). **Both default to `false`**, so by default
+you present a summary of changes and the user commits manually. The
+**git-workflow** rule states the policy currently in effect — follow it.
+Force-push and remote-branch deletion are **never** allowed, regardless of the
+flags. When a git command is blocked, present the changes instead of working
+around the block.
 
 ## Web Testing
 

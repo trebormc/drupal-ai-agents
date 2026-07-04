@@ -243,7 +243,7 @@ All rules are always-on global instructions, loaded in both tools: Claude Code r
 | `config-management.md` | Global | Config export/import, config_split, schema validation |
 | `security-rules.md` | Global | Input sanitization, DB placeholders, route access, CSRF |
 | `ddev-environment.md` | Global | Docker exec commands, environment variables, Audit module priority |
-| `git-workflow.md` | Global | Agents must NOT commit/push; user controls git operations |
+| `git-workflow.md` | Global | Configurable git access (GIT_ALLOW_COMMIT / GIT_ALLOW_OPERATIONS flags); default: user commits manually |
 
 ## Skills
 

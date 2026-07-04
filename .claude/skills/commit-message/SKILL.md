@@ -178,7 +178,13 @@ Then inform the user:
    - `git commit -F commit-msg.txt`
    - `rm commit-msg.txt`
 
-**You only GENERATE the message. NEVER run `git add` or `git commit` yourself.**
+**You only GENERATE the message. NEVER run `git add` or `git commit` from inside this skill.**
+
+> If the **git-workflow** rule allows commits in this environment
+> (`GIT_ALLOW_COMMIT`), committing is a separate step that happens **after** this
+> skill: the caller runs `git add <files>`, `git commit -F commit-msg.txt`, then
+> `rm commit-msg.txt`. Push only if `GIT_ALLOW_OPERATIONS` is also enabled. When
+> commits are not allowed, present the message for the user to commit manually.
 
 ## Examples
 
@@ -232,3 +238,4 @@ chore: update dependencies and fix linting errors
 
 - **quality-checks** — Run code quality checks before committing
 - **beads-task-tracking** — Reference task IDs in commit messages (e.g., `fix(auth): validate tokens (bd-a1b2)`)
+- **git-workflow** (rule) — Decides whether the agent may commit the generated message, or only the user can

@@ -92,7 +92,7 @@ ssh web ./vendor/bin/phpunit $DDEV_DOCROOT/modules/custom --testdox 2>/dev/null 
 
 ## Phase 7: Present Summary
 
-**DO NOT commit automatically.** Present changes for user review with:
+**Follow the git-workflow rule** (by default, do not commit automatically). Present changes for user review with:
 - List of updated packages (from → to)
 - Database updates executed
 - Config changes exported
@@ -100,7 +100,7 @@ ssh web ./vendor/bin/phpunit $DDEV_DOCROOT/modules/custom --testdox 2>/dev/null 
 
 ## Rollback Procedure
 
-Git restore commands must be run BY THE USER (agents cannot run `git checkout` — see git-workflow rule). Give the user step 1, then run steps 2-4 yourself:
+Unless the **git-workflow** rule enables git operations, `git checkout` must be run BY THE USER. Give the user step 1 (or run it yourself only if operations are enabled), then run steps 2-4 yourself:
 
 ```bash
 # 1. ASK THE USER to run on the host:

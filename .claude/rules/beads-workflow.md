@@ -29,7 +29,9 @@ bd create "New task" -p 1 --json                # Create task (P0-P3)
 
 ## Session End ("Land the Plane") - MANDATORY
 
-**DO NOT commit or push automatically.** The user will review and commit manually.
+Follow the **git-workflow** rule for git access — by default agents do not
+commit or push; the user reviews and commits manually. Do not assume you may
+run git write commands.
 
 ```bash
 bd create "Remaining work" -p 2 --json          # File follow-ups
@@ -39,7 +41,7 @@ bd update <id> --notes "Paused at: ..."         # Document state
 
 **Lessons Learned check**: Before finishing, review your session — if you solved any non-trivial problems (failed commands, wrong APIs, environment quirks), ensure they are documented in `LESSONS_LEARNED.md`. Mention in your summary: "X lessons documented in LESSONS_LEARNED.md".
 
-**IMPORTANT**: Leave all git operations (add, commit, push) to the user after they review the changes.
+**IMPORTANT**: Git write access depends on the **git-workflow** rule. Unless it is enabled there, leave all git operations (add, commit, push) to the user after they review the changes.
 
 ## Quick Reference
 
@@ -67,11 +69,12 @@ The `bd` wrapper forwards commands to the Beads container via SSH. Arguments wit
 - **Never use `bd edit`** -- it opens an interactive editor that will hang
 - If a command fails unexpectedly, verify the subcommand exists with `bd --help`
 
-## Commit Convention (Reference Only)
+## Commit Convention
 
-When the user creates commits, suggest this format:
+Use this format for commit messages (the user's, or your own if the
+**git-workflow** rule enables commits):
 ```bash
 git commit -m "Add feature X (bd-a1b2)"
 ```
 
-**Note**: Agents must NOT run git commit or git push commands.
+**Note**: git write access is governed by the **git-workflow** rule.
