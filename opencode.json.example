@@ -63,5 +63,5 @@
       "timeout": 30000
     }
   },
-  "plugin": ["@mohak34/opencode-notifier@latest"]
+  "plugin": ["@mohak34/opencode-notifier@latest", "@devtheops/opencode-plugin-otel@latest"]
 }
