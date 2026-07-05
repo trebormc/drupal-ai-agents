@@ -180,11 +180,13 @@ Then inform the user:
 
 **You only GENERATE the message. NEVER run `git add` or `git commit` from inside this skill.**
 
-> If the **git-workflow** rule allows commits in this environment
-> (`GIT_ALLOW_COMMIT`), committing is a separate step that happens **after** this
-> skill: the caller runs `git add <files>`, `git commit -F commit-msg.txt`, then
-> `rm commit-msg.txt`. Push only if `GIT_ALLOW_OPERATIONS` is also enabled. When
-> commits are not allowed, present the message for the user to commit manually.
+> If the **git-workflow** rule allows commits in this environment, committing
+> is a separate step that happens **after** this skill — and only when the user
+> asked for a commit, never proactively: the caller runs `git add <files>`,
+> `git commit -F commit-msg.txt`, then `rm commit-msg.txt`. Push only if the
+> rule also allows repository operations, and only if the user asked to push.
+> When commits are not allowed, present the message for the user to commit
+> manually.
 
 ## Examples
 

@@ -4,10 +4,10 @@ description: Git workflow rules — git write access is controlled by configurab
 
 # Git Workflow
 
-Git write access is **configurable** through two flags in `.env.agents`
-(`GIT_ALLOW_COMMIT` and `GIT_ALLOW_OPERATIONS`, both default to `false`).
-The section below reflects the policy currently in effect for this environment —
-it is generated at sync time, so treat it as authoritative.
+Git write access is **configurable per environment** through two flags in
+`.env.agents` (`GIT_ALLOW_COMMIT` and `GIT_ALLOW_OPERATIONS`); both default to
+nothing allowed. The section below reflects the policy currently in effect in
+this environment — it is generated at sync time, so treat it as authoritative.
 
 ${GIT_POLICY}
 
