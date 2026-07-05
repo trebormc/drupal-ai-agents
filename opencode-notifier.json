@@ -18,7 +18,13 @@
     "complete": true,
     "subagent_complete": false,
     "error": true,
-    "question": true
+    "question": true,
+    "plan_exit": true,
+    "interrupted": false,
+    "user_cancelled": false,
+    "session_started": false,
+    "user_message": false,
+    "client_connected": false
   },
   "messages": {
     "permission": "Needs your permission",
