@@ -11,7 +11,7 @@ description: >-
   - user: "mark this done" -> bd close <id> --reason "Done" --json
   - user: "create a task" -> bd create "Title" -p 1 --json
   - user: "what tasks are left" -> bd ready --json
-  - user: "start tracking work" -> bd init, bd create tasks
+  - user: "start tracking work" -> bd create tasks
   Never use `bd edit` (opens interactive editor). Git access follows the git-workflow rule.
 ---
 
@@ -24,8 +24,10 @@ The `.beads/` directory lives in the project root (`/var/www/html/.beads/`) and 
 ## Session Start (ALWAYS DO THIS FIRST)
 
 ```bash
-# 1. Initialize Beads if not already done
-ls -la .beads/ 2>/dev/null || bd init --quiet
+# 1. Check Beads is initialized. The beads container auto-initializes the
+#    database on start — NEVER run `bd init` yourself (it can touch the
+#    project's git state). If missing, ask the user to run `ddev restart`.
+ls .beads/ 2>/dev/null || echo "Beads not initialized — ask the user to run: ddev restart"
 
 # 2. Get context from previous sessions (prints a project/task summary — if it
 #    prints without error, Beads is working)
@@ -112,7 +114,6 @@ bd update <id> --notes "Paused at: form validation logic, needs edge case handli
 
 | Action | Command |
 |--------|---------|
-| Initialize | `bd init --quiet` |
 | Get context | `bd prime` |
 | List ready | `bd ready --json` |
 | Create task | `bd create "Title" -p 1 --json` |

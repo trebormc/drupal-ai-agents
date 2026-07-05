@@ -167,7 +167,8 @@ Adding a new rule = drop a `.md` file in `.claude/rules/` — no registration ne
 ### Session Start
 
 ```bash
-ls -la .beads/ 2>/dev/null || bd init --quiet
+# NEVER run `bd init` — the beads container auto-initializes on start.
+ls .beads/ 2>/dev/null || echo "Beads not initialized — ask the user to run: ddev restart"
 bd prime
 bd ready --json
 ```

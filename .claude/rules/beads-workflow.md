@@ -9,7 +9,10 @@ Beads (bd) runs in its own DDEV container (`ddev-{project}-beads`). A wrapper at
 ## Session Start (MANDATORY)
 
 ```bash
-ls -la .beads/ 2>/dev/null || bd init --quiet  # Initialize if needed
+# The beads container auto-initializes the database on start. NEVER run
+# `bd init` yourself — it can touch the project's git state. If .beads/ is
+# missing, report it and ask the user to run `ddev restart`.
+ls .beads/ 2>/dev/null || echo "Beads not initialized — ask the user to run: ddev restart"
 bd prime                                        # Get context
 bd ready --json                                 # List ready tasks
 
