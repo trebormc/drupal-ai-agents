@@ -9,7 +9,7 @@ The **brain** of the [DDEV AI Workspace](https://github.com/trebormc/ddev-ai-wor
 >
 > Created by [Robert Menetray](https://menetray.com) · Sponsored by [DruScan](https://druscan.com)
 
-This repository is **not** a DDEV add-on. It is a configuration package that gets synced into OpenCode and Claude Code containers via [ddev-agents-sync](https://github.com/trebormc/ddev-agents-sync). It provides 11 specialized agents, 13 rules, and 31 skills tailored for Drupal development. The agents understand Drupal APIs, coding standards, caching, render arrays, the module/theme ecosystem, and quality tools like PHPStan, PHPCS, and PHPUnit.
+This repository is **not** a DDEV add-on. It is a configuration package that gets synced into OpenCode and Claude Code containers via [ddev-agents-sync](https://github.com/trebormc/ddev-agents-sync). It provides 12 specialized agents, 13 rules, and 31 skills tailored for Drupal development. The agents understand Drupal APIs, coding standards, caching, render arrays, the module/theme ecosystem, and quality tools like PHPStan, PHPCS, and PHPUnit.
 
 ## Quick Install
 
@@ -70,7 +70,7 @@ drupal-ai-agents/
 ├── install.sh                        Installation helper script (standalone mode)
 ├── .claude/
 │   ├── settings.json                 Claude Code permissions and hooks
-│   ├── agents/                       10 agent definitions (.md files with fat frontmatter)
+│   ├── agents/                       12 agent definitions (.md files with fat frontmatter)
 │   │   ├── applier.md
 │   │   ├── code-explorer.md
 │   │   ├── code-review.md
@@ -80,6 +80,8 @@ drupal-ai-agents/
 │   │   ├── drupal-theme.md
 │   │   ├── output-verifier.md
 │   │   ├── ralph-planner.md
+│   │   ├── task-router.md
+│   │   ├── visual-analyzer.md
 │   │   └── visual-test.md
 │   ├── rules/                        13 rule sets loaded as instructions
 │   │   ├── applier-protocol.md
@@ -134,14 +136,17 @@ Agent `.md` files use **model tokens** instead of hardcoded model names. This ma
 
 | Token | Default | Use for |
 |-------|---------|---------|
+| `${MODEL_MAIN}` | CHEAP (OpenCode) / NORMAL (Claude Code) | The orchestrator: default model of the main conversation loop |
 | `${MODEL_GENIUS}` | same as SMART | Hardest tasks: important code reviews, architecture decisions |
-| `${MODEL_SMART}` | Opus 4.6 | Quality gates, planning, research |
+| `${MODEL_SMART}` | Opus 4.6 | Quality gates, planning, research, delegation advice |
 | `${MODEL_NORMAL}` | Sonnet 4.5 | General-purpose tasks |
 | `${MODEL_CHEAP}` | Haiku 4.5 | Fast, cost-effective agents |
 | `${MODEL_APPLIER}` | Haiku 4.5 | Mechanical code application |
 | `${MODEL_VISION}` | same as NORMAL | Image/screenshot interpretation — MUST accept image input |
 
-When not defined in `.env.agents`, `GENIUS` falls back to `SMART` and `VISION` falls back to `NORMAL`, so older override files keep working. Override `GENIUS` with a stronger model when available; `VISION` must be vision-capable or image analysis agents cannot see screenshots.
+When not defined in `.env.agents`, `GENIUS` falls back to `SMART`, `VISION` falls back to `NORMAL`, and `MAIN` falls back to `CHEAP` on OpenCode / `NORMAL` on Claude Code, so older override files keep working. Override `GENIUS` with a stronger model when available; `VISION` must be vision-capable or image analysis agents cannot see screenshots.
+
+`${MODEL_MAIN}` sets the DEFAULT model of the tool itself, not an agent: the sync injects it as the top-level `model` in the generated `opencode.json` and as the `model` key in the generated Claude Code settings. It is deliberately a cheap tier because the main conversation dominates session cost — the orchestrator delegates specialist work and consults the `task-router` agent when the routing is unclear (see [docs/model-strategy.md](docs/model-strategy.md)).
 
 ### Changing models
 
@@ -149,6 +154,7 @@ Edit `.env.agents` to change which models all agents use:
 
 ```bash
 # OpenCode models (provider/model-id format)
+OC_MODEL_MAIN=opencode/deepseek-v4-flash
 OC_MODEL_GENIUS=opencode/glm-5.2
 OC_MODEL_SMART=opencode/glm-5.2
 OC_MODEL_NORMAL=opencode/deepseek-v4-pro
@@ -157,6 +163,7 @@ OC_MODEL_APPLIER=opencode/gpt-5-nano
 OC_MODEL_VISION=opencode/minimax-m3
 
 # Claude Code models (native aliases)
+CC_MODEL_MAIN=sonnet
 CC_MODEL_GENIUS=opus
 CC_MODEL_SMART=opus
 CC_MODEL_NORMAL=sonnet
@@ -221,6 +228,7 @@ During sync, [ddev-agents-sync](https://github.com/trebormc/ddev-agents-sync) ge
 | Agent | Token | Purpose |
 |-------|-------|---------|
 | `code-explorer` | `MODEL_CHEAP` | Codebase exploration and analysis |
+| `task-router` | `MODEL_SMART` | Delegation advisor: tells the cheap orchestrator which agent should handle a task |
 | `applier` | `MODEL_APPLIER` | Mechanical code application (SEARCH/REPLACE) |
 | `ralph-planner` | `MODEL_SMART` | Generate requirements.md for Ralph Loop |
 | `deep-research` | `MODEL_NORMAL` | Multi-source research and investigation |

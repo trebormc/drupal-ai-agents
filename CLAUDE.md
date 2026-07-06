@@ -40,14 +40,15 @@ Agents use model tokens that resolve to real model names at sync time:
 
 | Token | Default | Used for |
 |-------|---------|----------|
+| `MODEL_MAIN` | CHEAP (OpenCode) / NORMAL (Claude Code) | The orchestrator: main conversation loop that receives prompts and delegates |
 | `MODEL_GENIUS` | same as SMART | Hardest tasks: important code reviews, architecture decisions |
-| `MODEL_SMART` | Opus 4.6 | Quality gates, planning, research |
+| `MODEL_SMART` | Opus 4.6 | Quality gates, planning, research, delegation advice |
 | `MODEL_NORMAL` | Sonnet 4.5 | Development, review |
 | `MODEL_CHEAP` | Haiku 4.5 | Exploration, fast tasks |
 | `MODEL_APPLIER` | Haiku 4.5 | Mechanical code application |
 | `MODEL_VISION` | same as NORMAL | Image/screenshot interpretation — must accept image input |
 
-`GENIUS` falls back to `SMART` and `VISION` falls back to `NORMAL` when not defined. Most NORMAL/CHEAP models cannot see images — anything that must interpret a screenshot goes through `MODEL_VISION` (the `visual-analyzer` agent).
+`GENIUS` falls back to `SMART`, `VISION` falls back to `NORMAL`, and `MAIN` falls back to `CHEAP` (OpenCode) / `NORMAL` (Claude Code) when not defined. Most NORMAL/CHEAP models cannot see images — anything that must interpret a screenshot goes through `MODEL_VISION` (the `visual-analyzer` agent). The orchestrator model dominates session cost, which is why `MODEL_MAIN` is deliberately cheap — quality comes from delegating to the right specialist, not from the orchestrator itself.
 
 To change models, define only the variables you want to override (variable-level cascade, higher wins): repo `.env.agents` < `~/.ddev/agents-sync/.env.agents` on the host (all projects) < `.ddev/.env.agents` (one project).
 
@@ -59,6 +60,7 @@ To change models, define only the variables you want to override (variable-level
 | `drupal-theme` | NORMAL | Frontend: Twig, CSS, JS, Tailwind |
 | `drupal-test-generator` | NORMAL | Test generation: analyzes code, picks test type, generates tests |
 | `code-explorer` | CHEAP | Codebase exploration (use before specialized agents) |
+| `task-router` | SMART | Delegation advisor: decides which agent should handle a task |
 | `applier` | APPLIER | Apply SEARCH/REPLACE blocks mechanically |
 | `code-review` | GENIUS | Quality gate: correctness, security, Drupal quality, performance |
 | `output-verifier` | SMART | Validate outputs against requirements |
@@ -82,10 +84,20 @@ To change models, define only the variables you want to override (variable-level
 | Technical research across multiple sources | `deep-research` |
 | Generate requirements.md for Ralph autonomous loop | `ralph-planner` |
 | Apply SEARCH/REPLACE blocks mechanically | `applier` |
+| Unsure which agent fits, task spans several agents, or needs decomposition | `task-router` |
 
 **Invocation:** OpenCode uses `Task: agent-name`. Claude Code uses `Agent` tool with `subagent_type`.
 
 **Agents with Agent tool** (can delegate to applier): `drupal-dev`, `drupal-theme`.
+
+### Delegation Protocol
+
+You (the main conversation) run on `MODEL_MAIN`, a cheap model chosen for coordination. Act as a dispatcher, not a specialist:
+
+1. **Clear match** → delegate directly to the agent from the table above.
+2. **Unclear match, multi-agent task, or complex decomposition** → invoke `task-router` with a short task description and the relevant context (paths, requirements, constraints — not file dumps). Follow the routing plan it returns.
+3. **Trivial work** (answer from context, a one-line edit, run a command) → handle inline; delegating it costs more than doing it.
+4. **Never do specialist work inline** (backend PHP, theming, test generation, code review, research) — the specialists run on stronger models than you. Doing their work yourself produces worse results AND wastes the cost savings.
 
 ## The Applier Pattern
 

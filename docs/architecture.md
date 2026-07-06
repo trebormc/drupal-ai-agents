@@ -24,6 +24,7 @@ Agents are organized in three tiers by model cost:
 - **code-review**: Quality gate (correctness, security, Drupal quality, performance)
 - **deep-research**: Multi-source investigation
 - **ralph-planner**: Requirements generation for autonomous execution
+- **task-router**: Delegation advisor — the cheap orchestrator consults it when routing is unclear
 
 ### Tier 2: Normal (Sonnet) — Development work
 - **drupal-dev**: Backend PHP development
@@ -53,3 +54,5 @@ All other agents return results directly to the orchestrator.
 
 Agent files use `${MODEL_SMART}`, `${MODEL_NORMAL}`, `${MODEL_CHEAP}`, `${MODEL_APPLIER}` tokens.
 These are resolved at sync time by ddev-agents-sync using values from `.env.agents`.
+`${MODEL_MAIN}` sets the tool's own default (orchestrator) model — cheap by design; see
+[model-strategy.md](model-strategy.md).

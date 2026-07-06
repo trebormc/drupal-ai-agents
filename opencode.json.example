@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "${MODEL_SMART}",
+  "model": "${MODEL_MAIN}",
   "small_model": "${MODEL_CHEAP}",
   "autoupdate": true,
   "instructions": [
