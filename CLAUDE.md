@@ -175,6 +175,7 @@ Adding a new rule = drop a `.md` file in `.claude/rules/` — no registration ne
 | `tailwind-drupal` | TailwindCSS in Drupal |
 | `drupal-accessibility` | WCAG 2.2 AA the Drupal way: Form API ARIA, #states vs #access, Drupal.announce |
 | `commit-message` | Generate commit messages from git diff |
+| `session-distill` | Convert verified session learnings into durable guidance (patch > project skill > new skill) |
 
 ## Beads Task Tracking
 

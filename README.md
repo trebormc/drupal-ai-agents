@@ -9,7 +9,7 @@ The **brain** of the [DDEV AI Workspace](https://github.com/trebormc/ddev-ai-wor
 >
 > Created by [Robert Menetray](https://menetray.com) · Sponsored by [DruScan](https://druscan.com)
 
-This repository is **not** a DDEV add-on. It is a configuration package that gets synced into OpenCode and Claude Code containers via [ddev-agents-sync](https://github.com/trebormc/ddev-agents-sync). It provides 12 specialized agents, 14 rules, and 33 skills tailored for Drupal development. The agents understand Drupal APIs, coding standards, caching, render arrays, the module/theme ecosystem, and quality tools like PHPStan, PHPCS, and PHPUnit.
+This repository is **not** a DDEV add-on. It is a configuration package that gets synced into OpenCode and Claude Code containers via [ddev-agents-sync](https://github.com/trebormc/ddev-agents-sync). It provides 12 specialized agents, 14 rules, and 34 skills tailored for Drupal development. The agents understand Drupal APIs, coding standards, caching, render arrays, the module/theme ecosystem, and quality tools like PHPStan, PHPCS, and PHPUnit.
 
 ## Quick Install
 
@@ -98,7 +98,7 @@ drupal-ai-agents/
 │   │   ├── security-rules.md
 │   │   ├── services-conventions.md
 │   │   └── twig-patterns.md
-│   └── skills/                       33 reusable skills
+│   └── skills/                       34 reusable skills
 │       ├── beads-task-tracking/SKILL.md
 │       ├── commit-message/SKILL.md
 │       ├── config-management/SKILL.md
@@ -121,6 +121,7 @@ drupal-ai-agents/
 │       ├── performance-audit/SKILL.md
 │       ├── playwright-testing/SKILL.md
 │       ├── quality-checks/SKILL.md
+│       ├── session-distill/SKILL.md
 │       ├── skill-creator/SKILL.md
 │       ├── tailwind-drupal/SKILL.md
 │       ├── twig-audit/SKILL.md
@@ -323,6 +324,7 @@ Reusable skill definitions that agents can invoke:
 | `commit-message` | Generate commit messages from git diff (Conventional Commits format) |
 | `xdebug-profiling` | Xdebug tracing and profiling for debugging and performance |
 | `skill-creator` | Create and validate new OpenCode skills |
+| `session-distill` | Convert verified session learnings (failed attempts + final fix) into durable guidance: patch, project skill, or new shared skill |
 
 ## Customization
 
