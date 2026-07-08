@@ -23,11 +23,32 @@ Agents document problems and solutions as they work, creating a knowledge base t
 
 - **Problem**: [What went wrong — include exact error message]
 - **Root cause**: [Why it happened]
+- **Failure type**: [see taxonomy below]
 - **Solution**: [How it was fixed — include exact command or code]
 - **Category**: [docker | drupal-api | php | drush | composer | phpcs | phpstan | phpunit | twig | playwright | beads | permissions | other]
 - **Applies to**: [agent:name | skill:name | rule:name | CLAUDE.md]
 - **Suggested improvement**: [What to add to the target so this never happens again]
 ```
+
+## Failure Taxonomy — classify WHY the reasoning failed, not just what broke
+
+The failure type determines the right fix. Record the reasoning failure, not only the
+surface error:
+
+| Type | Meaning | Right fix |
+|---|---|---|
+| `CONFABULATION` | Invented a plausible API/command/path (e.g. `\Drupal::entityManager()`) | Verify-before-use habit (epistemic-discipline §3); patch the skill if the wrong API appears in guidance |
+| `ASSUMPTION_ERROR` | Facts were right, inference was wrong (right service, wrong usage pattern) | Patch the example/pattern in the relevant skill or rule |
+| `KNOWLEDGE_GAP` | No skill/rule covers this area | Add a section to the closest skill, or propose a new one |
+| `STALE_KNOWLEDGE` | A skill/rule contains outdated info (API changed) | Patch the outdated guidance |
+| `ENVIRONMENT_QUIRK` | Correct code, environment behaved unexpectedly | Document in LESSONS_LEARNED.md; promote to ddev-environment rule if recurring |
+
+## Promotion Rule
+
+When **3 or more lessons** share the same failure type + category (or the same lesson
+appears in a second project), the fix is no longer a log entry — propose to the user a
+patch to the target skill/rule/agent named in "Applies to". Lessons that only accumulate
+in the log do not change future sessions; patched guidance does.
 
 ## What NOT to Document
 

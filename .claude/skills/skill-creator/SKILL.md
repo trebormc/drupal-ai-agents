@@ -22,11 +22,19 @@ waste tokens.
 
 ```
 .claude/skills/{skill-name}/
-└── SKILL.md
+├── SKILL.md              # lean entry point — always loaded when the skill triggers
+└── references/           # OPTIONAL: depth loaded on demand
+    └── {subtask}.md
 ```
 
 One directory per skill. Directory name must match `name` in frontmatter.
-Only one file: `SKILL.md` (uppercase). No subdirectories.
+The entry file is always `SKILL.md` (uppercase). The Agent Skills spec caps SKILL.md at
+**500 lines**; in this repo prefer ~200 (everything in SKILL.md hits the context whether
+the task needs it or not). When a section is only relevant to a subset of tasks or has
+grown into step-by-step depth, move it to `references/{subtask}.md` and add a routing
+table in SKILL.md (`| task | read |`) pointing to it — keep inline only orientation,
+path-selection, and gotchas the agent must see before choosing a path. Keep each
+reference under ~200 lines.
 
 ## SKILL.md format
 
@@ -88,7 +96,7 @@ If description doesn't match user intent, body NEVER loads.
 - [ ] No duplication with other skills or rules/
 - [ ] No conflicts with CLAUDE.md policies
 - [ ] File named exactly `SKILL.md`
-- [ ] Body under 200 lines
+- [ ] Body under ~200 lines (hard spec limit: 500) — split into `references/` beyond that
 
 ## Audit mode
 
@@ -117,6 +125,6 @@ Report as:
 | Vague description | Add examples with `->` |
 | No anti-pattern | Add "Never use for X" |
 | Bare commands | Prefix `ssh web` |
-| Body 200+ lines | Split into skill + rule reference |
+| Body 200+ lines | Move subtask depth into `references/{subtask}.md` with a routing table |
 | English-only triggers | Add Spanish phrases |
 | Duplicates other skill | Merge or add anti-pattern boundary |

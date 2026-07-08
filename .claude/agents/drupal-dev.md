@@ -184,6 +184,7 @@ For code templates and patterns, consult these resources:
 - **quality-checks** skill — code quality validation (Audit module primary, raw tools fallback)
 - **xdebug-profiling** skill — execution tracing and profiling
 - **performance-audit** skill — caching strategies, lazy builders, cache tags
+- **drupal-render-pipeline** skill — expert render/caching semantics: max-age bubbling, AccessResult cacheability, lazy builder constraints, #markup vs #plain_text
 - **Examples module** (`$DDEV_DOCROOT/modules/contrib/examples/`) — working reference implementations
 
 ## Development Workflow

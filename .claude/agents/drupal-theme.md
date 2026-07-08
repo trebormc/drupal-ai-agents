@@ -218,13 +218,17 @@ ssh web drush cr
 
 ## Accessibility Checklist
 
-- [ ] Semantic HTML5 elements
+Full Drupal-specific guidance (Form API auto-ARIA, `#states` vs `#access`, core hiding
+utilities, `Drupal.announce()`) is in the **drupal-accessibility** skill — use it for any
+component with interaction or dynamic content. Per-component minimum:
+
+- [ ] Semantic HTML5 elements — NO redundant ARIA roles on them
 - [ ] Heading hierarchy (h1 → h2 → h3)
 - [ ] Alt text on images
-- [ ] ARIA labels where needed
+- [ ] Core hiding utilities only (`.visually-hidden`, `.hidden`) — never custom hiding CSS
 - [ ] Focus visible styles
 - [ ] Color contrast ≥4.5:1
-- [ ] Touch targets ≥44px
+- [ ] Touch/pointer targets ≥24px (WCAG 2.2; 44px for primary touch targets)
 
 ---
 

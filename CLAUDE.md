@@ -166,12 +166,14 @@ Adding a new rule = drop a `.md` file in `.claude/rules/` — no registration ne
 | `drupal-behat-test` | Behat: BDD, acceptance testing, Gherkin |
 | `drupal-playwright-test` | Playwright: visual regression, cross-browser, E2E |
 | `performance-audit` | Caching, queries, lazy builders, bottlenecks |
+| `drupal-render-pipeline` | Expert render/caching semantics: bubbling, AccessResult, lazy builder constraints, escaping |
 | `drupal-update` | Safe Composer update workflow |
 | `twig-audit` | Template anti-patterns and cache bubbling |
 | `beads-task-tracking` | Beads (bd) task management |
 | `module-scaffold` | Scaffold new custom modules |
 | `playwright-testing` | Browser automation and screenshots (MCP tools) |
 | `tailwind-drupal` | TailwindCSS in Drupal |
+| `drupal-accessibility` | WCAG 2.2 AA the Drupal way: Form API ARIA, #states vs #access, Drupal.announce |
 | `commit-message` | Generate commit messages from git diff |
 
 ## Beads Task Tracking

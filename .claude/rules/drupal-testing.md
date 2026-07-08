@@ -34,6 +34,7 @@ Determine the project version before generating code. Differences affect syntax.
 | `installSchema('system', 'sequences')` | Deprecated in 10.2 | Do not use |
 | PHPStan | v1 | **v2** (since 11.2) |
 | `$modules` | `protected static $modules` | Same |
+| `#[RunTestsInSeparateProcesses]` | Recommended | **Required on Kernel/Functional/FunctionalJS classes since 11.3** (`use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;`) — never on Unit tests |
 
 **If the project supports both versions:** use `static` in data providers, use
 annotations (not attributes), avoid `withConsecutive()`.
@@ -176,6 +177,14 @@ class CLASS_UNDER_TESTTest extends UnitTestCase {
 8. Prefer `assertSame()` over `assertEquals()`.
 9. Prefer specific assertions: `assertCount()` instead of `assertTrue(count() === 3)`.
 10. One test per behavior, not per method.
+11. **Always assert the return value of `waitForElement()` / `waitForText()` and
+    friends** — they return `NULL` on timeout instead of failing, so a bare call
+    produces a test that always passes: wrap it in
+    `$this->assertNotEmpty($this->assertSession()->waitForElement('css', '#el'));`.
+12. **Functional tests run TWO Drupal instances** (the PHPUnit process and the web
+    server) sharing one database but separate memory. State, services, or static
+    caches set in test code are invisible to the requests the test makes — when this
+    bites, rebuild containers/caches explicitly and comment WHY.
 
 ## Module Directory Structure
 

@@ -9,7 +9,7 @@ The **brain** of the [DDEV AI Workspace](https://github.com/trebormc/ddev-ai-wor
 >
 > Created by [Robert Menetray](https://menetray.com) · Sponsored by [DruScan](https://druscan.com)
 
-This repository is **not** a DDEV add-on. It is a configuration package that gets synced into OpenCode and Claude Code containers via [ddev-agents-sync](https://github.com/trebormc/ddev-agents-sync). It provides 12 specialized agents, 14 rules, and 31 skills tailored for Drupal development. The agents understand Drupal APIs, coding standards, caching, render arrays, the module/theme ecosystem, and quality tools like PHPStan, PHPCS, and PHPUnit.
+This repository is **not** a DDEV add-on. It is a configuration package that gets synced into OpenCode and Claude Code containers via [ddev-agents-sync](https://github.com/trebormc/ddev-agents-sync). It provides 12 specialized agents, 14 rules, and 33 skills tailored for Drupal development. The agents understand Drupal APIs, coding standards, caching, render arrays, the module/theme ecosystem, and quality tools like PHPStan, PHPCS, and PHPUnit.
 
 ## Quick Install
 
@@ -98,10 +98,11 @@ drupal-ai-agents/
 │   │   ├── security-rules.md
 │   │   ├── services-conventions.md
 │   │   └── twig-patterns.md
-│   └── skills/                       31 reusable skills
+│   └── skills/                       33 reusable skills
 │       ├── beads-task-tracking/SKILL.md
 │       ├── commit-message/SKILL.md
 │       ├── config-management/SKILL.md
+│       ├── drupal-accessibility/SKILL.md
 │       ├── drupal-audit-setup/SKILL.md
 │       ├── drupal-behat-test/SKILL.md
 │       ├── drupal-code-patterns/SKILL.md
@@ -111,6 +112,7 @@ drupal-ai-agents/
 │       ├── drupal-kernel-test/SKILL.md
 │       ├── drupal-migration/SKILL.md
 │       ├── drupal-playwright-test/SKILL.md
+│       ├── drupal-render-pipeline/SKILL.md
 │       ├── drupal-testing/SKILL.md
 │       ├── drupal-unit-test/SKILL.md
 │       ├── drupal-update/SKILL.md
@@ -292,6 +294,7 @@ Reusable skill definitions that agents can invoke:
 | `code-analysis` | Standalone quality report: BLOCKERS vs SUGGESTIONS, cross-tool second opinion |
 | `drupal-audit-setup` | Install and configure the Drupal Audit module |
 | `performance-audit` | Caching, queries, lazy builders, bottlenecks, N+1 detection |
+| `drupal-render-pipeline` | Expert render/caching semantics: max-age bubbling, AccessResult cacheability, lazy builder constraints, escaping |
 | `twig-audit` | Template anti-patterns, cache bubbling, raw filter misuse |
 | `phpstan-phpcs-conflict-resolution` | Resolve PHPCS/PHPStan conflicts and suppression mechanics |
 | `drupal-security-coverage-prep` | Audit against the drupal.org security review checklist |
@@ -302,6 +305,7 @@ Reusable skill definitions that agents can invoke:
 |-------|-------------|
 | `playwright-testing` | Interactive browser testing with Playwright MCP (navigation, screenshots) |
 | `tailwind-drupal` | TailwindCSS setup and usage in Drupal themes |
+| `drupal-accessibility` | WCAG 2.2 AA the Drupal way: Form API ARIA, #states vs #access, hiding utilities, Drupal.announce |
 | `screenshot-analysis` | Interpret screenshot/image content: design review, comparisons (vision model) |
 
 ### Contribution

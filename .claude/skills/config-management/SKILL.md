@@ -20,6 +20,50 @@ description: >-
 All commands via `ssh web drush`.
 Config sync directory: `config/sync/` (relative to project root).
 
+## Config vs State vs Settings — decide BEFORE storing anything
+
+Drupal has three storage mechanisms; picking the wrong one causes deploy bugs, security
+leaks, or data loss. Decide with this table:
+
+| Question | Use | API |
+|---|---|---|
+| Site-building decision, same across environments? | **Config** | `config.factory` (inject) |
+| Runtime data that changes frequently (timestamps, counters, flags)? | **State** | `\Drupal::state()` |
+| Environment-specific or secret (API keys, credentials, salts)? | **Settings** | `Settings::get()` + settings.php |
+| Admin manages multiple named instances via UI, or needs dependency tracking? | **Config entity** | — |
+| A few key-value module settings? | **Simple config** | — |
+
+The two classic mistakes:
+- **A secret in config** → exported to YAML, committed to git. Security leak. Store in
+  `$settings[...]` (settings.php / env var) instead.
+- **Runtime data in config** (last sync time, counters) → `drush cex` shows permanent
+  diffs and the next deploy overwrites production state. Use State.
+
+Config CAN differ per environment via overrides (`$config[...]` in settings.php) — the
+stored default stays shared, the override layers on top at runtime.
+
+### Reading vs writing config
+
+```php
+$value = $config_factory->get('system.site')->get('name');          // active value (overrides applied)
+$raw = $config_factory->get('system.site')->getOriginal('name', FALSE); // stored value, no overrides
+$config_factory->getEditable('system.site')->set('name', 'X')->save();  // write (ignores overrides)
+```
+
+Do not use `getEditable()` just to read, and never save a config object obtained with
+overrides applied — overrides are read-only.
+
+### Modifying config you do not own
+
+Never write directly into another module's config keys. Use third-party settings — they
+are namespaced and cleaned up on uninstall:
+
+```php
+$content_type->setThirdPartySetting('my_module', 'custom_flag', TRUE)->save();
+```
+
+They need schema too, under the `*.third_party.my_module` pattern.
+
 ## Config export/import workflow
 
 ### Standard workflow
@@ -112,9 +156,12 @@ Every module with configuration MUST have `config/schema/{module}.schema.yml`.
     enabled:
       type: boolean
       label: 'Enabled'
-    api_key:
-      type: string
-      label: 'API Key'
+    api_endpoint:
+      type: uri
+      label: 'API endpoint'
+    display_title:
+      type: label
+      label: 'Display title'
     max_items:
       type: integer
       label: 'Maximum items'
@@ -125,6 +172,17 @@ Every module with configuration MUST have `config/schema/{module}.schema.yml`.
         type: string
         label: 'Content type'
 ```
+
+Type gotchas (strict validation is enforced incrementally since Drupal 10.3 — wrong
+schema now FAILS config import, it is not cosmetic):
+
+- Human-readable, translatable strings → type `label`, not `string` (the most common
+  generated-schema error; `string` values are untranslatable).
+- URIs → `uri`; internal paths → `path`; lists → `sequence` (not a `string`).
+- The declared type must match the YAML value type exactly (no `string` for integers).
+- API keys/secrets do NOT belong in config at all — see the decision table above.
+- Config in `config/install/` must declare its `dependencies:` (module/config/theme) —
+  missing dependencies do not fail at install time but break config import later.
 
 ## Settings.php overrides
 
