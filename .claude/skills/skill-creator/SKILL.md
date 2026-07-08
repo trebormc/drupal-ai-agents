@@ -18,6 +18,25 @@ Create and validate OpenCode skills following the Anthropic Agent Skills spec.
 Skills that violate these rules fail silently: not discovered, not matched, or
 waste tokens.
 
+## Golden-template rule: copy, don't compose
+
+NEVER write a new skill from a blank file. Find the existing skill closest in shape to
+what you need (a command-reference skill, a workflow skill, an audit skill), copy its
+SKILL.md as the starting point, and modify the minimum: name, description, and the
+body sections that differ. The frontmatter idioms, section order, and command style
+come along for free — which is exactly what freehand composition gets wrong. If you
+find yourself rewriting most of the template, you picked the wrong exemplar; pick
+another one.
+
+## Path resolution for references/
+
+Skills load from different locations per tool (`~/.claude/skills/`,
+`~/.config/opencode/skills/`, project `.claude/skills/`). Inside a SKILL.md, paths
+like `references/foo.md` are ALWAYS relative to the directory containing that
+SKILL.md — never to the project CWD. When authoring, write reference links relative;
+when following them as an agent, resolve them against the SKILL.md location before
+reading.
+
 ## Directory structure
 
 ```
