@@ -74,10 +74,10 @@ The `bd` wrapper forwards commands to the Beads container via SSH. Arguments wit
 
 ## Commit Convention
 
-Use this format for commit messages (the user's, or your own if the
-**git-workflow** rule enables commits):
+Use Conventional Commits format, in ENGLISH, with the Beads task ID at the end of the
+subject (full format in the **commit-message** skill):
 ```bash
-git commit -m "Add feature X (bd-a1b2)"
+git commit -m "feat(mymodule): add feature X (bd-a1b2)"
 ```
 
 **Note**: git write access is governed by the **git-workflow** rule.

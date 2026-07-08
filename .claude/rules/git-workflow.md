@@ -14,8 +14,9 @@ ${GIT_POLICY}
 ## Always
 
 - Present a clear summary of all file changes and list the modified files.
-- Suggest clear, conventional commit messages (reference Beads task IDs, e.g.
-  `"Add feature X (bd-a1b2)"`).
+- Suggest clear commit messages in Conventional Commits format, always in English,
+  referencing Beads task IDs (e.g. `"feat(mymodule): add feature X (bd-a1b2)"`) —
+  generate them with the **commit-message** skill.
 - Close completed Beads tasks with `bd close <id> --reason "Done" --json`.
 - Never rewrite or destroy remote history: no force-push and no remote-branch
   deletion, whatever the flags allow.

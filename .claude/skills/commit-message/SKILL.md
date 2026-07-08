@@ -1,11 +1,11 @@
 ---
 name: commit-message
 description: >-
-  Generates high-quality commit messages by analyzing git diff and status.
+  Generates concise commit messages by analyzing git diff and status.
   Saves the message to a text file in the project root for the user to
   review and commit manually. Uses Conventional Commits format with
-  type(scope) prefix. Writes the message in the same language the user
-  is using unless a specific language is requested.
+  type(scope) prefix, ALWAYS in English (Drupal community standard),
+  with a drupal.org variant (issue ID + By: lines) for contrib work.
   Examples:
   - user: "generate a commit message" -> analyze diff, write commit-msg.txt
   - user: "genera un mensaje de commit" -> analyze diff, write commit-msg.txt
@@ -45,10 +45,12 @@ rm commit-msg.txt
 
 ## Language Rules
 
-1. Write the commit message in the **same language the user is interacting in**
-2. If the user explicitly requests a specific language, use that language
-3. Technical terms (file names, function names, config keys) stay in their original form regardless of language
-4. **Never mention AI, assistants, or automated tools** in the message — write as if the developer authored it
+1. Commit messages are **ALWAYS in English** — Drupal community standard, same
+   contract as the **translations** rule: the conversation language never leaks into
+   the repository. A user talking in Spanish still gets an English commit message.
+   The single exception: the user EXPLICITLY requests another language for this message.
+2. Technical terms (file names, function names, config keys) stay in their original form
+3. **Never mention AI, assistants, or automated tools** in the message — write as if the developer authored it
 
 ## Step 1: Gather Context
 
@@ -124,12 +126,35 @@ Read the diff carefully to understand:
 ```
 type(scope): concise subject line (max 72 chars)
 
-Detailed body explaining the changes:
-
-- Point 1: what was changed and why
-- Point 2: what was changed and why
-- Point N: what was changed and why
+- Point: what changed and why (one line per bullet, no internal line breaks)
+- Point: ...
 ```
+
+**Size budget — the message must be useful without being long:**
+- The subject line alone is a COMPLETE message for small self-explanatory changes
+  (one file, one concern). Do not pad a body out of habit.
+- Body only when it adds information the diff cannot show: the WHY, the trade-off,
+  the breaking change. Maximum 6 bullets or 3 short paragraphs.
+- The diff already shows WHAT changed — never narrate it line by line.
+
+### Drupal.org contribution format (contrib/core issues)
+
+When the work belongs to a drupal.org issue (contrib module, core patch, or the
+**drupal-org-contribution-prep** skill is in play), use the community format instead:
+
+```
+type: #{issue-id} Short summary of the change
+
+Optional body — the why, not the what.
+
+By: drupal-username
+By: other-contributor
+```
+
+- The issue ID is the numeric segment of the issue URL (same number on drupal.org
+  and GitLab).
+- `By:` lines use **drupal.org usernames** — never emails, GitLab handles, or
+  `@user` syntax. Ask the user for their username if unknown.
 
 ### Subject Line Rules
 
@@ -143,9 +168,11 @@ Detailed body explaining the changes:
 
 1. **Blank line** between subject and body (required by git)
 2. **Bullet points** for multiple changes, each explaining what + why
-3. **Group by area** if changes span multiple files/concerns
-4. **Be specific**: file names, function names, config keys — not vague descriptions
-5. **Wrap lines at 72 characters**
+3. **One line per bullet/paragraph — no hard line breaks inside them.** Git and the
+   forges render long lines fine; mid-sentence breaks make the message harder to read
+   and to copy. Only the subject line has a hard length limit.
+4. **Group by area** if changes span multiple files/concerns
+5. **Be specific**: file names, function names, config keys — not vague descriptions
 6. Do NOT list every single line change — summarize at the semantic level
 7. Mention **breaking changes** prominently if any
 
@@ -156,10 +183,12 @@ Before writing the file:
 - [ ] Subject line fits in 72 chars
 - [ ] Type is correct for the dominant change
 - [ ] Scope is accurate (or omitted if too broad)
-- [ ] Body explains WHY, not just WHAT (the diff already shows what)
+- [ ] **English** (unless the user explicitly requested another language)
+- [ ] Body earns its place: adds WHY/trade-offs the diff cannot show — or is omitted
+- [ ] No hard line breaks inside bullets/paragraphs
+- [ ] Max 6 bullets / 3 short paragraphs
+- [ ] drupal.org format (issue ID + By: lines) if the work belongs to a d.o issue
 - [ ] No AI attribution or mention of automated tools
-- [ ] Language matches user interaction (or explicit request)
-- [ ] Technical terms remain in original language
 - [ ] Breaking changes noted if applicable
 
 ## Step 4: Save the File
@@ -190,39 +219,38 @@ Then inform the user:
 
 ## Examples
 
-### Single module fix (English)
+### Small self-explanatory change — subject only, no body
 
 ```
 fix(event_manager): validate date range before saving event
-
-- Add start/end date comparison in EventForm::validateForm()
-  to prevent events where end date precedes start date
-- Return early with form error instead of silently saving
-  invalid data
 ```
 
-### Feature addition (Spanish)
+### Feature addition — body earns its place
 
 ```
-feat(webhooks): agregar endpoint para recibir notificaciones de pago
+feat(webhooks): add payment notification endpoint
 
-- Crear WebhookController con ruta /api/webhooks/payment
-- Validar firma HMAC del payload antes de procesar
-- Registrar servicio webhook_processor con inyeccion de
-  dependencias
-- Agregar permisos 'receive webhooks' en permissions.yml
+- Create WebhookController at /api/webhooks/payment with HMAC signature validation before processing, so forged payloads are rejected early
+- Register webhook_processor service with constructor injection
+- Add 'receive webhooks' permission in permissions.yml
 ```
 
-### Refactoring (English)
+### Drupal.org contribution (contrib module issue)
+
+```
+fix: #3586461 Prevent fatal on empty field value in formatter
+
+By: drupal-username
+By: reviewer-username
+```
+
+### Refactoring
 
 ```
 refactor(skills): centralize audit module instructions
 
-- Replace repeated Audit module blocks in agents with
-  references to quality-tools-setup rule
-- Add Related Skills sections for cross-referencing
+- Replace repeated Audit module blocks in agents with references to the quality-tools-setup rule
 - Fix broken references to non-existent agents
-- Add agent decision tree table to CLAUDE.md
 ```
 
 ### Multi-scope changes
