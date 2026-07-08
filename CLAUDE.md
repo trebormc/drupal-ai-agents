@@ -62,7 +62,7 @@ To change models, define only the variables you want to override (variable-level
 | `code-explorer` | CHEAP | Codebase exploration (use before specialized agents) |
 | `task-router` | SMART | Delegation advisor: decides which agent should handle a task |
 | `applier` | APPLIER | Apply SEARCH/REPLACE blocks mechanically |
-| `code-review` | GENIUS | Quality gate: correctness, security, Drupal quality, performance |
+| `code-review` | GENIUS | Judge panel (7 perspectives incl. accessibility, translations, test coverage): PLAN mode → Implementation Contract; CODE mode → quality + plan conformance |
 | `output-verifier` | SMART | Validate outputs against requirements |
 | `deep-research` | NORMAL | Multi-source investigation, technical comparisons |
 | `ralph-planner` | SMART | Generate requirements.md for autonomous execution |
@@ -77,7 +77,8 @@ To change models, define only the variables you want to override (variable-level
 | Backend PHP: modules, services, entities, plugins | `drupal-dev` |
 | Frontend: Twig, CSS, JS, Tailwind | `drupal-theme` |
 | Generate tests for Drupal code | `drupal-test-generator` |
-| Validate code quality (pre/post implementation) | `code-review` |
+| Plan a significant task (design consensus → Implementation Contract) | `code-review` (PLAN mode) |
+| Validate code quality / conformance to the contract | `code-review` (CODE mode) |
 | Validate non-code outputs (plans, configs, docs) | `output-verifier` |
 | Browser screenshots and visual verification | `visual-test` |
 | Interpret what a screenshot/image SHOWS (design, UI, comparisons) | `visual-analyzer` |
@@ -98,6 +99,28 @@ You (the main conversation) run on `MODEL_MAIN`, a cheap model chosen for coordi
 2. **Unclear match, multi-agent task, or complex decomposition** → invoke `task-router` with a short task description and the relevant context (paths, requirements, constraints — not file dumps). Follow the routing plan it returns.
 3. **Trivial work** (answer from context, a one-line edit, run a command) → handle inline; delegating it costs more than doing it.
 4. **Never do specialist work inline** (backend PHP, theming, test generation, code review, research) — the specialists run on stronger models than you. Doing their work yourself produces worse results AND wastes the cost savings.
+
+### Plan → Implement → Verify Loop (significant tasks)
+
+For significant tasks — new module/service/entity/plugin, security- or data-critical
+paths, cache-sensitive output, or changes spanning 3+ files — run the full loop:
+
+1. **PLAN**: invoke `code-review` in PLAN mode with the task (and competing approaches
+   if any). It returns an **Implementation Contract**: approach, placement & structure
+   (module vs theme, which module, exact file tree), concrete test plan (which test
+   classes, chosen via the drupal-testing decision tree), roadmap with per-step
+   verification, judge constraints, rejected alternatives.
+2. **Store**: save the contract in the Beads task: `bd update <id> --notes "<contract>"`.
+3. **Implement**: delegate to the specialist (`drupal-dev`/`drupal-theme`/...) passing
+   the contract verbatim — it is binding; deviations must be reported, not silent.
+4. **Verify**: invoke `code-review` in CODE mode with the diff AND the contract. It
+   validates quality plus Plan Conformance. NEEDS IMPROVEMENT → back to step 3 with the
+   required changes (the review loop is capped at 2 iterations; after that it escalates
+   to you/the user with the dissent recorded).
+
+Skip the loop for small fixes — a one-file bugfix goes straight to specialist +
+CODE-mode review. The contract exists to prevent redesign-during-implementation on
+work that is expensive to redo, not to bureaucratize trivial changes.
 
 ## The Applier Pattern
 

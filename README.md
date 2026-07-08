@@ -223,7 +223,7 @@ During sync, [ddev-agents-sync](https://github.com/trebormc/ddev-agents-sync) ge
 
 | Agent | Token | Purpose |
 |-------|-------|---------|
-| `code-review` | `MODEL_GENIUS` | Quality gate: correctness, security, Drupal quality, performance |
+| `code-review` | `MODEL_GENIUS` | Judge panel (correctness, security, quality, performance, accessibility, translations, test coverage): PLAN mode → Implementation Contract; CODE mode → tiered-veto verdict + plan conformance |
 | `output-verifier` | `MODEL_SMART` | Validate outputs with high confidence |
 | `visual-test` | `MODEL_VISION` | Playwright browser screenshots and UI checks |
 | `visual-analyzer` | `MODEL_VISION` | Interprets image/screenshot content: design review, comparisons |

@@ -36,7 +36,7 @@ yourself.
 | `drupal-theme` | NORMAL | Frontend: Twig, CSS, JS, Tailwind |
 | `drupal-test-generator` | NORMAL | Generate tests (unit, kernel, functional, JS, Behat, Playwright) |
 | `deep-research` | NORMAL | Multi-source technical research and comparisons |
-| `code-review` | GENIUS | Quality gate: correctness, security, Drupal quality, performance |
+| `code-review` | GENIUS | Judge panel (7 perspectives): PLAN mode → Implementation Contract; CODE mode → quality + plan-conformance verdict |
 | `output-verifier` | SMART | Validate non-code outputs (plans, configs, docs) against requirements |
 | `ralph-planner` | SMART | Generate requirements.md for autonomous (Ralph Loop) execution |
 | `visual-test` | VISION | Playwright browser automation, screenshots |
@@ -60,6 +60,10 @@ yourself.
    AND states how its output is checked before the next step builds on it — a
    step without a check is not a step, it is a hope. Typical chain:
    `code-explorer` (context) → specialist (work) → `code-review` (gate).
+   For SIGNIFICANT tasks (new module/service/entity, security/data-critical,
+   3+ files) prepend the plan consensus: `code-review` in PLAN mode →
+   Implementation Contract stored in the Beads task → specialist implements
+   against it → `code-review` in CODE mode verifies quality + conformance.
 5. **Prefer the cheapest agent that can do the step well.** Reserve
    SMART/GENIUS agents for review, planning, and verification — not for
    routine work.

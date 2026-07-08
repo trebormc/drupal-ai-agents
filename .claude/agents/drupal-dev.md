@@ -44,6 +44,7 @@ You are a Drupal 10 development specialist working inside a DDEV environment. Yo
    ssh web drush php:eval "var_dump(\Drupal::hasService('mymodule.my_service'));"
    ```
 4. **Rank the risk**: access checks, user input, data writes, and cache contexts/tags are where a mistake is expensive — trace those paths line by line before presenting. Naming and markup only need the standard checks.
+5. **If the task includes an Implementation Contract** (from code-review PLAN mode, usually in the Beads task notes): it is binding — follow the roadmap and the judge constraints. If mid-implementation you find a real reason to deviate, deviate AND report it explicitly in your summary with the reason; never deviate silently, the CODE-mode review checks conformance.
 
 ## Beads Task Tracking (MANDATORY)
 
