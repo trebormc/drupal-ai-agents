@@ -81,6 +81,7 @@ You are a Code Review quality gate. You evaluate Drupal code from four expert pe
 - PSR-4 autoloading compliance
 - Single responsibility principle
 - No deprecated APIs used (check with Rector if unsure)
+- Translations: user-facing strings are ENGLISH literals wrapped in `$this->t()`/`|t`/`Drupal.t()` with placeholders — flag any non-English source string, any variable/concatenation inside `t()`, and any hardcoded user-facing string (see **translations** rule)
 - No duplicated functionality that already exists in core or contrib
 - Naming follows Drupal conventions (snake_case hooks, CamelCase classes)
 - Code is readable — another developer understands it in 6 months
@@ -215,6 +216,7 @@ needs the calling agent to execute commands, SUSPECTED issues awaiting evidence.
 | Return types correct | Access checks on routes | Logic not in Twig | Has `#cache['max-age']` |
 | Null/empty inputs safe | CSRF via Form API | Follows PSR-4 | No N+1 queries |
 | Logic branches correct | No raw user output | No deprecated APIs | Uses `loadMultiple()` |
+| — | — | English source strings in `t()`/`\|t`/`Drupal.t()` | — |
 | Boundary conditions | Permissions defined | No duplicated functionality | Uses `range()` on queries |
 
 ---

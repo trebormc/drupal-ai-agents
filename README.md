@@ -9,7 +9,7 @@ The **brain** of the [DDEV AI Workspace](https://github.com/trebormc/ddev-ai-wor
 >
 > Created by [Robert Menetray](https://menetray.com) · Sponsored by [DruScan](https://druscan.com)
 
-This repository is **not** a DDEV add-on. It is a configuration package that gets synced into OpenCode and Claude Code containers via [ddev-agents-sync](https://github.com/trebormc/ddev-agents-sync). It provides 12 specialized agents, 14 rules, and 34 skills tailored for Drupal development. The agents understand Drupal APIs, coding standards, caching, render arrays, the module/theme ecosystem, and quality tools like PHPStan, PHPCS, and PHPUnit.
+This repository is **not** a DDEV add-on. It is a configuration package that gets synced into OpenCode and Claude Code containers via [ddev-agents-sync](https://github.com/trebormc/ddev-agents-sync). It provides 12 specialized agents, 15 rules, and 34 skills tailored for Drupal development. The agents understand Drupal APIs, coding standards, caching, render arrays, the module/theme ecosystem, and quality tools like PHPStan, PHPCS, and PHPUnit.
 
 ## Quick Install
 
@@ -83,7 +83,7 @@ drupal-ai-agents/
 │   │   ├── task-router.md
 │   │   ├── visual-analyzer.md
 │   │   └── visual-test.md
-│   ├── rules/                        14 rule sets loaded as instructions
+│   ├── rules/                        15 rule sets loaded as instructions
 │   │   ├── applier-protocol.md
 │   │   ├── beads-workflow.md
 │   │   ├── coding-behavior.md
@@ -97,6 +97,7 @@ drupal-ai-agents/
 │   │   ├── quality-tools-setup.md
 │   │   ├── security-rules.md
 │   │   ├── services-conventions.md
+│   │   ├── translations.md
 │   │   └── twig-patterns.md
 │   └── skills/                       34 reusable skills
 │       ├── beads-task-tracking/SKILL.md
@@ -255,6 +256,7 @@ All rules are always-on global instructions, loaded in both tools: Claude Code r
 | `applier-protocol.md` | Global | SEARCH/REPLACE block format for code changes |
 | `config-management.md` | Global | Config export/import, config_split, schema validation |
 | `security-rules.md` | Global | Input sanitization, DB placeholders, route access, CSRF |
+| `translations.md` | Global | i18n contract: English source strings ALWAYS, `t()`/`\|t`/`Drupal.t()` on all user-facing text, literals + placeholders only |
 | `ddev-environment.md` | Global | Docker exec commands, environment variables, Audit module priority |
 | `git-workflow.md` | Global | Configurable per-tool git access (GIT_ALLOW_COMMIT / GIT_ALLOW_OPERATIONS list opencode/claude); default: user commits manually |
 

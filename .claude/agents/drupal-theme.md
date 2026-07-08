@@ -169,7 +169,8 @@ function mytheme_preprocess_node(&$variables) {
   Drupal.behaviors.mythemeBehavior = {
     attach(context, settings) {
       once('mytheme-init', '.my-element', context).forEach((element) => {
-        // Your code here
+        // User-facing strings: ENGLISH source via Drupal.t() (translations rule).
+        element.setAttribute('aria-label', Drupal.t('Toggle menu'));
       });
     },
     detach(context, settings, trigger) {

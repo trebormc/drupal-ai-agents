@@ -68,6 +68,7 @@ severities, do NOT emit warnings without a bucket:
 | Category | Examples |
 |---|---|
 | Drupal community practices | Missing cache metadata refinement (tags/contexts present but coarse), `t()` vs `$this->t()`, annotation style, naming conventions |
+| Translations | Non-English source string inside `t()`/`\|t`/`Drupal.t()`; variable or concatenation inside `t()`; hardcoded user-facing string without a translation function (detection greps in the **translations** rule) |
 | Performance / scalability | N+1 entity loads, unbounded queries missing `range()`, cacheable render arrays with `max-age 0`, missing lazy builders on personalized blocks |
 | Maintainability | Duplicated logic worth extracting, over-long methods, missing interfaces on swappable services, unclear naming, missing docblocks on non-obvious code |
 | Test coverage | Critical paths without tests, DI wiring (`create()`) never executed by the suite |

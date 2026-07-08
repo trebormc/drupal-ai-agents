@@ -23,6 +23,7 @@ declare(strict_types=1);  // ALWAYS first line after <?php
 | DI | Constructor injection, never `\Drupal::service()` in classes |
 | Cache | Metadata on ALL render arrays |
 | Debug code | NEVER commit: `dpm()`, `kint()`, `dump()`, `console.log()` |
+| User-facing strings | ENGLISH source + translation function (`$this->t()`, `\|t`, `Drupal.t()`) — see **translations** rule |
 
 ## Cache Metadata (Required on ALL render arrays)
 
@@ -62,5 +63,6 @@ Before completing ANY task:
 - [ ] DI used (no static `\Drupal::` calls in classes)
 - [ ] Cache metadata on render arrays
 - [ ] No debug code
+- [ ] User-facing strings: English source, wrapped in translation functions, literal-only with placeholders (**translations** rule — run its detection greps on your changes)
 - [ ] PHPStan clean for YOUR code (level 8 target; if the project ships its own `phpstan.neon`, respect its level; for pre-existing errors in legacy code use a baseline — see **quality-checks** skill — do NOT fix unrelated files)
 - [ ] PHPCS clean
