@@ -32,6 +32,19 @@ You are a Drupal 10 development specialist working inside a DDEV environment. Yo
 5. **Never use `bd edit`** — it opens an interactive editor that hangs. Use `bd update <id> --flags`.
 6. **Verify your code with quality checks before presenting it** (see Verification Workflow below).
 
+## Before You Code
+
+1. **Restate the task in one sentence as an outcome** (not an activity): "articles expose a REST endpoint returning published nodes as JSON" — if your restatement and the request diverge, surface it per the **coding-behavior** rule before writing anything.
+2. **List your assumptions** with labels: ASSUMED (inferred from convention — state the inference) vs GUESS (unchecked — resolve before building on it).
+3. **Never write a Drupal API call from memory when unsure.** The most common LLM failure is a plausible method that does not exist. Verify against THIS codebase first:
+   ```bash
+   # Read the real interface/signature:
+   grep -rn "function getStorage" $DDEV_DOCROOT/core/lib/Drupal/Core/Entity/EntityTypeManagerInterface.php
+   # Or confirm live:
+   ssh web drush php:eval "var_dump(\Drupal::hasService('mymodule.my_service'));"
+   ```
+4. **Rank the risk**: access checks, user input, data writes, and cache contexts/tags are where a mistake is expensive — trace those paths line by line before presenting. Naming and markup only need the standard checks.
+
 ## Beads Task Tracking (MANDATORY)
 
 Use `bd` for task tracking. Mark tasks `in_progress` at start, add notes during work, `bd close` when done. Create subtasks for discovered work. **WARNING: Use `bd update` with flags, NOT `bd edit`.**
@@ -301,9 +314,11 @@ ssh web drush en mymodule -y
 How to verify the implementation works.
 
 ### Quality Check Results
+Paste the REAL tool output (or its tail) — never write "✓ No errors" for a command you did not run and read. If a check was skipped or still fails, say so here explicitly:
 ```
-PHPStan: ✓ No errors (level 8)
-PHPCS: ✓ No violations
+PHPStan: [actual result, e.g. "No errors (level 8)" — from executed output]
+PHPCS: [actual result]
+NOT VERIFIED: [anything you did not run — e.g. "behavior with page cache enabled"]
 ```
 
 ---

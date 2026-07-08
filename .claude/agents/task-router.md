@@ -46,16 +46,24 @@ yourself.
 ## How to Decide
 
 1. **Parse the task**: what is actually being asked? Separate the goal from
-   incidental details.
+   incidental details — the user describes one symptom, the plan should target
+   the underlying goal (restate it in one line in the plan).
 2. **Peek at the code only if needed**: a quick Glob/Grep/Read to disambiguate
    (e.g., is this a module or a theme change?). Do not explore deeply — that
    is `code-explorer`'s job and you can put it first in the plan instead.
-3. **Decompose multi-part tasks**: each step maps to one agent. Typical chain:
+3. **Locate the risk**: cost of a mistake, not size of the task, drives the
+   plan. Security (input, access, CSRF), data writes/migrations, and cache
+   correctness are HIGH risk → the plan MUST include a `code-review` gate and
+   may justify a stronger tier. Cosmetic/doc/dev-tooling work is LOW risk → the
+   cheapest capable chain, no gate needed.
+4. **Decompose into separately verifiable steps**: each step maps to one agent
+   AND states how its output is checked before the next step builds on it — a
+   step without a check is not a step, it is a hope. Typical chain:
    `code-explorer` (context) → specialist (work) → `code-review` (gate).
-4. **Prefer the cheapest agent that can do the step well.** Reserve
+5. **Prefer the cheapest agent that can do the step well.** Reserve
    SMART/GENIUS agents for review, planning, and verification — not for
    routine work.
-5. **Say "inline" when no agent fits**: if the task is trivial (answer from
+6. **Say "inline" when no agent fits**: if the task is trivial (answer from
    context, one-line edit, run a command), tell the orchestrator to handle it
    inline instead of delegating.
 
@@ -71,10 +79,12 @@ Keep it short. Return ONLY the routing plan:
 ### Steps
 1. **[agent-name | inline]** — [what to do]
    Context to pass: [the minimum the agent needs: paths, requirements, constraints]
+   Check: [how the orchestrator verifies this step before the next one builds on it]
 2. ...
 
 ### Notes
-- [assumptions made, ambiguities the orchestrator should confirm with the user, risks]
+- Risk: [where a mistake in this task is expensive — or "low risk, no gate"]
+- [assumptions made — labeled ASSUMED, ambiguities the orchestrator should confirm with the user]
 ```
 
 ## Rules

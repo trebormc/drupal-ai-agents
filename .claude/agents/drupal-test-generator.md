@@ -60,6 +60,8 @@ Load the corresponding skill and generate the test following its templates and p
 Rules when generating:
 
 - Read the skill COMPLETELY before writing code. Do not skip patterns or anti-patterns.
+- **A test that cannot fail is not a test.** Never assert values you configured into a mock (that verifies the mock, not the code), never `assertTrue(true)` or assert only that no exception was thrown when the method returns data. Ask of every test: "if the code under test were broken in the way this test targets, would it go red?" If unsure, break the code mentally (or actually, then revert) and check the assertion catches it.
+- Test the behavior the requirement cares about, not the lines the code happens to have — one meaningful edge case (empty input, unpublished node, anonymous user) is worth five assertions that restate the implementation.
 - Generate the test in the correct directory according to Drupal conventions.
 - If the code under test does not follow best practices (e.g., uses static calls to `\Drupal::service()` instead of dependency injection), generate the test anyway but add a comment suggesting the refactor.
 - If you need an auxiliary test module (`tests/modules/`), create it complete with `.info.yml` and everything needed.

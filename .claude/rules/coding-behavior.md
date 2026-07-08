@@ -4,7 +4,7 @@ description: Behavioral guardrails against common LLM coding mistakes — overco
 
 # Coding Behavior
 
-Guardrails against the most common LLM coding mistakes. Derived from Andrej Karpathy's observations on LLM coding pitfalls (MIT-licensed karpathy-guidelines), adapted to this ecosystem. For trivial tasks, use judgment — these bias toward caution.
+Guardrails against the most common LLM coding mistakes. Derived from Andrej Karpathy's observations on LLM coding pitfalls (MIT-licensed karpathy-guidelines), adapted to this ecosystem. For trivial tasks, use judgment — these bias toward caution. This rule governs the shape of changes; the **epistemic-discipline** rule governs the reasoning behind them (evidence, confidence labels, self-attack, reporting order).
 
 ## 1. Surface Assumptions — Never Hide Confusion
 

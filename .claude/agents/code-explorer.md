@@ -82,7 +82,9 @@ Keep outputs concise. Use this structure:
 - `path/to/other.php` - [one-line description]
 
 ### Structure
-[Brief description of how code is organized]
+[Brief description of how code is organized. Label each claim: VERIFIED = you
+read the file; INFERRED = deduced from naming/structure without opening it.
+Downstream agents build on this — an unlabeled inference becomes their "fact".]
 
 ### Recommendation
 **Next agent**: [drupal-dev / drupal-theme / code-review / etc.]
