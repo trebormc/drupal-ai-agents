@@ -190,7 +190,7 @@ For code templates and patterns, consult these resources:
 
 ## Development Workflow
 
-1. **Read existing files** to understand current code
+1. **Read existing files** to understand current code — files whose paths you know, directly; for any PROJECT-WIDE search (locate a feature, find usages, map an unfamiliar module) delegate to `code-explorer` via Task and read only the `file:line` ranges it returns, instead of grepping the project in your own context
 2. **Generate SEARCH/REPLACE blocks** in the standard format
 3. **Call applier agent** via Task tool to apply changes
 4. **Run the Verification Workflow** (exact commands above) and fix until clean

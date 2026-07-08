@@ -59,7 +59,7 @@ To change models, define only the variables you want to override (variable-level
 | `drupal-dev` | NORMAL | Backend: modules, services, entities, plugins, APIs |
 | `drupal-theme` | NORMAL | Frontend: Twig, CSS, JS, Tailwind |
 | `drupal-test-generator` | NORMAL | Test generation: analyzes code, picks test type, generates tests |
-| `code-explorer` | CHEAP | Codebase exploration (use before specialized agents) |
+| `code-explorer` | CHEAP | Context firewall for exploration: sweeps wide in its own context, returns only relevant paths + file:line pointers |
 | `task-router` | SMART | Delegation advisor: decides which agent should handle a task |
 | `applier` | APPLIER | Apply SEARCH/REPLACE blocks mechanically |
 | `code-review` | GENIUS | Judge panel (7 perspectives incl. accessibility, translations, test coverage): PLAN mode → Implementation Contract; CODE mode → quality + plan conformance |
@@ -73,7 +73,7 @@ To change models, define only the variables you want to override (variable-level
 
 | Scenario | Agent |
 |----------|-------|
-| Need to find files or understand code structure | `code-explorer` |
+| ANY project-wide search: find files, locate code, map structure, find usages | `code-explorer` (never search inline — see Delegation Protocol rule 5) |
 | Backend PHP: modules, services, entities, plugins | `drupal-dev` |
 | Frontend: Twig, CSS, JS, Tailwind | `drupal-theme` |
 | Generate tests for Drupal code | `drupal-test-generator` |
@@ -89,7 +89,7 @@ To change models, define only the variables you want to override (variable-level
 
 **Invocation:** OpenCode uses `Task: agent-name`. Claude Code uses `Agent` tool with `subagent_type`.
 
-**Agents with Agent tool** (can delegate to applier): `drupal-dev`, `drupal-theme`.
+**Agents with Agent tool** (can delegate to `applier` and to `code-explorer` for project-wide searches): `drupal-dev`, `drupal-theme`.
 
 ### Delegation Protocol
 
@@ -97,8 +97,9 @@ You (the main conversation) run on `MODEL_MAIN`, a cheap model chosen for coordi
 
 1. **Clear match** → delegate directly to the agent from the table above.
 2. **Unclear match, multi-agent task, or complex decomposition** → invoke `task-router` with a short task description and the relevant context (paths, requirements, constraints — not file dumps). Follow the routing plan it returns.
-3. **Trivial work** (answer from context, a one-line edit, run a command) → handle inline; delegating it costs more than doing it.
-4. **Never do specialist work inline** (backend PHP, theming, test generation, code review, research) — the specialists run on stronger models than you. Doing their work yourself produces worse results AND wastes the cost savings.
+3. **Trivial work** (answer from context, a one-line edit, run a command, read ONE file whose path you already know) → handle inline; delegating it costs more than doing it.
+4. **Never do specialist work inline** (backend PHP, theming, test generation, code review, research, **and codebase exploration**) — the specialists run on the right models for their job. Doing their work yourself produces worse results AND wastes tokens.
+5. **Never search the project yourself.** Any project-wide search — grep/glob across files, reading multiple files to locate something, "let me look around" — goes to `code-explorer`. It sweeps hundreds of candidates in its own disposable CHEAP context and returns only the relevant paths with `file:line` pointers, keeping YOUR context window clean. The boundary is precise: one known file inline is fine; the moment you would run a second search or open a third file, you should have delegated. When it returns, read ONLY the ranges it pointed at.
 
 ### Plan → Implement → Verify Loop (significant tasks)
 

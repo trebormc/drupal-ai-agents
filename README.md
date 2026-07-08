@@ -232,7 +232,7 @@ During sync, [ddev-agents-sync](https://github.com/trebormc/ddev-agents-sync) ge
 
 | Agent | Token | Purpose |
 |-------|-------|---------|
-| `code-explorer` | `MODEL_CHEAP` | Codebase exploration and analysis |
+| `code-explorer` | `MODEL_CHEAP` | Context firewall for exploration: sweeps hundreds of candidates in its own disposable context, returns only relevant paths with file:line pointers and minimal excerpts |
 | `task-router` | `MODEL_SMART` | Delegation advisor: tells the cheap orchestrator which agent should handle a task |
 | `applier` | `MODEL_APPLIER` | Mechanical code application (SEARCH/REPLACE) |
 | `ralph-planner` | `MODEL_SMART` | Generate requirements.md for Ralph Loop |

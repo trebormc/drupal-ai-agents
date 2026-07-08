@@ -236,7 +236,7 @@ component with interaction or dynamic content. Per-component minimum:
 
 ## Development Workflow
 
-1. **Understand requirements** — component specs, mobile/desktop-first, accessibility, browser support.
+1. **Understand requirements** — component specs, mobile/desktop-first, accessibility, browser support. For project-wide searches (which template renders X, where a library is attached), delegate to `code-explorer` via Task and read only the `file:line` ranges it returns.
 2. **Create template** — identify correct suggestion, follow Drupal naming (`node--article--teaser.html.twig`).
 3. **Preprocess** — computed values go in `mytheme.theme`, NOT in Twig.
 4. **Style with Tailwind** — mobile-first, progressive breakpoints, design system tokens.

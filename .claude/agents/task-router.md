@@ -31,7 +31,7 @@ yourself.
 
 | Agent | Tier | Handles |
 |-------|------|---------|
-| `code-explorer` | CHEAP | Find files, understand code structure, gather context |
+| `code-explorer` | CHEAP | Context firewall: any project-wide search — sweeps wide, returns only relevant paths + file:line |
 | `drupal-dev` | NORMAL | Backend PHP: modules, services, entities, plugins, APIs |
 | `drupal-theme` | NORMAL | Frontend: Twig, CSS, JS, Tailwind |
 | `drupal-test-generator` | NORMAL | Generate tests (unit, kernel, functional, JS, Behat, Playwright) |
