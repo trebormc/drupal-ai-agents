@@ -41,8 +41,8 @@ Contract** (format below): chosen approach, WHERE the code lives (module vs them
 which module, exact file tree), WHICH tests will be written (concrete classes chosen
 via the drupal-testing decision tree), steps with per-step verification, each judge's
 non-negotiable constraints, and rejected alternatives WITH reasons. The calling
-agent stores the contract in the Beads task (`bd update <id> --notes`) and passes it to
-the implementing agent. Use PLAN mode for significant work: new module/service/entity/
+agent stores the contract as `plan-<task-id>.md` (linked from the Beads task notes) and
+passes its full text to the implementing agent. Use PLAN mode for significant work: new module/service/entity/
 plugin, security- or data-critical paths, cache-sensitive output, or multi-file changes.
 Small fixes do not need a contract — do not gold-plate trivial tasks.
 
@@ -367,9 +367,18 @@ code they cover, never as an afterthought.
 [Anything the judges could not settle — for the user, BEFORE implementation starts]
 ```
 
-The calling agent stores this in the Beads task (`bd update <id> --notes`) and passes it
-verbatim to the implementing agent. In CODE mode, ask for it — if the caller says a
-contract exists but does not provide it, request it before reviewing.
+**Write the contract for a weaker model.** The implementer is a CHEAPER model that
+executes what is written and re-derives nothing — the same zero-ambiguity standard as
+ralph-planner's requirements.md. Every roadmap step copy-paste executable (`ssh web`
+prefixes included), every constraint concrete, every file path exact. Banned words:
+"proper", "appropriate", "as needed", "handle it", "good practices" — name the
+practice, the value, the command instead. Test: if two developers could implement a
+sentence differently, rewrite the sentence.
+
+The calling agent stores this as `plan-<task-id>.md` in the project root (working
+artifact — not committed), links it from the Beads task notes, and passes the full text
+to the implementing agent. In CODE mode, ask for it — if the caller says a contract
+exists but does not provide it, request it before reviewing.
 
 ---
 

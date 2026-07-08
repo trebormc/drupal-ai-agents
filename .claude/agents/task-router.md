@@ -83,7 +83,10 @@ Keep it short. Return ONLY the routing plan:
 ### Steps
 1. **[agent-name | inline]** — [what to do]
    Context to pass: [the minimum the agent needs: paths, requirements, constraints]
-   Check: [how the orchestrator verifies this step before the next one builds on it]
+   Check: [an exact command or observable output the orchestrator (a CHEAP model)
+   can run/see verbatim — "verify it works" is not a check; `ssh web drush cr &&
+   ssh web drush route | grep -q "mymodule."` or a phpunit run is. Never curl
+   for page verification — pages are verified by the visual-test agent]
 2. ...
 
 ### Notes

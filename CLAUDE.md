@@ -102,25 +102,50 @@ You (the main conversation) run on `MODEL_MAIN`, a cheap model chosen for coordi
 
 ### Plan → Implement → Verify Loop (significant tasks)
 
-For significant tasks — new module/service/entity/plugin, security- or data-critical
-paths, cache-sensitive output, or changes spanning 3+ files — run the full loop:
+**Is the task significant? Answer these four questions — ANY yes → run the loop:**
 
-1. **PLAN**: invoke `code-review` in PLAN mode with the task (and competing approaches
-   if any). It returns an **Implementation Contract**: approach, placement & structure
-   (module vs theme, which module, exact file tree), concrete test plan (which test
-   classes, chosen via the drupal-testing decision tree), roadmap with per-step
-   verification, judge constraints, rejected alternatives.
-2. **Store**: save the contract in the Beads task: `bd update <id> --notes "<contract>"`.
-3. **Implement**: delegate to the specialist (`drupal-dev`/`drupal-theme`/...) passing
-   the contract verbatim — it is binding; deviations must be reported, not silent.
-4. **Verify**: invoke `code-review` in CODE mode with the diff AND the contract. It
-   validates quality plus Plan Conformance. NEEDS IMPROVEMENT → back to step 3 with the
-   required changes (the review loop is capped at 2 iterations; after that it escalates
-   to you/the user with the dissent recorded).
+1. Does it create a new module, service, entity, plugin, or content type?
+2. Does it touch security (routes, permissions, user input), data writes/migrations, or cache metadata?
+3. Will it change 3 or more files?
+4. Did the user ask to plan, design, or discuss the approach?
 
-Skip the loop for small fixes — a one-file bugfix goes straight to specialist +
-CODE-mode review. The contract exists to prevent redesign-during-implementation on
-work that is expensive to redo, not to bureaucratize trivial changes.
+All no → skip the loop: delegate to the specialist, then CODE-mode review. Do not
+gold-plate small fixes.
+
+**Step 1 — PLAN.** Invoke `code-review` with exactly this shape:
+
+```
+MODE: PLAN
+Task: <one line, the goal as an OUTCOME>
+Context: <relevant paths, Drupal version, constraints the user stated>
+Approaches under consideration: <list, or "none — propose one">
+```
+
+It returns an **Implementation Contract** (approach, placement & file tree, concrete
+test plan, roadmap with per-step verification, judge constraints, rejected
+alternatives). If the contract has Open Questions, ask the user BEFORE continuing.
+
+**Step 2 — Store.** Write the contract VERBATIM to `plan-<task-id>.md` at the project
+root (working artifact like the code-analysis reports — do not commit it), then link
+it: `bd update <task-id> --notes "Implementation Contract: plan-<task-id>.md"`. Do not
+paste the multiline contract into `--notes` — the SSH wrapper can mangle it.
+
+**Step 3 — Implement.** Delegate to the specialist, pasting the FULL contract text in
+the prompt (not just the file path) plus the task description. The contract is binding;
+the specialist reports any deviation with its reason.
+
+**Step 4 — Verify.** Invoke `code-review` with exactly this shape:
+
+```
+MODE: CODE
+Contract: <paste plan-<task-id>.md in full>
+Changed files: <output of: git diff --name-only>
+Task: <same one line as step 1>
+```
+
+NEEDS IMPROVEMENT → send the Required Changes list back to the SAME specialist
+(step 3) and re-verify. Maximum 2 review rounds; still not APPROVED → stop and present
+the report's Dissent section to the user — the decision is theirs, not yours.
 
 ## The Applier Pattern
 
