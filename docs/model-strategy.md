@@ -26,7 +26,6 @@ Backward compatibility: when an `.env.agents` file does not define them, `GENIUS
 | output-verifier | $MODEL_SMART | Quality gate for non-code outputs |
 | ralph-planner | $MODEL_SMART | Complex planning for autonomous execution |
 | task-router | $MODEL_SMART | Routing decisions need strong judgment; the cheap orchestrator consults it |
-| deep-research | $MODEL_NORMAL | Multi-source investigation needs deep reasoning |
 | drupal-dev | $MODEL_NORMAL | Structured development with clear patterns |
 | drupal-theme | $MODEL_NORMAL | Frontend work with established conventions |
 | drupal-test-generator | $MODEL_NORMAL | Test generation follows skill templates |

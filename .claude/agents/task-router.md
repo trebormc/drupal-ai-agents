@@ -35,7 +35,6 @@ yourself.
 | `drupal-dev` | NORMAL | Backend PHP: modules, services, entities, plugins, APIs |
 | `drupal-theme` | NORMAL | Frontend: Twig, CSS, JS, Tailwind |
 | `drupal-test-generator` | NORMAL | Generate tests (unit, kernel, functional, JS, Behat, Playwright) |
-| `deep-research` | NORMAL | Multi-source technical research and comparisons |
 | `code-review` | GENIUS | Judge panel (7 perspectives): PLAN mode → Implementation Contract; CODE mode → quality + plan-conformance verdict |
 | `output-verifier` | SMART | Validate non-code outputs (plans, configs, docs) against requirements |
 | `ralph-planner` | SMART | Generate requirements.md for autonomous (Ralph Loop) execution |

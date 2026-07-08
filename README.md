@@ -9,7 +9,7 @@ The **brain** of the [DDEV AI Workspace](https://github.com/trebormc/ddev-ai-wor
 >
 > Created by [Robert Menetray](https://menetray.com) · Sponsored by [DruScan](https://druscan.com)
 
-This repository is **not** a DDEV add-on. It is a configuration package that gets synced into OpenCode and Claude Code containers via [ddev-agents-sync](https://github.com/trebormc/ddev-agents-sync). It provides 12 specialized agents, 15 rules, and 34 skills tailored for Drupal development. The agents understand Drupal APIs, coding standards, caching, render arrays, the module/theme ecosystem, and quality tools like PHPStan, PHPCS, and PHPUnit.
+This repository is **not** a DDEV add-on. It is a configuration package that gets synced into OpenCode and Claude Code containers via [ddev-agents-sync](https://github.com/trebormc/ddev-agents-sync). It provides 11 specialized agents, 15 rules, and 34 skills tailored for Drupal development. The agents understand Drupal APIs, coding standards, caching, render arrays, the module/theme ecosystem, and quality tools like PHPStan, PHPCS, and PHPUnit.
 
 ## Quick Install
 
@@ -70,11 +70,10 @@ drupal-ai-agents/
 ├── install.sh                        Installation helper script (standalone mode)
 ├── .claude/
 │   ├── settings.json                 Claude Code permissions and hooks
-│   ├── agents/                       12 agent definitions (.md files with fat frontmatter)
+│   ├── agents/                       11 agent definitions (.md files with fat frontmatter)
 │   │   ├── applier.md
 │   │   ├── code-explorer.md
 │   │   ├── code-review.md
-│   │   ├── deep-research.md
 │   │   ├── drupal-dev.md
 │   │   ├── drupal-test-generator.md
 │   │   ├── drupal-theme.md
@@ -236,7 +235,6 @@ During sync, [ddev-agents-sync](https://github.com/trebormc/ddev-agents-sync) ge
 | `task-router` | `MODEL_SMART` | Delegation advisor: tells the cheap orchestrator which agent should handle a task |
 | `applier` | `MODEL_APPLIER` | Mechanical code application (SEARCH/REPLACE) |
 | `ralph-planner` | `MODEL_SMART` | Generate requirements.md for Ralph Loop |
-| `deep-research` | `MODEL_NORMAL` | Multi-source research and investigation |
 
 ## Rules
 

@@ -22,7 +22,6 @@ Agents are organized in three tiers by model cost:
 
 ### Tier 1: Smart (Opus) — Complex reasoning
 - **code-review**: Quality gate (correctness, security, Drupal quality, performance)
-- **deep-research**: Multi-source investigation
 - **ralph-planner**: Requirements generation for autonomous execution
 - **task-router**: Delegation advisor — the cheap orchestrator consults it when routing is unclear
 

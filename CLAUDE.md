@@ -64,7 +64,6 @@ To change models, define only the variables you want to override (variable-level
 | `applier` | APPLIER | Apply SEARCH/REPLACE blocks mechanically |
 | `code-review` | GENIUS | Judge panel (7 perspectives incl. accessibility, translations, test coverage): PLAN mode → Implementation Contract; CODE mode → quality + plan conformance |
 | `output-verifier` | SMART | Validate outputs against requirements |
-| `deep-research` | NORMAL | Multi-source investigation, technical comparisons |
 | `ralph-planner` | SMART | Generate requirements.md for autonomous execution |
 | `visual-test` | VISION | Playwright MCP browser automation |
 | `visual-analyzer` | VISION | Interprets image/screenshot content: design review, UI analysis, comparisons |
@@ -82,7 +81,6 @@ To change models, define only the variables you want to override (variable-level
 | Validate non-code outputs (plans, configs, docs) | `output-verifier` |
 | Browser screenshots and visual verification | `visual-test` |
 | Interpret what a screenshot/image SHOWS (design, UI, comparisons) | `visual-analyzer` |
-| Technical research across multiple sources | `deep-research` |
 | Generate requirements.md for Ralph autonomous loop | `ralph-planner` |
 | Apply SEARCH/REPLACE blocks mechanically | `applier` |
 | Unsure which agent fits, task spans several agents, or needs decomposition | `task-router` |
