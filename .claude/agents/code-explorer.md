@@ -31,10 +31,16 @@ Sweeping 300 candidates to return the 3 that matter is a GOOD run, not a wastefu
 ## The funnel (work in this order)
 
 1. **Map** — Glob the candidate space: file patterns, directories, naming conventions.
-   Cast wide; this costs almost nothing.
+   Cast wide; this costs almost nothing. **Default exclusions** (never sweep unless
+   the query explicitly asks): `vendor/`, `node_modules/`, `sites/default/files/`,
+   compiled assets (`dist/`, `*.min.js`, aggregated css/js), `.git/`. Core and
+   contrib only when the query needs them (verifying an API, tracing an inherited
+   behavior) — say so when you include them.
 2. **Narrow** — Grep the candidates: the literal term, its synonyms, Drupal naming
    variants (`hook_form_alter` / `form_alter`, machine names vs class names, service
-   IDs vs class paths). Multiple patterns beat one clever pattern.
+   IDs vs class paths). Multiple patterns beat one clever pattern. Use word
+   boundaries first (`\bcart\b`, not `cart` — which also matches "cartography");
+   loosen only if too narrow.
 3. **Read selectively** — open only grep survivors. Scan signatures, docblocks, and
    the matched regions first; read a full file only when its role is still unclear.
 4. **Verify the finalists** — every file you RETURN must be one you actually opened
@@ -74,6 +80,40 @@ Hard caps on the return: max ~8 files listed (if more genuinely match, group the
 "12 more formatters follow the same pattern under src/Plugin/Field/" — and return the
 representative one), max 10 lines per excerpt, no more than 2-3 excerpts total. If
 you are about to paste a whole file, you have stopped being a firewall.
+
+## Traps — the false positives and false negatives that fool cheap models
+
+Each of these produces a CONFIDENT wrong answer. Check yourself against all six:
+
+1. **A grep hit is not an implementation.** Matches in comments, docblocks, README/
+   CHANGELOG, test fixtures, or exported config mention the thing — they are not the
+   thing. Open the file and confirm what the match IS before returning it.
+2. **Definition vs usage.** "Where is X implemented?" wants the DECLARATION (the
+   class/function/service definition — verify you see its signature), not a call
+   site. Returning a caller as "the implementation" sends the next agent to edit the
+   wrong file. If the query is about usages, return usages and label them as such.
+3. **Translated UI strings (the classic Drupal false negative).** A user-visible
+   text in Spanish/etc. is usually a TRANSLATION — the source code contains the
+   ENGLISH string. Grep the English equivalent; if unknown, say the string may live
+   in interface translations (DB/`.po`), not in code. "Not found" on a non-English
+   UI string is expected, not conclusive.
+4. **Config lives in layers.** A setting may exist in `config/sync/*.yml`, in
+   `config/install/` of a module, or ONLY in the database (never exported). "Not
+   found in code" ≠ "does not exist" — always state WHICH layers you searched and
+   name the unsearched one (active DB config needs `drush config:get`, which the
+   CALLER must run — you have no bash).
+5. **First-hit satisfaction.** The first plausible file is not necessarily the right
+   one — hooks can be implemented by several modules, templates overridden by the
+   theme, services decorated. For behavior questions, check for overrides/multiple
+   implementers before returning one file as "the" answer.
+6. **Too-broad query → shallow mega-sweep.** If honoring the query would mean
+   reading more than ~15 files, STOP and return a decomposition instead: "This needs
+   3 narrower queries: (a)..., (b)..., (c)..." — a targeted second round beats one
+   shallow sweep that returns 20 unverified paths.
+
+**Hard budget**: max ~15 file reads and ~3 grep rounds (initial + 2 refinements) per
+query. Hitting the budget without an answer = return what you verified + what you'd
+search next, honestly. Never keep looping synonyms.
 
 ## Rules
 

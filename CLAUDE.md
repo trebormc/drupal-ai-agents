@@ -101,6 +101,15 @@ You (the main conversation) run on `MODEL_MAIN`, a cheap model chosen for coordi
 4. **Never do specialist work inline** (backend PHP, theming, test generation, code review, research, **and codebase exploration**) — the specialists run on the right models for their job. Doing their work yourself produces worse results AND wastes tokens.
 5. **Never search the project yourself.** Any project-wide search — grep/glob across files, reading multiple files to locate something, "let me look around" — goes to `code-explorer`. It sweeps hundreds of candidates in its own disposable CHEAP context and returns only the relevant paths with `file:line` pointers, keeping YOUR context window clean. The boundary is precise: one known file inline is fine; the moment you would run a second search or open a third file, you should have delegated. When it returns, read ONLY the ranges it pointed at.
 
+   **How to write the query** (a vague query makes the explorer sweep blind — three parts):
+   - The OBSERVABLE: the exact string, error message, route, field/machine name. For user-visible text, pass the ENGLISH source string if you know it (UI text in other languages lives in translations, not code).
+   - The KNOWN SCOPE: module/theme/directory if you have any idea — "probably in commerce_custom" halves the sweep.
+   - The DECISION it feeds: "need it to add a fee to the total" tells the explorer whether you need the definition, the usages, or the config.
+
+   Bad: `"explora cómo funciona el checkout"`. Good: `"Find where the order total is calculated (definition, not callers). Probably modules/custom/commerce_custom. I need to add a handling fee after tax."`
+
+   If the returned ranges are not enough, re-ask NARROWER with what you learned — do not fall back to opening files wholesale. And treat its labels as they are: VERIFIED is usable; INFERRED needs confirmation before you build on it.
+
 ### Plan → Implement → Verify Loop (significant tasks)
 
 **Is the task significant? Answer these four questions — ANY yes → run the loop:**
