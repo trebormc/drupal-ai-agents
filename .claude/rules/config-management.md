@@ -1,8 +1,9 @@
 ---
 description: Drupal configuration management — export, import, config_split, schema
-globs:
-  - "config/sync/**/*.yml"
-  - "config/**/*.yml"
+paths:
+  - "**/config/sync/**/*.yml"
+  - "**/config/install/**/*.yml"
+  - "**/config/schema/**/*.yml"
 ---
 
 # Configuration Management

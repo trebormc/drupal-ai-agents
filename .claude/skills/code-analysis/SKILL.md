@@ -60,7 +60,7 @@ severities, do NOT emit warnings without a bucket:
 | Security | SQL built by string interpolation; unescaped user input in output or Twig `\|raw` on user content; state-changing route without CSRF/permission; missing access checks; `eval`/`system`/backticks on variable input; hardcoded credentials |
 | Data integrity | Writes without validation that can corrupt stored data; missing transactions where partial writes break invariants; destructive updates without guard |
 | Fatality | Code that fatals on a reachable path (undefined function/class/service, wrong signature vs interface, `strict_types` violations); failing or crashing tests |
-| Broken contracts | Service registered with wrong/missing arguments; hooks with wrong signatures; config schema absent for shipped config; broken DI (`\Drupal::` in an injectable class is a BLOCKER only in NEW code, SUGGESTION in touched legacy code) |
+| Broken contracts | Service registered with wrong/missing arguments; hooks with wrong signatures; config schema absent for shipped config; broken DI (`\Drupal::` in an injectable class is a BLOCKER only in NEW code, SUGGESTION in touched legacy code). Same line the **code-review** agent draws: these are Required Changes there |
 | Debug residue | `dpm()`, `dump()`, `var_dump()`, `console.log()`, `dd()`, commented-out debug blocks |
 
 **SUGGESTION — improves quality, does not block:**

@@ -180,7 +180,7 @@ ssh web env SIMPLETEST_DB=mysql://db:db@db/db SIMPLETEST_BASE_URL=http://localho
   ./vendor/bin/phpunit -c $DDEV_DOCROOT/core <TARGET>/tests/src/Unit
 ```
 
-See the **drupal-testing** rule for the full canonical pattern and setup-error recovery table.
+See the **drupal-testing** skill, section "Running PHPUnit" (canonical pattern and setup-error table).
 
 ## Step 7: Final Verification
 

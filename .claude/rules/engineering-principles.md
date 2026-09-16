@@ -73,42 +73,22 @@ rule governs evidence; this rule governs the design choices in between.
   static state. Test: can a new reader answer "where does this value come from?" in
   under 30 seconds?
 
-## Verification
+## Verification, delegation, and learning
 
-- **Prove it works** — before declaring done. Verify against the real artifact: run
-  the drush command, load the page through Playwright, read the config value, paste
-  the test output. "It compiles", "PHPStan is clean", and a subagent's summary are
-  proxies. Tests alone are not sufficient verification for user-facing behavior.
-- **Fix root causes** — debugging. Reproduce first, ask why until the mechanism is
-  explained, and resist the null check or the `try/catch` that silences the symptom.
-  If the fix needs a paragraph-long comment to justify it, the code is wrong. Check
-  whether the same pattern exists elsewhere before closing.
-- **Sequence verifiable units** — multi-step work. Break it into units that each end
-  in a check (a test, a drush output, a page state) and verify each before the next.
-  Order the work so it proves itself: failing test, then fix; baseline, then change.
-- **Test behavior, not implementation** — writing or keeping a test. Call the code the
-  way its users do and assert a literal expected value. Full rule and the
-  "would it still pass if every dependency returned NULL?" check in the
+These principles are stated in full where they are applied; this is the index:
+
+- **Prove it works** and **Sequence verifiable units** — the verification bar and the
+  per-step checks in the **task-playbooks** rule and CLAUDE.md's Plan → Implement →
+  Verify loop. Tests alone are not sufficient; a subagent's summary is not the artifact.
+- **Fix root causes** — the Bug fix playbook (reproduce, binary-search, confirm the
+  mechanism) and the **epistemic-discipline** rule §5 (attack the premise after two
+  failed fixes).
+- **Test behavior, not implementation** — the NULL test, rule 13 of the
   **drupal-testing** rule.
-
-## Delegation
-
-- **Guard the context window** — large outputs, long files, repeated reads, fan-out.
-  Route bulk to `code-explorer` and specialists; keep summaries and `file:line`
-  pointers in the main thread, never raw dumps. Capture verbose tool output to a file
-  and read only the tail on failure.
-- **Never block on the human** — tempted to ask "should I do X?" on reversible work.
-  If the answer is observable (does the method exist, does the page render, does the
-  test pass), run the check instead of asking. Ask only for product or preference
-  calls, and always for irreversible actions (data deletion, config import on a
-  shared environment, anything git-destructive). The **coding-behavior** rule §1
-  states the interactive/autonomous split.
-
-## Meta
-
-- **Encode lessons in structure** — you write the same instruction a second time, or a
-  correction recurs. Turn it into a PHPStan rule, a PHPCS sniff, a test, a
-  `composer.json` script, or a CI check instead of more markdown. Pick the strongest
-  mechanism the situation allows (a type that cannot represent the invalid state, a
-  lint that fails the build, then a runtime check, then a documented rule). The
-  **lessons-learned** rule and the **session-distill** skill route this.
+- **Guard the context window** — CLAUDE.md's Delegation Protocol (`code-explorer` as
+  context firewall, summaries and `file:line` pointers in the main thread).
+- **Never block on the human** — the **coding-behavior** rule §1 (observable facts are
+  checked, not asked; only product or preference calls and irreversible actions go to
+  the user).
+- **Encode lessons in structure** — the **lessons-learned** rule (a PHPStan rule, PHPCS
+  sniff, test, or script beats another paragraph) and the **session-distill** skill.

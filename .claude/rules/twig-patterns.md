@@ -1,9 +1,9 @@
 ---
 description: Twig template patterns — cache bubbling, attributes, escaping, no business logic
-globs:
-  - "web/themes/**/*.twig"
-  - "web/modules/custom/**/*.twig"
+paths:
   - "**/templates/**/*.twig"
+  - "**/themes/custom/**/*.twig"
+  - "**/modules/custom/**/*.twig"
 ---
 
 # Twig Patterns

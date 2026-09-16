@@ -106,7 +106,7 @@ ssh web ./vendor/bin/phpcs --standard=Drupal,DrupalPractice $DDEV_DOCROOT/module
 ssh web ./vendor/bin/phpstan analyse $DDEV_DOCROOT/modules/custom/<module>
 ```
 
-(If there is no project-root `phpunit.xml`, use Form CORE from the **drupal-testing** rule.)
+(If there is no project-root `phpunit.xml`, use Form CORE from the **drupal-testing** skill.)
 Compare the test COUNT before/after each deletion batch: it must drop by exactly the number
 of deleted tests — any other delta means something else broke. Write the resulting
 conventions (what not to re-add, where the shared pieces live) into the repo's

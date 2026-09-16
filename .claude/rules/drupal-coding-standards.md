@@ -1,10 +1,11 @@
 ---
 description: Drupal coding standards, type hints, DI, cache metadata
-globs:
-  - "web/modules/custom/**/*.php"
-  - "web/modules/custom/**/*.module"
-  - "web/modules/custom/**/*.install"
-  - "web/modules/custom/**/*.theme"
+paths:
+  - "**/modules/custom/**/*.php"
+  - "**/modules/custom/**/*.module"
+  - "**/modules/custom/**/*.install"
+  - "**/modules/custom/**/*.theme"
+  - "**/themes/custom/**/*.theme"
 ---
 
 # Drupal Coding Standards

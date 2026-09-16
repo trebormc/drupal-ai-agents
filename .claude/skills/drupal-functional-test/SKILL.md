@@ -9,7 +9,7 @@ description: >-
   "admin form test", "node creation test", "browser test".
   Never use for logic testable with Kernel test (use drupal-kernel-test).
   Never use for JavaScript interactions (use drupal-functionaljs-test).
-  Never use for pure PHP logic (use Unit test from drupal-testing rule).
+  Never use for pure PHP logic (use Unit test from drupal-testing skill).
 allowed-tools: Bash Read Grep Glob
 metadata:
   drupal-version: "10.x/11.x"
@@ -61,12 +61,14 @@ namespace Drupal\Tests\MODULE\Functional;
 
 use Drupal\Tests\BrowserTestBase;
 use Drupal\user\UserInterface;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests DESCRIPTION.
  *
  * @group MODULE
  */
+#[RunTestsInSeparateProcesses] // Required on Drupal 11.3+, omit on 10.x.
 class NameTest extends BrowserTestBase {
 
   protected $defaultTheme = 'stark';

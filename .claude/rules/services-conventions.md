@@ -1,6 +1,6 @@
 ---
 description: Drupal services.yml conventions — DI, service definitions, tagging
-globs:
+paths:
   - "**/*.services.yml"
 ---
 

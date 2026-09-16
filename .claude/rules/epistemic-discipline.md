@@ -82,15 +82,13 @@ Recognize these in your own output — each one reads as skill and is a defect:
 
 | Looks like | Actually is |
 |---|---|
-| Fluent API call written from memory | Invented method — verify per §3 |
-| Test suite with many green assertions | Tests asserting the mocks you configured; they cannot fail |
+| Test suite with many green assertions | Tests asserting the mocks you configured; they cannot fail (**drupal-testing** rule 13) |
 | Error gone after fix + `drush cr` | Cause never derived — the cache clear may be the whole "fix" |
-| "All quality checks pass" | Checks never run, or output never read — paste real output |
-| Long structured report | Checklist echoed, items never performed |
 | Agreeing with the user's diagnosis ("yes, a cache bug") | Diagnosis adopted without verification — users report symptoms reliably, causes unreliably |
-| Retrying a failed command | Hoping, not debugging — change something or stop (see **ddev-environment**) |
 | A "belt-and-suspenders" extra guard shipped with the fix | An untested hypothesis riding along — every shipped line traces to evidence, or it is reverted |
-| Wide diff "while I was there" | Unreviewable change — see **coding-behavior** §3 |
+| Long structured report | Checklist echoed, items never performed |
+
+(Invented APIs and unrun checks are §3; blind retries are in **ddev-environment**; wide diffs in **coding-behavior** §3.)
 
 ## Self-Test Before Every Delivery
 

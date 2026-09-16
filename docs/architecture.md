@@ -61,7 +61,7 @@ All other agents return results directly to the orchestrator.
 
 ## Model Token System
 
-Agent files use `${MODEL_SMART}`, `${MODEL_NORMAL}`, `${MODEL_CHEAP}`, `${MODEL_APPLIER}` tokens.
+Agent files use `${MODEL_GENIUS}`, `${MODEL_SMART}`, `${MODEL_NORMAL}`, `${MODEL_CHEAP}`, `${MODEL_APPLIER}` and `${MODEL_VISION}` tokens (`GENIUS` falls back to `SMART`, `VISION` to `NORMAL` when not defined).
 These are resolved at sync time by ddev-agents-sync using values from `.env.agents`.
 `${MODEL_MAIN}` sets the tool's own default (orchestrator) model — cheap by design; see
 [model-strategy.md](model-strategy.md).

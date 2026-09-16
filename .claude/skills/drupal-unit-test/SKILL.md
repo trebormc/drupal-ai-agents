@@ -20,7 +20,7 @@ Detect test gaps: `ssh web drush audit:run phpunit --filter="module:MODULE" --fo
 
 ## Drupal 10+11 Compatibility (CRITICAL)
 
-Use **PHPDoc annotations only** — NEVER PHP 8 attributes. Drupal 10 = PHPUnit 9.x (no attribute support).
+Use **PHPDoc annotations only** — no PHP 8 metadata attributes (`#[CoversClass]`, `#[Group]`, `#[DataProvider]`). Drupal 10 = PHPUnit 9.x (no attribute support). The single exception in this ecosystem, `#[RunTestsInSeparateProcesses]`, applies to Kernel/Functional/FunctionalJS classes on Drupal 11.3+ — never to Unit tests (see the **drupal-testing** rule).
 
 | Use THIS | NOT this |
 |---|---|
@@ -245,7 +245,7 @@ Place this file at the PROJECT ROOT. It is what enables the simple "Form ROOT" c
 </phpunit>
 ```
 
-For PHPCS, PHPStan, Rector, and GrumPHP configuration, see the **quality-tools-setup** rule.
+For PHPCS, PHPStan, Rector, and GrumPHP configuration, see the **quality-tools-setup** skill.
 
 ## Common Testing Pitfalls
 
@@ -290,7 +290,7 @@ ssh web ./vendor/bin/phpunit --testdox $DDEV_DOCROOT/modules/custom/mymodule
 ## Rules
 
 1. Base class: `Drupal\Tests\UnitTestCase` (never `PHPUnit\Framework\TestCase`)
-2. PHPDoc annotations only — no PHP 8 attributes
+2. PHPDoc annotations only — no PHP 8 attributes (`#[RunTestsInSeparateProcesses]` belongs to Kernel/Functional/FunctionalJS classes, never Unit)
 3. `declare(strict_types=1)` first line after `<?php`
 4. All dependencies mocked — no DB, filesystem, or HTTP
 5. No `\Drupal::service()` in tests — DI via constructor or reflection

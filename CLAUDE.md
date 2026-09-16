@@ -10,47 +10,22 @@
 
 - **Simple and elegant solutions first.** Always prefer the simplest, cleanest approach. Avoid over-engineering.
 
+## Each Turn, In This Order
+
+1. **Classify the request**: trivial (answer from context, one known file, one command) → do it inline and stop here. Otherwise continue.
+2. **Restate the outcome** in one line and label what you assume (**epistemic-discipline** §1, §4).
+3. **Pick the playbook** from the **task-playbooks** rule (investigation, bug fix, feature, refactoring, prototype, autonomous run, session handoff) and open your task list with its steps.
+4. **Decide significance** with the four questions below; any yes → the Plan → Implement → Verify loop inside the playbook.
+5. **Delegate** per the Delegation Protocol; never search or implement inline.
+6. **Verify on the real surface** and report answer-first with the evidence and the NOT VERIFIED items (**epistemic-discipline** §6).
+
 ## DDEV Environment
 
-You run inside an AI container (OpenCode or Claude Code). The project uses multiple DDEV containers:
-
-| Container | Access method | Purpose |
-|-----------|---------------|---------|
-| **Your container** | Direct | Agents, file access, bash |
-| **Web** (`web`) | SSH | PHP, Drupal, Drush, Composer |
-| **Beads** (`beads`) | `bd` wrapper | Git-backed task tracking |
-| **Playwright MCP** (`$PLAYWRIGHT_MCP_URL`) | HTTP MCP | Chromium browser testing |
-
-**All PHP/Drupal commands must use SSH:**
-
-```bash
-ssh web drush cr
-ssh web ./vendor/bin/phpstan analyse $DDEV_DOCROOT/modules/custom
-ssh web ./vendor/bin/phpunit $DDEV_DOCROOT/modules/custom/mymodule
-```
-
-**CRITICAL**: Always use `ssh web drush <command>` to run Drush commands (the `drush` alias is available in the web container's PATH).
-**CRITICAL**: Never hardcode `web/` -- use `$DDEV_DOCROOT` (varies per project: `web/`, `docroot/`, etc.).
-
-**Available variables:** `$DDEV_PRIMARY_URL` (HTTPS), `$DDEV_HTTP_URL` (HTTP — use for browser testing), `$DDEV_SITENAME`, `$DDEV_DOCROOT`, `$PLAYWRIGHT_MCP_URL`
+You run inside an AI container (OpenCode or Claude Code). PHP, Drupal, drush, composer and the quality tools live in the web container: run them as `ssh web <command>`; never hardcode `web/`, use `$DDEV_DOCROOT`. Beads is the `bd` wrapper; the browser is Playwright MCP over HTTP. Full command table, variables and the no-blind-retries protocol: **ddev-environment** rule (always loaded).
 
 ## Model Strategy
 
-Agents use model tokens that resolve to real model names at sync time:
-
-| Token | Default | Used for |
-|-------|---------|----------|
-| `MODEL_MAIN` | CHEAP (OpenCode) / NORMAL (Claude Code) | The orchestrator: main conversation loop that receives prompts and delegates |
-| `MODEL_GENIUS` | same as SMART | Hardest tasks: important code reviews, architecture decisions |
-| `MODEL_SMART` | Opus 4.6 | Quality gates, planning, research, delegation advice |
-| `MODEL_NORMAL` | Sonnet 4.5 | Development, review |
-| `MODEL_CHEAP` | Haiku 4.5 | Exploration, fast tasks |
-| `MODEL_APPLIER` | Haiku 4.5 | Mechanical code application |
-| `MODEL_VISION` | same as NORMAL | Image/screenshot interpretation — must accept image input |
-
-`GENIUS` falls back to `SMART`, `VISION` falls back to `NORMAL`, and `MAIN` falls back to `CHEAP` (OpenCode) / `NORMAL` (Claude Code) when not defined. Most NORMAL/CHEAP models cannot see images — anything that must interpret a screenshot goes through `MODEL_VISION` (the `visual-analyzer` agent). The orchestrator model dominates session cost, which is why `MODEL_MAIN` is deliberately cheap — quality comes from delegating to the right specialist, not from the orchestrator itself.
-
-To change models, define only the variables you want to override (variable-level cascade, higher wins): repo `.env.agents` < `~/.ddev/agents-sync/.env.agents` on the host (all projects) < `.ddev/.env.agents` (one project).
+Agents declare a model token (`MODEL_MAIN`, `MODEL_GENIUS`, `MODEL_SMART`, `MODEL_NORMAL`, `MODEL_CHEAP`, `MODEL_APPLIER`, `MODEL_VISION`) resolved at sync time from the `.env.agents` cascade (repo < `~/.ddev/agents-sync/.env.agents` < `.ddev/.env.agents`). You, the main conversation, run on `MODEL_MAIN`, a deliberately cheap tier: the orchestrator model dominates session cost, so quality comes from delegating to the right specialist, not from you. Anything that must interpret a screenshot goes through `MODEL_VISION` (`visual-analyzer`). Defaults and fallbacks: `docs/model-strategy.md`.
 
 ## Agents
 
@@ -106,7 +81,7 @@ You (the main conversation) run on `MODEL_MAIN`, a cheap model chosen for coordi
 
    Bad: `"explora cómo funciona el checkout"`. Good: `"Find where the order total is calculated (definition, not callers). Probably modules/custom/commerce_custom. I need to add a handling fee after tax."`
 
-   If the returned ranges are not enough, re-ask NARROWER with what you learned — do not fall back to opening files wholesale. And treat its labels as they are: VERIFIED is usable; INFERRED needs confirmation before you build on it.
+   If the returned ranges are not enough, re-ask NARROWER with what you learned — do not fall back to opening files wholesale. And treat its labels as they are: VERIFIED is usable; ASSUMED needs confirmation before you build on it.
 
 ### Playbooks first
 
@@ -168,47 +143,15 @@ the report's Dissent section to the user — the decision is theirs, not yours.
 
 ## The Applier Pattern
 
-Agents that cannot edit files directly generate **SEARCH/REPLACE blocks**, then delegate to `applier`.
-
-**Modify existing file:**
-```
-path/to/file.ext
-<<<<<<< SEARCH
-[exact lines to find - include 2-3 context lines]
-=======
-[replacement code - preserve indentation exactly]
->>>>>>> REPLACE
-```
-
-**Create new file:**
-```
-path/to/new/file.ext
-<<<<<<< CREATE
-[full file content]
->>>>>>> CREATE
-```
-
-After generating blocks, delegate to the `applier` agent with the blocks as input.
+`drupal-dev` and `drupal-theme` cannot edit files: they generate SEARCH/REPLACE blocks and delegate to `applier`. The block format lives in those agents; you never write blocks yourself.
 
 ## Git Policy
 
-Git write access is **configurable per environment** via two flags in
-`.env.agents`: `GIT_ALLOW_COMMIT` (git add/commit) and `GIT_ALLOW_OPERATIONS`
-(push, pull, merge, rebase, checkout, reset, …). **By default nothing is
-allowed** — you present a summary of changes and the user commits manually. The
-**git-workflow** rule states the policy currently in effect — follow it. Even
-when a git write is allowed, run it ONLY when the user explicitly asks for it —
-never on your own initiative. Force-push and remote-branch deletion are
-**never** allowed, regardless of the flags. When a git command is blocked,
-present the changes instead of working around the block.
+Git write access is off by default and configurable per tool through `.env.agents` (`GIT_ALLOW_COMMIT`, `GIT_ALLOW_OPERATIONS`); the **git-workflow** rule states the policy in effect. Even when allowed, run a git write only when the user explicitly asks; never force-push or delete remote branches; when blocked, present the changes instead of working around it.
 
 ## Web Testing
 
-- Use the **visual-test** agent or Playwright MCP tools directly
-- **NEVER use curl** for testing Drupal pages
-- **ALWAYS use HTTP** (not HTTPS) for Playwright navigation in DDEV — navigate to `$DDEV_HTTP_URL`
-- **NEVER create JS/Playwright script files** -- use MCP tools (`browser_navigate`, `browser_take_screenshot`, etc.) directly
-- Authenticate with `ssh web drush uli` (replace `https://` with `http://` in the returned URL before navigating)
+Pages are verified by the `visual-test` agent (Playwright MCP over `$DDEV_HTTP_URL`, auth via `ssh web drush uli`), never with curl and never with script files. If the project has a `verify-<site>` skill, its feature map is the recipe.
 
 ## Rules and Skills
 
@@ -223,6 +166,7 @@ Adding a new rule = drop a `.md` file in `.claude/rules/` — no registration ne
 | Skill | Purpose |
 |-------|---------|
 | `quality-checks` | PHPCS, PHPStan, Rector, PHPUnit (Audit module primary) |
+| `quality-tools-setup` | First-time PHPStan/PHPCS/Rector/GrumPHP/phpunit.xml setup templates |
 | `code-analysis` | Standalone quality report: BLOCKERS vs SUGGESTIONS, second-opinion runs |
 | `screenshot-analysis` | Interpret screenshot/image content (requires vision model) |
 | `drupal-testing` | Test orchestrator: analyzes code, delegates to specialized test skills |
@@ -250,31 +194,4 @@ Adding a new rule = drop a `.md` file in `.claude/rules/` — no registration ne
 
 ## Beads Task Tracking
 
-### Session Start
-
-```bash
-# NEVER run `bd init` — the beads container auto-initializes on start.
-ls .beads/ 2>/dev/null || echo "Beads not initialized — ask the user to run: ddev restart"
-bd prime
-bd ready --json
-```
-
-### During Work
-
-```bash
-bd create "Implement feature X" -p 1 --json
-bd update bd-abc --status in_progress
-bd update bd-abc --notes "Progress notes"
-bd close bd-abc --reason "Completed and tested" --json
-```
-
-### Session End (mandatory)
-
-```bash
-bd create "TODO: remaining work" -p 2 --json    # File remaining items
-bd close bd-xyz --reason "Done" --json           # Close completed tasks
-bd update bd-abc --notes "Paused at: ..."        # Context for in-progress
-# Present summary of changes for user review
-```
-
-**WARNING**: Never use `bd edit` -- it opens an interactive editor that will hang.
+Session start: `bd prime` and `bd ready --json` (never `bd init`, never `bd edit`). Work: `bd update <id> --status in_progress`, notes, `bd close <id> --reason "..." --json`. Session end: file follow-ups, close what is done, note where you paused. Full protocol: **beads-workflow** rule (always loaded) and **beads-task-tracking** skill.

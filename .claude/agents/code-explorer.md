@@ -64,8 +64,9 @@ Sweeping 300 candidates to return the 3 that matter is a GOOD run, not a wastefu
 
 ### Structure
 [2-5 lines: how the relevant code is organized. Label each claim: VERIFIED = you
-read the file; INFERRED = deduced from naming/structure without opening it.
-Downstream agents build on this — an unlabeled inference becomes their "fact".]
+read the file; ASSUMED = deduced from naming/structure without opening it (the
+**epistemic-discipline** levels). Downstream agents build on this — an unlabeled
+inference becomes their "fact".]
 
 ### Not Found / Searched
 [What the query asked for that does NOT exist, and where you looked — an honest
@@ -128,9 +129,11 @@ search next, honestly. Never keep looping synonyms.
    costs the next agent more than an honest "not found".
 4. **Know your limits**: locating and mapping is your job; judging quality or making
    architectural calls is not — recommend `code-review` or a specialist instead.
-5. **Contrib/core are fair game** — when the query needs it, look in
-   `$DDEV_DOCROOT/core` and `modules/contrib` too (e.g. to confirm an API signature
-   the caller intends to use); same funnel, same compression.
+5. **Contrib/core are fair game** — when the query needs it, look in the docroot's
+   `core/` and `modules/contrib/` too (e.g. to confirm an API signature the caller
+   intends to use); same funnel, same compression. You have no shell, so
+   `$DDEV_DOCROOT` is not expanded for you: read `docroot:` from `.ddev/config.yaml`
+   once (fall back to `web`) and Glob/Grep that literal path.
 
 ## Common Explorations
 

@@ -89,10 +89,10 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   reporter: [['html', { open: 'never' }], ['list']],
   use: {
-    // REPLACE myproject with the real project name — get it with: echo $DDEV_SITENAME
-    // (or hardcode the value of $DDEV_HTTP_URL, which is already HTTP)
-    baseURL: process.env.DDEV_PRIMARY_URL?.replace('https://', 'http://')
-             || 'http://myproject.ddev.site',
+    // Tests run on the HOST, where DDEV env vars are not set: set BASE_URL when
+    // running (BASE_URL=http://myproject.ddev.site npx playwright test) or replace
+    // the fallback with the project's HTTP URL (echo $DDEV_HTTP_URL in the container).
+    baseURL: process.env.BASE_URL || 'http://myproject.ddev.site',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },
@@ -118,9 +118,11 @@ import { test as base, expect, type Page } from '@playwright/test';
 import { execSync } from 'child_process';
 
 async function drupalLogin(page: Page, role?: string): Promise<void> {
+  // Runs on the host: go through `ddev drush` (drush itself lives in the web container).
+  const uri = process.env.BASE_URL || 'http://myproject.ddev.site';
   const cmd = role
-    ? `drush uli --name=${role} --uri=http://$(drush status --field=uri | sed 's|https://|http://|')`
-    : `drush uli --uri=http://$(drush status --field=uri | sed 's|https://|http://|')`;
+    ? `ddev drush uli --name=${role} --uri=${uri}`
+    : `ddev drush uli --uri=${uri}`;
   const loginUrl = execSync(cmd, { encoding: 'utf-8' }).trim()
     .replace('https://', 'http://');
   await page.goto(loginUrl);

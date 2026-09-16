@@ -249,7 +249,7 @@ By: reviewer-username
 ```
 refactor(skills): centralize audit module instructions
 
-- Replace repeated Audit module blocks in agents with references to the quality-tools-setup rule
+- Replace repeated Audit module blocks in agents with references to the quality-tools-setup skill
 - Fix broken references to non-existent agents
 ```
 

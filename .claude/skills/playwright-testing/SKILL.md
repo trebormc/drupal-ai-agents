@@ -230,7 +230,7 @@ ssh web drush uli
 
 | Problem | Fix |
 |---------|-----|
-| MCP tools not available | Check MCP registration in `.claude/settings.local.json` or `opencode.json` |
+| MCP tools not available | The container registers the Playwright MCP itself (`$PLAYWRIGHT_MCP_URL`); check the playwright-mcp container is up (`ddev restart` on the host) and that a project-level `.mcp.json`/`opencode.json` does not override the `playwright` server |
 | Playwright not responding | Run the MCP health-check curl from "If MCP tools are not available" above; if it fails, ask the user to run `ddev restart` |
 | SSL/certificate errors | Convert HTTPS to HTTP in ALL URLs |
 | 403 Forbidden | Authenticate with `drush uli` first |

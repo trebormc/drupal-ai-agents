@@ -102,5 +102,5 @@ write it up as settled.
 ```
 
 Cite real `file:line`; a search that finds nothing is still an answer (say where you
-searched); never invent a caller. Label claims VERIFIED / INFERRED per the
+searched); never invent a caller. Label claims VERIFIED / ASSUMED / GUESS per the
 **epistemic-discipline** rule.

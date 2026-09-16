@@ -123,6 +123,16 @@ bd update <id> --notes "Paused at: form validation logic, needs edge case handli
 | Add notes | `bd update <id> --notes "..."` |
 | Close task | `bd close <id> --reason "Done" --json` |
 
+## Commit Convention
+
+Use Conventional Commits format, in ENGLISH, with the Beads task ID at the end of the
+subject (full format in the **commit-message** skill):
+```bash
+git commit -m "feat(mymodule): add feature X (bd-a1b2)"
+```
+
+**Note**: git write access is governed by the **git-workflow** rule.
+
 ## Integration with Ralph Loop
 
 When running inside Ralph Loop (`[RALPH LOOP - Iteration X]`):

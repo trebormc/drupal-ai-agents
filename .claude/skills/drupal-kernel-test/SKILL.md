@@ -11,7 +11,7 @@ description: >-
   the service container but does not need UI.
   Never use for HTML rendering verification (use drupal-functional-test).
   Never use for JavaScript interactions (use drupal-functionaljs-test).
-  Never use for pure PHP logic without Drupal dependencies (use Unit test from drupal-testing rule).
+  Never use for pure PHP logic without Drupal dependencies (use Unit test from drupal-testing skill).
 allowed-tools: Bash Read Grep Glob
 metadata:
   drupal-version: "10.x/11.x"
@@ -63,12 +63,14 @@ declare(strict_types=1);
 namespace Drupal\Tests\MODULE\Kernel;
 
 use Drupal\KernelTests\KernelTestBase;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests DESCRIPTION.
  *
  * @group MODULE
  */
+#[RunTestsInSeparateProcesses] // Required on Drupal 11.3+, omit on 10.x.
 class NameTest extends KernelTestBase {
 
   /**
@@ -371,7 +373,7 @@ ssh web env SIMPLETEST_DB=mysql://db:db@db/db SIMPLETEST_BASE_URL=http://localho
   ./vendor/bin/phpunit -c $DDEV_DOCROOT/core $DDEV_DOCROOT/modules/custom/MODULE/tests/src/Kernel
 ```
 
-Never use `-c core` alone and never rely on `--testsuite` — see the **drupal-testing** rule for the full canonical pattern. Do not `export` env vars in the agent container (they would not reach the web container via SSH) — pass them inline with `env` as shown.
+Never use `-c core` alone and never rely on `--testsuite` — see the **drupal-testing** skill for the full canonical pattern. Do not `export` env vars in the agent container (they would not reach the web container via SSH) — pass them inline with `env` as shown.
 
 ## Troubleshooting
 

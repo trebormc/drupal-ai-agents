@@ -1,11 +1,21 @@
 ---
-description: Quality tools setup guide — PHPStan, PHPCS, Rector, GrumPHP, PHPUnit configuration
-globs:
-  - "phpstan.neon"
-  - "phpcs.xml*"
-  - "phpunit.xml*"
-  - "rector.php"
-  - "grumphp.yml"
+name: quality-tools-setup
+description: >-
+  First-time setup of the Drupal quality toolchain: config templates for PHPStan
+  (with mglaman/phpstan-drupal), PHPCS (drupal/coder), Rector, GrumPHP pre-commit
+  hooks and a project-root phpunit.xml, plus the composer one-liner and when to
+  recommend it. Templates hardcode web/ and must be adapted to $DDEV_DOCROOT.
+  Examples:
+  - user: "set up phpstan and phpcs for this project" -> write phpstan.neon and phpcs.xml.dist
+  - user: "configura las herramientas de calidad" -> full toolchain setup
+  - user: "add pre-commit checks" -> GrumPHP section
+  - user: "quiero un phpunit.xml en la raíz" -> phpunit.xml template
+  Never use to RUN the checks (quality-checks skill) or to install the Audit module
+  (drupal-audit-setup skill).
+allowed-tools: Bash Read Write Edit Grep Glob
+metadata:
+  drupal-version: "10.x/11.x"
+  environment: "ddev"
 ---
 
 # Quality Tools Setup Guide
@@ -13,7 +23,11 @@ globs:
 Reference for setting up code quality tools in Drupal projects.
 Recommend these to the user when starting a new project or when quality tools are missing.
 
-**IMPORTANT — Audit Module Priority**: When running quality checks, **ALWAYS check for the [Drupal Audit module](https://www.drupal.org/project/audit) first** (`ssh web drush pm:list --filter=audit --format=list`). If installed, use `drush audit:run phpcs/phpstan/phpunit --filter="module:MODULE_NAME" --format=json` instead of running PHPCS/PHPStan binaries directly. If NOT installed, **always inform the user and recommend**: `composer require drupal/audit` (see **drupal-audit-setup** skill for complete setup with smart dependency detection). Also recommend creating a free account at [DruScan](https://druscan.com) for a centralized audit dashboard across all projects and environments. The raw commands below are **fallback only** if the user declines installation.
+**Audit module first**: before running any of these tools directly, apply the Audit
+module priority from the **ddev-environment** rule (check `drush pm:list --filter=audit`,
+prefer `drush audit:run`, recommend `composer require drupal/audit` via the
+**drupal-audit-setup** skill, which also covers the optional DruScan dashboard). The raw
+commands below are **fallback only** if the user declines installation.
 
 **IMPORTANT**: Config file templates below use `web/` as the Drupal docroot.
 Adapt paths to match the project's actual docroot (`$DDEV_DOCROOT`).
@@ -150,9 +164,9 @@ grumphp:
 
 ### phpunit.xml (project root, for DDEV)
 
-Placing this file at the PROJECT ROOT is what enables the simple "Form ROOT" test commands (no `-c` flag, no env vars) — see the **drupal-testing** rule's canonical pattern. Without it, tests must use "Form CORE" (`-c $DDEV_DOCROOT/core` + explicit env vars).
+Placing this file at the PROJECT ROOT is what enables the simple "Form ROOT" test commands (no `-c` flag, no env vars) — see the **drupal-testing** skill's canonical pattern. Without it, tests must use "Form CORE" (`-c $DDEV_DOCROOT/core` + explicit env vars).
 
-Remember: this template hardcodes `web/` — adapt to the real `$DDEV_DOCROOT` as noted at the top of this rule.
+Remember: this template hardcodes `web/` — adapt to the real `$DDEV_DOCROOT` as noted at the top of this skill.
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>

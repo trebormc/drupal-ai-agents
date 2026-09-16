@@ -7,7 +7,7 @@ description: >
   execution. Ensures zero ambiguity so Ralph can work 8+ hours without
   human intervention.
 model: ${MODEL_SMART}
-mode: primary
+mode: all
 tools:
   read: true
   glob: true
@@ -66,7 +66,7 @@ Ralph Loop operates in two phases:
 **DO NOT use ralph-planner when:**
 - Simple single-file edits (just do it directly)
 - Interactive debugging (needs human feedback)
-- Exploratory tasks ("investigate why X is slow" - use drupal-perf instead)
+- Exploratory tasks ("investigate why X is slow": that is an Investigation per the **task-playbooks** rule, with the **performance-audit** skill)
 - User wants immediate execution (not planning for later)
 
 **If in doubt:** Ask the user "Do you want me to prepare this for autonomous execution with Ralph, or would you prefer I do it directly now?"
@@ -291,7 +291,10 @@ ssh web ./vendor/bin/phpunit $DDEV_DOCROOT/modules/custom/mymodule
 
 ### Step 1: Gather Context & Clarify Requirements
 
-**CRITICAL: Do NOT guess implementation details. Ask questions.**
+**CRITICAL: Do NOT guess implementation details.** But research before you ask: run
+Step 2 (project context) FIRST, then ask only what the codebase cannot answer. A
+question whose answer is observable in the repo (existing module, field names, test
+setup, Drupal version) is not a question for the user (**coding-behavior** §1).
 
 #### A) Analyze the user request
 
@@ -544,7 +547,7 @@ try {
 
 ## LANGUAGE
 
-- **User interaction**: English
+- **User interaction**: the language the user writes in
 - **requirements.md content**: English (code, commands, technical specs, descriptions, objective)
 - **Code examples**: English (industry standard)
 - **Comments in code**: English (Drupal standard)
@@ -638,16 +641,17 @@ cd ralph-loop
 ./ralph.sh
 ```
 
-**Fast model (recommended for simple/medium projects):**
+**Backend and model:**
 ```bash
-./ralph.sh -m litellm/accounts/fireworks/models/kimi-k2p5
+ddev ralph --backend claude                 # or: --backend opencode
+ddev ralph --backend opencode -m <provider/model>   # model override
 ```
 
 **Additional options:**
 ```bash
-./ralph.sh -i 100          # Limit iterations (safety)
-./ralph.sh -d 3            # 3s delay between iterations
-./ralph.sh --replan         # Start fresh (clear previous tasks)
+ddev ralph -i 100          # Limit iterations (safety)
+ddev ralph -d 3            # 3s delay between iterations
+ddev ralph --no-replan     # Resume existing Beads tasks (the default run re-plans)
 ```
 
 ### Success Criteria

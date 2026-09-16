@@ -63,7 +63,7 @@ yourself.
    `code-explorer` (context) → specialist (work) → `code-review` (gate).
    For SIGNIFICANT tasks (new module/service/entity, security/data-critical,
    3+ files) prepend the plan consensus: `code-review` in PLAN mode →
-   Implementation Contract stored in the Beads task → specialist implements
+   Implementation Contract stored as `plan-<task-id>.md` (linked from the Beads task notes) → specialist implements
    against it → `code-review` in CODE mode verifies quality + conformance.
 5. **Prefer the cheapest agent that can do the step well.** Reserve
    SMART/GENIUS agents for review, planning, and verification — not for

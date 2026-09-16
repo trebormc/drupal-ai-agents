@@ -31,17 +31,20 @@ recommendation, never a code change.
 
 1. Delegate the mapping to `code-explorer` with a three-part query (observable, known
    scope, the decision it feeds). Read only the ranges it returns.
-2. For "how does it work": trace the runtime path (route → controller/form → service
-   → render/cache) and cite `file:line` per hop. Verify core/contrib API behavior in
-   the real source under `$DDEV_DOCROOT/core` or `modules/contrib`, never from memory.
+2. For "how does it work": ask `code-explorer` for the runtime path (route →
+   controller/form → service → render/cache) with `file:line` per hop; it verifies
+   core/contrib API behavior in the real source under the docroot's `core/` or
+   `modules/contrib`, never from memory. You assemble the explanation from its
+   pointers; you do not trace files yourself (Delegation Protocol rule 5).
 3. For "why is it built this way": the code does not carry its motivation. Look for
    written evidence: `git log --follow -p -- <file>`, `git log -S '<symbol>'`,
    `git blame -L`, drupal.org issue numbers in commit messages, `composer.json`
    patches and their issue URLs, `CHANGELOG`/`README` of the module, config
-   `dependencies:`. Tier every claim: **DIRECT** (someone wrote the reason),
-   **SUPPORTED** (several indirect signals converge), **INFERRED** (your reading),
-   **UNKNOWN** (you searched X, Y, Z and found nothing — say which). Never present
-   the code's current shape as evidence of its intent.
+   `dependencies:`. Label every claim with the **epistemic-discipline** levels:
+   **VERIFIED** (someone wrote the reason, cited), **ASSUMED** (several indirect
+   signals converge, say which), **GUESS** (your reading), plus **UNKNOWN** (you
+   searched X, Y, Z and found nothing — say which). Never present the code's current
+   shape as evidence of its intent.
 4. If the user's question embeds a hypothesis ("it's a cache bug, right?"), treat it
    as one candidate among others and check it independently.
 5. Answer first, evidence after, unknowns last. For "X or Y?" give a recommendation
@@ -60,8 +63,9 @@ You own the diagnosis. Every shipped line traces to runtime evidence; a change t
    auth); a service bug reproduces in `ssh web drush php:eval` or a kernel test; a
    drush/cron/queue bug reproduces by running it. Paste the failing output. If it
    will not reproduce, force it: tighten conditions (anonymous user, empty field,
-   second language, warm cache) or instrument (`\Drupal::logger()`, `dump()` in a
-   scratch script) until it fires.
+   second language, warm cache) or have `drupal-dev` instrument it (a logger call or
+   a throwaway `drush php:script` under `/tmp`, never a `dump()` left in project
+   code) until it fires.
 2. **Binary-search the cause.** Write 2-4 candidate hypotheses, then eliminate them
    with evidence, taking the split that cuts the most remaining space each pass.
    Suspect state before code for "works after `drush cr`" bugs (render cache, config
@@ -92,11 +96,11 @@ You own the design. Delegate implementation, stay in the lead.
    Implementation Contract; it is binding for the implementer. Otherwise, delegate
    directly. Never fold a design decision silently into implementation: if you skipped
    PLAN, write `plan skipped: <reason>` in the summary.
-3. Write the throughput checkpoint as todo items (keep `n/a: <reason>` when a
-   dimension does not apply): blocking first steps (scaffold, schema, the test class);
-   independent workstreams (module vs theme vs tests can run in parallel agents);
-   shared mutable state (two agents must not edit one file or one config object);
-   smallest safe decomposition.
+3. Split the work as todo items before delegating (write `n/a: <reason>` for a line
+   that does not apply): what must exist first (scaffold, schema, the test class);
+   what can run in parallel agents (module vs theme vs tests touch disjoint files);
+   what two agents must never edit at once (one file, one config object); and the
+   smallest number of delegations that is still safe.
 4. Delegate with a specific scope: file paths, the data shape and its organizing
    structure, success criteria, and the contract text. Review the diff yourself; a
    specialist's summary is not the artifact.
@@ -111,13 +115,16 @@ You own the contract. The structure changes; the behavior does not. If the clean
 reveals a bug or a missing feature, split it out and route it to its own playbook.
 
 1. **Pin the behavior first.** Run the existing tests for the area; if there are none,
-   write a characterization test (Kernel-first) or capture a baseline (a drush output,
-   a rendered page snapshot via Playwright, a `config:get` dump) BEFORE moving any
-   structure. PHPStan and PHPCS are not a pin.
+   have `drupal-test-generator` write a characterization test (Kernel-first) or
+   capture a baseline (a drush output, a rendered page snapshot via `visual-test`, a
+   `config:get` dump) BEFORE moving any structure. PHPStan and PHPCS are not a pin.
 2. Name the target shape in one paragraph (module layout, services, call graph) as if
    built today; run the **drupal-blast-radius** skill to list every consumer the
    change reaches (hook implementers, decorators, templates, views, config
-   dependencies, tests).
+   dependencies, tests). Significant per the CLAUDE.md four questions (3+ files is
+   the usual trigger for a refactor) → `code-review` PLAN mode with the target shape
+   as the proposed approach; the contract pins the file tree and the equivalence
+   evidence.
 3. Subtract before you add: delete dead code and one-caller wrappers first.
 4. Move in small behavior-preserving steps, each keeping the pin green. In custom code
    migrate every caller and delete the old API in the same change; in contrib keep the
@@ -136,10 +143,12 @@ how long does this query take) instead of asking the user.
 
 1. State the decision the experiment settles. No decision → not a prototype; route to
    Feature.
-2. Build the smallest throwaway thing that answers it: a `drush php:script` in a
-   scratch file, a kernel test asserting the questioned behavior, two variants of a
-   template behind a query parameter for screenshots, a query timed with
-   `Database::startLog()` or Xdebug. No production framework, no quality pass.
+2. Have the specialist (`drupal-dev` or `drupal-theme`) build the smallest throwaway
+   thing that answers it: a `drush php:script` under `/tmp`, a kernel test asserting
+   the questioned behavior, two variants of a template behind a query parameter for
+   screenshots, a query timed with `Database::startLog()` or Xdebug. Tell it
+   explicitly that this is a prototype: no production framework, and its mandatory
+   verification workflow is skipped for the throwaway.
 3. Observe: paste the output, timing, or screenshots. The observation is the test.
 4. Present the alternatives, the evidence, your recommendation, and the scratch path.
    Delete or clearly mark the throwaway. Hand the chosen direction to Feature.

@@ -9,7 +9,7 @@ The **brain** of the [DDEV AI Workspace](https://github.com/trebormc/ddev-ai-wor
 >
 > Created by [Robert Menetray](https://menetray.com) · Sponsored by [DruScan](https://druscan.com)
 
-This repository is **not** a DDEV add-on. It is a configuration package that gets synced into OpenCode and Claude Code containers via [ddev-agents-sync](https://github.com/trebormc/ddev-agents-sync). It provides 11 specialized agents, 17 rules, and 38 skills tailored for Drupal development. The agents understand Drupal APIs, coding standards, caching, render arrays, the module/theme ecosystem, and quality tools like PHPStan, PHPCS, and PHPUnit.
+This repository is **not** a DDEV add-on. It is a configuration package that gets synced into OpenCode and Claude Code containers via [ddev-agents-sync](https://github.com/trebormc/ddev-agents-sync). It provides 11 specialized agents, 15 rules, and 39 skills tailored for Drupal development. The agents understand Drupal APIs, coding standards, caching, render arrays, the module/theme ecosystem, and quality tools like PHPStan, PHPCS, and PHPUnit.
 
 ## Quick Install
 
@@ -82,8 +82,7 @@ drupal-ai-agents/
 │   │   ├── task-router.md
 │   │   ├── visual-analyzer.md
 │   │   └── visual-test.md
-│   ├── rules/                        17 rule sets loaded as instructions
-│   │   ├── applier-protocol.md
+│   ├── rules/                        15 rule sets loaded as instructions
 │   │   ├── beads-workflow.md
 │   │   ├── coding-behavior.md
 │   │   ├── config-management.md
@@ -94,15 +93,15 @@ drupal-ai-agents/
 │   │   ├── epistemic-discipline.md
 │   │   ├── git-workflow.md
 │   │   ├── lessons-learned.md
-│   │   ├── quality-tools-setup.md
 │   │   ├── security-rules.md
 │   │   ├── services-conventions.md
 │   │   ├── task-playbooks.md
 │   │   ├── translations.md
 │   │   └── twig-patterns.md
-│   └── skills/                       38 reusable skills
+│   └── skills/                       39 reusable skills
 │       ├── arena-protocol/SKILL.md
 │       ├── beads-task-tracking/SKILL.md
+│       ├── code-analysis/SKILL.md
 │       ├── commit-message/SKILL.md
 │       ├── config-management/SKILL.md
 │       ├── drupal-accessibility/SKILL.md
@@ -115,8 +114,12 @@ drupal-ai-agents/
 │       ├── drupal-functionaljs-test/SKILL.md
 │       ├── drupal-kernel-test/SKILL.md
 │       ├── drupal-migration/SKILL.md
+│       ├── drupal-multi-version-compat/SKILL.md
+│       ├── drupal-org-contribution-prep/SKILL.md
 │       ├── drupal-playwright-test/SKILL.md
 │       ├── drupal-render-pipeline/SKILL.md
+│       ├── drupal-security-coverage-prep/SKILL.md
+│       ├── drupal-test-suite-audit/SKILL.md
 │       ├── drupal-testing/SKILL.md
 │       ├── drupal-unit-test/SKILL.md
 │       ├── drupal-update/SKILL.md
@@ -124,8 +127,11 @@ drupal-ai-agents/
 │       ├── drush-commands/SKILL.md
 │       ├── module-scaffold/SKILL.md
 │       ├── performance-audit/SKILL.md
+│       ├── phpstan-phpcs-conflict-resolution/SKILL.md
 │       ├── playwright-testing/SKILL.md
 │       ├── quality-checks/SKILL.md
+│       ├── quality-tools-setup/SKILL.md
+│       ├── screenshot-analysis/SKILL.md
 │       ├── session-distill/SKILL.md
 │       ├── skill-creator/SKILL.md
 │       ├── tailwind-drupal/SKILL.md
@@ -256,10 +262,8 @@ All rules are always-on global instructions, loaded in both tools: Claude Code r
 | `twig-patterns.md` | Global | Presentation only, render full fields, cache bubbling, anti-patterns |
 | `drupal-testing.md` | Global | Test type decision tree, D10 vs D11 differences, common rules |
 | `beads-workflow.md` | Global | Beads task tracking: session start, during work, session end |
-| `quality-tools-setup.md` | Global | PHPStan, PHPCS, Rector, GrumPHP, PHPUnit setup (Audit module priority) |
 | `lessons-learned.md` | Global | Self-learning protocol: document problems and solutions |
 | `services-conventions.md` | Global | Service definitions, DI, interfaces, event subscribers, tagging |
-| `applier-protocol.md` | Global | SEARCH/REPLACE block format for code changes |
 | `config-management.md` | Global | Config export/import, config_split, schema validation |
 | `security-rules.md` | Global | Input sanitization, DB placeholders, route access, CSRF |
 | `translations.md` | Global | i18n contract: English source strings ALWAYS, `t()`/`\|t`/`Drupal.t()` on all user-facing text, literals + placeholders only |
@@ -302,6 +306,7 @@ Reusable skill definitions that agents can invoke:
 | `quality-checks` | Full quality pipeline: Audit module primary, raw PHPCS/PHPStan fallback |
 | `code-analysis` | Standalone quality report: BLOCKERS vs SUGGESTIONS, cross-tool second opinion |
 | `drupal-audit-setup` | Install and configure the Drupal Audit module |
+| `quality-tools-setup` | First-time setup of PHPStan, PHPCS, Rector, GrumPHP and a project-root `phpunit.xml` (config templates, composer one-liner) |
 | `performance-audit` | Caching, queries, lazy builders, bottlenecks, N+1 detection |
 | `drupal-render-pipeline` | Expert render/caching semantics: max-age bubbling, AccessResult cacheability, lazy builder constraints, escaping |
 | `twig-audit` | Template anti-patterns, cache bubbling, raw filter misuse |

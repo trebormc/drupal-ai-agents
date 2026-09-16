@@ -46,24 +46,6 @@ bd update <id> --notes "Paused at: ..."         # Document state
 
 **IMPORTANT**: Git write access depends on the **git-workflow** rule. Unless it is enabled there, leave all git operations (add, commit, push) to the user after they review the changes.
 
-## Quick Reference
-
-| Action | Command |
-|--------|---------|
-| Ready tasks | `bd ready --json` |
-| Create | `bd create "Title" -p 1 --json` |
-| Show | `bd show <id> --json` |
-| Update status | `bd update <id> --status in_progress` |
-| Add notes | `bd update <id> --notes "..."` |
-| Close | `bd close <id> --reason "Done" --json` |
-
-## Priority Levels
-
-| P0 | Critical - blockers, security |
-| P1 | High - important features |
-| P2 | Medium - normal tasks |
-| P3 | Low - nice-to-haves |
-
 ## SSH Wrapper Limitations
 
 The `bd` wrapper forwards commands to the Beads container via SSH. Arguments with spaces and special characters are escaped automatically via `printf %q`. Keep in mind:
@@ -72,12 +54,4 @@ The `bd` wrapper forwards commands to the Beads container via SSH. Arguments wit
 - **Never use `bd edit`** -- it opens an interactive editor that will hang
 - If a command fails unexpectedly, verify the subcommand exists with `bd --help`
 
-## Commit Convention
-
-Use Conventional Commits format, in ENGLISH, with the Beads task ID at the end of the
-subject (full format in the **commit-message** skill):
-```bash
-git commit -m "feat(mymodule): add feature X (bd-a1b2)"
-```
-
-**Note**: git write access is governed by the **git-workflow** rule.
+Command reference, priorities, commit convention: **beads-task-tracking** skill.

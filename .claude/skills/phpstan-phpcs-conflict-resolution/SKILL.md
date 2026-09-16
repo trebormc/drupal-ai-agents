@@ -11,7 +11,7 @@ description: >-
   - user: "fix the conflict between phpcs and phpstan" -> pick the real contract, suppress the other narrowly
   - user: "missingType error on my .module hooks" -> ignore missingType.iterableValue for hook files
   Never use for running the full quality pipeline (use quality-checks). Never use for
-  first-time tool setup (use the quality-tools-setup rule).
+  first-time tool setup (use the quality-tools-setup skill).
 allowed-tools: Bash Read Grep Glob
 metadata:
   drupal-version: "10.x/11.x/12.x"

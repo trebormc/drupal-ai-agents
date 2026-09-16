@@ -1,6 +1,6 @@
 ---
 description: Drupal testing decision rules — test type selection, D10 vs D11 differences, common rules
-globs:
+paths:
   - "**/*Test.php"
   - "**/*TestBase.php"
   - "**/tests/**"
@@ -12,6 +12,7 @@ globs:
 
 This rule loads whenever generating tests for Drupal 10 or 11 code.
 It defines which test type to use, version differences, and common rules.
+Unit template, directory layout, run commands: **drupal-testing** skill.
 
 ## Supported Versions
 
@@ -39,6 +40,13 @@ Determine the project version before generating code. Differences affect syntax.
 **If the project supports both versions:** use `static` in data providers, use
 annotations (not attributes), avoid `withConsecutive()`.
 
+**Annotations vs attributes (applies to every test type):** use PHPDoc annotations
+(`@group`, `@covers`, `@coversDefaultClass`, `@dataProvider`) for Drupal 10+11
+compatibility — PHPUnit 9 on Drupal 10 ignores metadata attributes. The ONE exception is
+`#[RunTestsInSeparateProcesses]`: add it to Kernel, Functional and FunctionalJavascript
+classes when the project runs Drupal 11.3+ (deprecated without it, throws in 12); it is
+harmless to omit on 10.x. Never add it to Unit tests.
+
 ## Decision Tree — Which Test Type to Generate
 
 Follow this order. Stop at the first match.
@@ -52,7 +60,7 @@ Follow this order. Stop at the first match.
 
 ### 1. Is it pure PHP logic without Drupal dependencies?
 
--> **Unit Test** (template inline below)
+-> **Unit Test** (template in the **drupal-testing** skill; advanced mocking in `drupal-unit-test`)
 
 Indicators: the class can be instantiated without the container. Does not use entity
 storage, database, config factory, or other Drupal services. If you need to mock more
@@ -104,67 +112,6 @@ behavior tests that the client can read.
 Examples: visual comparison between deploys, verify responsive layout, accessibility
 tests, smoke tests, E2E flows in projects that do not use Behat.
 
-## Unit Test Template (Inline -- No Skill Needed)
-
-```php
-<?php
-declare(strict_types=1);
-
-namespace Drupal\Tests\MODULE\Unit;
-
-use Drupal\MODULE\CLASS_UNDER_TEST;
-use Drupal\Tests\UnitTestCase;
-
-/**
- * @coversDefaultClass \Drupal\MODULE\CLASS_UNDER_TEST
- * @group MODULE
- */
-class CLASS_UNDER_TESTTest extends UnitTestCase {
-
-  protected CLASS_UNDER_TEST $sut;
-
-  protected function setUp(): void {
-    parent::setUp();
-    $this->sut = new CLASS_UNDER_TEST();
-  }
-
-  /**
-   * @covers ::method
-   */
-  public function testMethod(): void {
-    $result = $this->sut->method('input');
-    $this->assertSame('expected', $result);
-  }
-
-  /**
-   * @covers ::method
-   * @dataProvider providerData
-   */
-  public function testMethodWithData(string $input, string $expected): void {
-    $this->assertSame($expected, $this->sut->method($input));
-  }
-
-  public static function providerData(): array {
-    return [
-      'normal case' => ['input', 'expected'],
-      'empty case' => ['', ''],
-    ];
-  }
-
-  /**
-   * @covers ::method
-   */
-  public function testMethodWithException(): void {
-    $this->expectException(\InvalidArgumentException::class);
-    $this->sut->method(NULL);
-  }
-
-}
-```
-
-**Location:** `modules/custom/MODULE/tests/src/Unit/` mirroring `src/`.
-**Mocking:** Use `$this->createMock()` for dependencies. If too many (>4-5), use Kernel test.
-
 ## Common Rules for All Tests
 
 1. Always `declare(strict_types=1);` after `<?php`.
@@ -203,81 +150,5 @@ class CLASS_UNDER_TESTTest extends UnitTestCase {
     for a mock, assert the payload it received; for an absence, assert the presence on
     the other input in the same test. No such assertion exists → delete the test.
 
-## Module Directory Structure
-
-```
-modules/custom/my_module/
-├── src/
-│   ├── Service/
-│   ├── Plugin/
-│   └── Form/
-├── tests/
-│   ├── src/
-│   │   ├── Unit/           <- Unit tests
-│   │   ├── Kernel/         <- Integration tests with kernel
-│   │   ├── Functional/     <- Tests with simulated browser
-│   │   └── FunctionalJavascript/ <- Tests with real Chrome
-│   ├── modules/
-│   │   └── my_module_test/ <- Auxiliary test module
-│   └── behat/
-│       └── features/       <- Behat scenarios (if applicable)
-└── my_module.info.yml
-```
-
-## Running PHPUnit (Canonical Pattern)
-
-Replace `MODULE` with the module machine name in all commands below.
-
-**STEP 1 — Pick the config form. Run this ONCE, then use the matching form for the whole session:**
-
-```bash
-ssh web test -f phpunit.xml && echo "ROOT" || echo "CORE"
-```
-
-**STEP 2 — Run tests with the matching form:**
-
-```bash
-# Form ROOT (project has phpunit.xml at project root — it already sets env vars):
-ssh web ./vendor/bin/phpunit $DDEV_DOCROOT/modules/custom/MODULE/tests/src/Unit
-ssh web ./vendor/bin/phpunit $DDEV_DOCROOT/modules/custom/MODULE/tests/src/Kernel
-ssh web ./vendor/bin/phpunit $DDEV_DOCROOT/modules/custom/MODULE/tests/src/Functional
-
-# Form CORE (no project phpunit.xml — use Drupal core config + explicit env vars):
-ssh web env SIMPLETEST_DB=mysql://db:db@db/db SIMPLETEST_BASE_URL=http://localhost \
-  ./vendor/bin/phpunit -c $DDEV_DOCROOT/core $DDEV_DOCROOT/modules/custom/MODULE/tests/src/Unit
-```
-
-Rules for BOTH forms:
-- Always pass the test directory (or file) as an explicit path argument. Do NOT rely on `--testsuite` — suite definitions differ between configs.
-- Narrow with `--filter testMethodName` or `--group MODULE` before the path argument.
-- NEVER use `-c core` — the working directory in the web container is the project root, so `core/` only exists there when the docroot IS the project root. Always use `-c $DDEV_DOCROOT/core`.
-
-```bash
-# Single test method (example with Form ROOT)
-ssh web ./vendor/bin/phpunit --filter testMethodName $DDEV_DOCROOT/modules/custom/MODULE/tests/src/Unit
-
-# Behat (uses behat.yml, not phpunit.xml — no config form needed)
-ssh web ./vendor/bin/behat --config=behat.yml
-
-# Playwright (runs on the HOST, not inside containers — ask the user to run it)
-# npx playwright test
-```
-
-**If a test fails to START (setup error, not an assertion failure):**
-
-| Error | Cause | Fix |
-|-------|-------|-----|
-| `Class not found` | Stale autoloader | `ssh web composer dump-autoload`, then retry |
-| `Could not connect to database` / `SQLSTATE` | SIMPLETEST_DB not set | Use Form CORE with explicit env vars |
-| `Failed to connect to localhost` | SIMPLETEST_BASE_URL not set | Use Form CORE with explicit env vars |
-| `Test site directory exists already` | Stale test site | `ssh web rm -rf $DDEV_DOCROOT/sites/simpletest/` then retry |
-| ChromeDriver/WebDriver errors (FunctionalJS) | Driver not running | See **drupal-functionaljs-test** skill troubleshooting |
-
-## Recommended Coverage
-
-No official minimum in Drupal. Reasonable targets:
-
-- 80% line coverage as industry standard.
-- More important than percentage: cover critical paths and edge cases.
-- Use `@covers` or `#[CoversClass()]` for precise coverage.
-- Use `@codeCoverageIgnore` only for genuinely untestable code.
+Directory layout, canonical PHPUnit run pattern (ROOT/CORE forms + setup-error table),
+coverage targets: **drupal-testing** skill.

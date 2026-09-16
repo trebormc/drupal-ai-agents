@@ -113,7 +113,8 @@ never look for them. The brief at `/var/www/html/arena-brief.md` is the whole ta
 2. Follow the matching playbook from the **task-playbooks** rule (usually Feature or Bug
    fix) with the contract as binding input. Delegate as usual (`code-explorer`,
    `drupal-dev`, `drupal-theme`, `drupal-test-generator`), then `code-review` CODE mode
-   with the contract.
+   with the contract. Every delegation brief starts with: "Arena candidate: no `bd`
+   commands, no git writes, no task id, touch only <paths>".
 3. Run the live verification the brief names and the quality checks; paste real
    output. "Inconclusive" is FAILED or PARTIAL, not DONE.
 4. Hard rules: no `bd`, no git writes, no `drush cex` unless the contract says so, only

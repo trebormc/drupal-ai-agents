@@ -42,12 +42,14 @@ namespace Drupal\Tests\MODULE\FunctionalJavascript;
 
 use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
 use Drupal\user\UserInterface;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests DESCRIPTION.
  *
  * @group MODULE
  */
+#[RunTestsInSeparateProcesses] // Required on Drupal 11.3+, omit on 10.x.
 class NameTest extends WebDriverTestBase {
 
   protected $defaultTheme = 'stark';

@@ -1,8 +1,8 @@
 ---
 description: Drupal security essentials — input sanitization, SQL injection, XSS, CSRF, access control
-globs:
-  - "web/modules/custom/**/*"
-  - "web/themes/custom/**/*"
+paths:
+  - "**/modules/custom/**"
+  - "**/themes/custom/**"
 ---
 
 # Security Rules
