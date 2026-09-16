@@ -56,7 +56,10 @@ Invoked with the changed code (and the Implementation Contract when one exists).
 judges validate quality AND, when a contract exists, **Plan Conformance**: does the
 implementation match what was agreed? Every deviation is either justified in one
 sentence (and judged on its merits) or flagged as an issue — silent deviations are
-never acceptable, even "improvements".
+never acceptable, even "improvements". Plan Conformance also checks the **evidence**:
+the caller must paste the test output and the Live Verification observation the
+contract named. Missing or "inconclusive" evidence is NEEDS IMPROVEMENT, not
+APPROVED — you cannot run it yourself, and nobody else will re-check an APPROVE.
 
 Typical triggers for either mode: architectural decisions, security-sensitive code
 (authentication, permissions, user input), performance-critical code (queries, caching,
@@ -111,6 +114,7 @@ render arrays), user-facing UI (accessibility, translations).
 - No duplicated functionality that already exists in core or contrib
 - Naming follows Drupal conventions (snake_case hooks, CamelCase classes)
 - Code is readable — another developer understands it in 6 months
+- **Structural smells** (design problems, not style nits): a feature that grows an existing `if/else` or `switch` chain by one more branch; a second boolean that must stay in sync with the first; logic in the wrong layer (business rules in a controller, `.module`, or Twig instead of a service); a pass-through wrapper with one caller; a new API added while the old one stays alive for internal callers; a `hook_update_N`/migration/queue worker that is not safe to run twice. Name the structure the code is missing (state field, plugin type, value object, service) — see **engineering-principles**
 
 **Key Question**: *"Would this pass a review from a Drupal core maintainer? Does it add technical debt?"*
 
@@ -214,6 +218,14 @@ Before finalizing, spend one adversarial pass against your own conclusion — es
 - What input, state, or configuration would make an APPROVE wrong? (anonymous user, empty/multivalue field, multilingual, warm cache, concurrent write)
 - Which of your claims rest on files you did NOT read or APIs you did NOT verify? Read them now or downgrade the claim to SUSPECTED.
 - For each REJECT: can you state the failure scenario concretely? If not, downgrade to a reservation.
+
+Then filter your own findings like a pragmatic lead, not an aggregator:
+- **Nitpick gravity**: a reviewer with nothing critical to say inflates nits to fill the report. If a judge's findings are all style preferences, the code is fine on that axis — say so.
+- **Hypothetical vs actual**: "what if this is NULL?" is a finding only if a caller can pass NULL. Trace the call site; if the type system or the boundary prevents it, dismiss it.
+- **"I would have done it differently"** is not a finding unless it names a concrete problem with the current approach. Dismiss, and say why.
+- **Missing-context signals**: flagging code the change did not touch, or a pattern consistent with the rest of the codebase, means the judge lacked context — dismiss gracefully.
+- **Premature abstraction**: suggesting an interface, a helper, or a service for a single call site is dismissed unless a second consumer exists.
+More than 5 Required Changes usually means you are not filtering hard enough. Dismissed findings are not deleted — they go to Dissent so the caller can override you.
 
 ### Phase 4: Verdict
 Each activated reviewer independently gives one of:
@@ -348,6 +360,13 @@ Apply the **drupal-testing** rule's decision tree and name the concrete tests:
 State the type choice in one sentence per the tie-breakers (Kernel-first bias). The
 implementer writes these tests as part of the roadmap — ideally before or alongside the
 code they cover, never as an afterthought.
+
+### Live Verification (MANDATORY — tests alone are not sufficient)
+Name the real surface and the observation that proves the behavior, so the implementer
+can run it and paste the evidence, and CODE mode can demand it:
+- Surface: [browser via Playwright MCP at `$DDEV_HTTP_URL/<path>` as <role> | `ssh web drush <command>` | `ssh web drush php:eval "..."` reading a value back]
+- Observed pass state: [the exact text, element, output line, or config value that must appear — and the side effect read back (node exists, watchdog has no new error, cache entry invalidated)]
+- Regression check: [the same observation on the state BEFORE the change, or `n/a: <reason>`]
 
 ### Roadmap
 1. [Step] → verify: [exact command or observable result]
