@@ -64,11 +64,19 @@ when to reach for it (both languages). Body sections, each grounded in Step 1:
   `drush cr`, `drush deploy`) and how to tell the site is ready (`drush status`
   `bootstrap: Successful`; Playwright `browser_navigate $DDEV_HTTP_URL` shows the
   front page title).
-- **Doctor** — one read-only check to run whenever anything looks off:
-  `ssh web drush status --fields=bootstrap,db-status`, `ssh web drush watchdog:show
-  --count=5 --severity=Error`, `browser_navigate $DDEV_HTTP_URL` + `browser_snapshot`
-  showing the expected `<title>`, and the test user exists (`drush user:information
-  <name>`). State the expected values so a mismatch is obvious.
+- **Doctor** — one read-only check to run whenever anything looks off. Ship it as an
+  executable script, `scripts/doctor.sh`, not as a recipe: a script costs no tokens to
+  follow and fails loudly. It runs `ssh web drush status --fields=bootstrap,db-status`
+  and expects `Successful`/`Connected`, counts new errors in `ssh web drush
+  watchdog:show --count=5 --severity=Error`, checks the test user with `ssh web drush
+  user:information <name>`, and fetches the front page title through the web container
+  (`ssh web curl -s $DDEV_HTTP_URL | grep -o '<title>[^<]*'`; this is a health probe,
+  not page testing) against the expected value. Exit non-zero on the first mismatch
+  with the check that failed. The SKILL.md body shows the invocation:
+
+  ```bash
+  bash .claude/skills/verify-<site>/scripts/doctor.sh   # prints one line per check, exit 0 when healthy
+  ```
 - **Drive** — how to interact: Playwright MCP tools (`browser_navigate`,
   `browser_snapshot`, `browser_click`, `browser_type`, `browser_take_screenshot`) with
   HTTP not HTTPS, stable handles (ARIA roles and accessible names, `data-drupal-selector`,
@@ -107,7 +115,7 @@ commands, observable proof.
 
 ### Step 4: Prove the generated skill once
 
-Run its own instructions end to end: launch, doctor, drive ONE mapped feature, capture
+Run its own instructions end to end: launch, `scripts/doctor.sh`, drive ONE mapped feature, capture
 evidence, clean up, confirm the evidence file still exists. Fix what fails. A skill
 that was never executed is a draft, not a deliverable. Report the run output.
 

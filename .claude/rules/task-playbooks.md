@@ -16,6 +16,8 @@ context, run one command) needs no playbook.
 | New or changed behavior | Feature |
 | A behavior-preserving change to structure (rename, extract, move, dedupe, modernize) | Refactoring |
 | A design or behavior question that an experiment can settle cheaper than a discussion | Prototype |
+| Sustained improvement of one measurable thing (page time, query count, memory) against a target | Hillclimb |
+| A ticket, bug report, client email or drupal.org issue to take in before any work | Issue intake |
 | A long run with no user present (Ralph Loop, "run until done") | Autonomous run |
 | Stopping mid-task, or resuming another session's in-flight work | Session handoff |
 
@@ -155,6 +157,49 @@ how long does this query take) instead of asking the user.
 
 Reserve questions to the user for genuine product or preference calls no experiment
 can settle.
+
+## Hillclimb
+
+You own the metric. Distinct from Bug fix (one defect) and from a one-off Perf fix: a
+loop of measured attempts against a target, and only accepted wins survive.
+
+1. Name the metric, its unit, the target, and the probe that measures it the same way
+   every time: a `drush php:script` timing a service call, `Database::startLog()` query
+   counts (**performance-audit** skill), an Xdebug profile (**xdebug-profiling**), a
+   Playwright timing of the page. Build the probe first and commit to it; measure the
+   baseline three times and keep the median.
+2. Each iteration: one hypothesis, the smallest change that tests it (delegated to the
+   specialist), measure with the same probe, then keep it only if the metric moved
+   toward the target; otherwise revert it completely. No "might help" leftovers.
+3. Log every iteration in the task notes: `bd update <id> --notes "hillclimb <n>:
+   <hypothesis> | before <x> after <y> | kept|reverted"`.
+4. Stop at the target, or after three consecutive iterations without a win: report the
+   plateau and the next family of hypotheses, do not keep grinding.
+5. Summary: baseline, final value, the accepted changes with their deltas, the rejected
+   hypotheses with their evidence, `code-review` CODE mode on the accepted diff.
+
+## Issue intake
+
+You own the restatement. Input is a ticket (Linear, drupal.org, an email, a chat
+thread); output is a reproduced problem routed to its playbook, or a precise reply
+about why it could not be reproduced. Never start fixing from the ticket's words.
+
+1. Read the source in full (the MCP for the tracker when available, otherwise the
+   pasted text). Restate in your own words: expected behavior, actual behavior, who is
+   affected, environment (Drupal and PHP versions, module versions, roles, language,
+   cache state), and the repro steps as you understand them. State what the ticket
+   does NOT say.
+2. Treat the reporter's diagnosis as a hypothesis, not a finding (**epistemic-discipline**
+   §7): users report symptoms reliably and causes unreliably.
+3. Reproduce on the real surface with the project's `verify-<site>` skill when it
+   exists (its feature map names the entry points), otherwise per the Bug fix step 1.
+   Paste the evidence. If it does not reproduce, tighten the conditions from step 1
+   before declaring it; a non-repro report names exactly what was tried.
+4. Route: reproduced defect → Bug fix; behavior as designed → reply with the evidence
+   and the design reason (Investigation step 3 for the "why"); missing information →
+   the one or two questions whose answers would let you reproduce, nothing else.
+5. If the ticket lives in a tracker you can write to, post the restatement and the
+   repro result there only when the user asks; otherwise it goes in your summary.
 
 ## Autonomous run (Ralph Loop)
 

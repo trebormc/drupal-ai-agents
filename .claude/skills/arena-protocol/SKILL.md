@@ -65,7 +65,8 @@ live verification, roadmap, judge constraints, rejected alternatives>
 - Pass state: <the exact output, element, or value that must appear>
 
 ## Constraints
-- No `bd` commands. No git writes. No `drush cex` unless the contract says so.
+- Config changes: allowed | not allowed   <- one of the two, literally; the config gate reads it. Allowed means the candidate exports with `drush cex` and the diff carries the YAML.
+- No `bd` commands. No git writes.
 - Touch only the paths listed in the contract; report anything else, do not fix it.
 - Never guess a fact this brief lacks: STATUS: BLOCKED with the exact question.
 
@@ -170,7 +171,9 @@ Inputs per label under `arena/<slug>/candidates/<label>/`: `diff.patch`, `report
 harness or model produced which.
 
 1. **Gates first.** Read the logs. A failed gate cannot win over passing gates,
-   whatever the report says. `skip` means the gate did not apply; note it.
+   whatever the report says; a failed `config` gate means the candidate left config
+   changes in the database that the brief did not allow. `skip` means the gate did
+   not apply; note it.
 2. **Rubric second.** Score every label on every rubric item from the diff and the
    pasted evidence. A "yes" the diff or output does not show counts as "no".
 3. **Contract conformance.** Silent deviations and scope creep are findings; reported

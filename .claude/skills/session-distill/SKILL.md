@@ -26,8 +26,25 @@ agent never walks into them.
 
 ## Step 1 — Harvest candidates
 
-Mine three sources: the current conversation, `LESSONS_LEARNED.md`, and Beads task
-notes (`bd show <id> --json` for tasks touched this session). A candidate is:
+Mine four sources: the current conversation, `LESSONS_LEARNED.md`, Beads task notes
+(`bd show <id> --json` for tasks touched this session), and the session transcript on
+disk, which remembers what the conversation forgot. Claude Code keeps one JSONL per
+session under `~/.claude/projects/<workspace-slug>/`; OpenCode exports one with
+`opencode export <sessionID>`. Do not read a transcript whole: pull the failure and
+correction moments only:
+
+```bash
+f="$(ls -t ~/.claude/projects/*/*.jsonl 2>/dev/null | head -n1)"
+# Tool calls that errored, with the command that caused them:
+jq -r 'select(.type=="user") | .message.content[]? | select(.type=="tool_result" and .is_error==true) | .content | tostring | .[0:300]' "$f"
+# User turns that corrected the agent (the words that usually follow a wrong move):
+jq -r 'select(.type=="user") | .message.content | if type=="string" then . else (.[]? | select(.type=="text") | .text) end' "$f" | grep -iE "no,|not that|wrong|again|instead|en realidad|no es eso|otra vez|mal" | head -n 20
+```
+
+Read each hit through three lenses, as separate questions: judgment (what principle
+would have avoided it), tooling (what command, flag or path was wrong and what the
+right one is), divergence (what a different approach would have done). A lesson that
+survives all three lenses is a candidate. A candidate is:
 
 - A solution that worked AFTER one or more failed attempts (the highest-value kind).
 - A non-obvious environment/API fact that was verified in-session (command output,

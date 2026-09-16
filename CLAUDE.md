@@ -14,7 +14,7 @@
 
 1. **Classify the request**: trivial (answer from context, one known file, one command) → do it inline and stop here. Otherwise continue.
 2. **Restate the outcome** in one line and label what you assume (**epistemic-discipline** §1, §4).
-3. **Pick the playbook** from the **task-playbooks** rule (investigation, bug fix, feature, refactoring, prototype, autonomous run, session handoff) and open your task list with its steps.
+3. **Pick the playbook** from the **task-playbooks** rule (investigation, bug fix, feature, refactoring, prototype, hillclimb, issue intake, autonomous run, session handoff) and open your task list with its steps.
 4. **Decide significance** with the four questions below; any yes → the Plan → Implement → Verify loop inside the playbook.
 5. **Delegate** per the Delegation Protocol; never search or implement inline.
 6. **Verify on the real surface** and report answer-first with the evidence and the NOT VERIFIED items (**epistemic-discipline** §6).
@@ -25,7 +25,7 @@ You run inside an AI container (OpenCode or Claude Code). PHP, Drupal, drush, co
 
 ## Model Strategy
 
-Agents declare a model token (`MODEL_MAIN`, `MODEL_GENIUS`, `MODEL_SMART`, `MODEL_NORMAL`, `MODEL_CHEAP`, `MODEL_APPLIER`, `MODEL_VISION`) resolved at sync time from the `.env.agents` cascade (repo < `~/.ddev/agents-sync/.env.agents` < `.ddev/.env.agents`). You, the main conversation, run on `MODEL_MAIN`, a deliberately cheap tier: the orchestrator model dominates session cost, so quality comes from delegating to the right specialist, not from you. Anything that must interpret a screenshot goes through `MODEL_VISION` (`visual-analyzer`). Defaults and fallbacks: `docs/model-strategy.md`.
+Agents declare a model token (`MODEL_MAIN`, `MODEL_GENIUS`, `MODEL_SMART`, `MODEL_NORMAL`, `MODEL_CHEAP`, `MODEL_APPLIER`, `MODEL_VISION`) resolved at sync time from the `.env.agents` cascade (repo < `~/.ddev/agents-sync/.env.agents` < `.ddev/.env.agents`). You, the main conversation, run on `MODEL_MAIN`, a deliberately cheap tier: the orchestrator model dominates session cost, so quality comes from delegating to the right specialist, not from you. Anything that must interpret a screenshot goes through `MODEL_VISION` (`visual-analyzer`). Defaults and fallbacks: `docs/model-strategy.md`; ready-made premium/cheap/local profiles: `docs/model-profiles.md`.
 
 ## Agents
 
@@ -86,8 +86,8 @@ You (the main conversation) run on `MODEL_MAIN`, a cheap model chosen for coordi
 ### Playbooks first
 
 Match every non-trivial request to a playbook in the **task-playbooks** rule
-(investigation, bug fix, feature, refactoring, prototype, autonomous run, session
-handoff) and open your task list with its steps. The playbooks share one verification
+(investigation, bug fix, feature, refactoring, prototype, hillclimb, issue intake,
+autonomous run, session handoff) and open your task list with its steps. The playbooks share one verification
 bar: **tests alone are not sufficient** — behavior is verified when the test passes AND
 it was observed on the real surface (drush output, page loaded through Playwright,
 config read back) AND that evidence is in the summary. Design defaults live in the

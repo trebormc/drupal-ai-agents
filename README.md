@@ -140,6 +140,7 @@ drupal-ai-agents/
 │       └── xdebug-profiling/SKILL.md
 └── docs/                             Additional documentation
     ├── architecture.md
+    ├── model-profiles.md
     ├── model-strategy.md
     └── ralph-loop.md
 ```
@@ -162,7 +163,7 @@ Agent `.md` files use **model tokens** instead of hardcoded model names. This ma
 
 When not defined in `.env.agents`, `GENIUS` falls back to `SMART`, `VISION` falls back to `NORMAL`, and `MAIN` falls back to `CHEAP` on OpenCode / `NORMAL` on Claude Code, so older override files keep working. Override `GENIUS` with a stronger model when available; `VISION` must be vision-capable or image analysis agents cannot see screenshots.
 
-`${MODEL_MAIN}` sets the DEFAULT model of the tool itself, not an agent: the sync injects it as the top-level `model` in the generated `opencode.json` and as the `model` key in the generated Claude Code settings. It is deliberately a cheap tier because the main conversation dominates session cost — the orchestrator delegates specialist work and consults the `task-router` agent when the routing is unclear (see [docs/model-strategy.md](docs/model-strategy.md)).
+`${MODEL_MAIN}` sets the DEFAULT model of the tool itself, not an agent: the sync injects it as the top-level `model` in the generated `opencode.json` and as the `model` key in the generated Claude Code settings. It is deliberately a cheap tier because the main conversation dominates session cost — the orchestrator delegates specialist work and consults the `task-router` agent when the routing is unclear (see [docs/model-strategy.md](docs/model-strategy.md)). Ready-made premium, cheap and local overrides: [docs/model-profiles.md](docs/model-profiles.md).
 
 ### Changing models
 
@@ -257,7 +258,7 @@ All rules are global instructions loaded in both tools: Claude Code reads `.clau
 | `coding-behavior.md` | Global | LLM behavioral guardrails: surface assumptions, simplicity first, surgical changes, verifiable goals |
 | `epistemic-discipline.md` | Global | Reasoning guardrails: intent under the words, risk-weighted effort, evidence over plausibility, confidence labels, self-attack, answer-first reporting |
 | `engineering-principles.md` | Global | Design defaults with their triggers: laziness, subtract first, model the domain, boundary discipline, idempotent operations, build the lever, prove it works, fix root causes, encode lessons in structure |
-| `task-playbooks.md` | Global | Task-shaped workflows: investigation, bug fix (reproduce → binary search → failing test → same-surface verify), feature, refactoring (pin behavior first), prototype, autonomous run, session handoff; the "tests alone are not sufficient" bar |
+| `task-playbooks.md` | Global | Task-shaped workflows: investigation, bug fix (reproduce → binary search → failing test → same-surface verify), feature, refactoring (pin behavior first), prototype, hillclimb (measured loop against a target), issue intake (restate, reproduce, route), autonomous run, session handoff; the "tests alone are not sufficient" bar |
 | `drupal-coding-standards.md` | Global | Strict types, 2-space indent, type hints, DI, cache metadata, quality checklist |
 | `twig-patterns.md` | Global | Presentation only, render full fields, cache bubbling, anti-patterns |
 | `drupal-testing.md` | Global | Test type decision tree, D10 vs D11 differences, common rules |
