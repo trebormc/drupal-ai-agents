@@ -9,7 +9,7 @@ The **brain** of the [DDEV AI Workspace](https://github.com/trebormc/ddev-ai-wor
 >
 > Created by [Robert Menetray](https://menetray.com) · Sponsored by [DruScan](https://druscan.com)
 
-This repository is **not** a DDEV add-on. It is a configuration package that gets synced into OpenCode and Claude Code containers via [ddev-agents-sync](https://github.com/trebormc/ddev-agents-sync). It provides 11 specialized agents, 15 rules, and 34 skills tailored for Drupal development. The agents understand Drupal APIs, coding standards, caching, render arrays, the module/theme ecosystem, and quality tools like PHPStan, PHPCS, and PHPUnit.
+This repository is **not** a DDEV add-on. It is a configuration package that gets synced into OpenCode and Claude Code containers via [ddev-agents-sync](https://github.com/trebormc/ddev-agents-sync). It provides 11 specialized agents, 17 rules, and 38 skills tailored for Drupal development. The agents understand Drupal APIs, coding standards, caching, render arrays, the module/theme ecosystem, and quality tools like PHPStan, PHPCS, and PHPUnit.
 
 ## Quick Install
 
@@ -82,7 +82,7 @@ drupal-ai-agents/
 │   │   ├── task-router.md
 │   │   ├── visual-analyzer.md
 │   │   └── visual-test.md
-│   ├── rules/                        15 rule sets loaded as instructions
+│   ├── rules/                        17 rule sets loaded as instructions
 │   │   ├── applier-protocol.md
 │   │   ├── beads-workflow.md
 │   │   ├── coding-behavior.md
@@ -90,21 +90,25 @@ drupal-ai-agents/
 │   │   ├── ddev-environment.md
 │   │   ├── drupal-coding-standards.md
 │   │   ├── drupal-testing.md
+│   │   ├── engineering-principles.md
 │   │   ├── epistemic-discipline.md
 │   │   ├── git-workflow.md
 │   │   ├── lessons-learned.md
 │   │   ├── quality-tools-setup.md
 │   │   ├── security-rules.md
 │   │   ├── services-conventions.md
+│   │   ├── task-playbooks.md
 │   │   ├── translations.md
 │   │   └── twig-patterns.md
-│   └── skills/                       34 reusable skills
+│   └── skills/                       38 reusable skills
+│       ├── arena-protocol/SKILL.md
 │       ├── beads-task-tracking/SKILL.md
 │       ├── commit-message/SKILL.md
 │       ├── config-management/SKILL.md
 │       ├── drupal-accessibility/SKILL.md
 │       ├── drupal-audit-setup/SKILL.md
 │       ├── drupal-behat-test/SKILL.md
+│       ├── drupal-blast-radius/SKILL.md
 │       ├── drupal-code-patterns/SKILL.md
 │       ├── drupal-debugging/SKILL.md
 │       ├── drupal-functional-test/SKILL.md
@@ -116,6 +120,7 @@ drupal-ai-agents/
 │       ├── drupal-testing/SKILL.md
 │       ├── drupal-unit-test/SKILL.md
 │       ├── drupal-update/SKILL.md
+│       ├── drupal-verification-skill/SKILL.md
 │       ├── drush-commands/SKILL.md
 │       ├── module-scaffold/SKILL.md
 │       ├── performance-audit/SKILL.md
@@ -124,6 +129,7 @@ drupal-ai-agents/
 │       ├── session-distill/SKILL.md
 │       ├── skill-creator/SKILL.md
 │       ├── tailwind-drupal/SKILL.md
+│       ├── technical-writing/SKILL.md
 │       ├── twig-audit/SKILL.md
 │       └── xdebug-profiling/SKILL.md
 └── docs/                             Additional documentation
@@ -244,6 +250,8 @@ All rules are always-on global instructions, loaded in both tools: Claude Code r
 |------|-------|---------|
 | `coding-behavior.md` | Global | LLM behavioral guardrails: surface assumptions, simplicity first, surgical changes, verifiable goals |
 | `epistemic-discipline.md` | Global | Reasoning guardrails: intent under the words, risk-weighted effort, evidence over plausibility, confidence labels, self-attack, answer-first reporting |
+| `engineering-principles.md` | Global | Design defaults with their triggers: laziness, subtract first, model the domain, boundary discipline, idempotent operations, build the lever, prove it works, fix root causes, encode lessons in structure |
+| `task-playbooks.md` | Global | Task-shaped workflows: investigation, bug fix (reproduce → binary search → failing test → same-surface verify), feature, refactoring (pin behavior first), prototype, autonomous run, session handoff; the "tests alone are not sufficient" bar |
 | `drupal-coding-standards.md` | Global | Strict types, 2-space indent, type hints, DI, cache metadata, quality checklist |
 | `twig-patterns.md` | Global | Presentation only, render full fields, cache bubbling, anti-patterns |
 | `drupal-testing.md` | Global | Test type decision tree, D10 vs D11 differences, common rules |
@@ -299,6 +307,7 @@ Reusable skill definitions that agents can invoke:
 | `twig-audit` | Template anti-patterns, cache bubbling, raw filter misuse |
 | `phpstan-phpcs-conflict-resolution` | Resolve PHPCS/PHPStan conflicts and suppression mechanics |
 | `drupal-security-coverage-prep` | Audit against the drupal.org security review checklist |
+| `drupal-blast-radius` | What a change breaks outside the diff: hook implementers, decorators, views/displays, config dependencies, templates; proves the safety fact by running code |
 
 ### Browser and UI
 
@@ -308,6 +317,7 @@ Reusable skill definitions that agents can invoke:
 | `tailwind-drupal` | TailwindCSS setup and usage in Drupal themes |
 | `drupal-accessibility` | WCAG 2.2 AA the Drupal way: Form API ARIA, #states vs #access, hiding utilities, Drupal.announce |
 | `screenshot-analysis` | Interpret screenshot/image content: design review, comparisons (vision model) |
+| `drupal-verification-skill` | Generate and maintain a project-local `verify-<site>` skill: launch/doctor, Playwright + drush recipes, evidence rules, feature map |
 
 ### Contribution
 
@@ -325,6 +335,8 @@ Reusable skill definitions that agents can invoke:
 | `xdebug-profiling` | Xdebug tracing and profiling for debugging and performance |
 | `skill-creator` | Create and validate new OpenCode skills |
 | `session-distill` | Convert verified session learnings (failed attempts + final fix) into durable guidance: patch, project skill, or new shared skill |
+| `technical-writing` | Module READMEs, change records, drupal.org issue summaries, ADRs, MR bodies: one Diátaxis mode per document, plain sentences, no AI tells |
+| `arena-protocol` | The three roles inside a [ddev-ai-arena](https://github.com/trebormc/ddev-ai-arena) run: project manager (brief with contract + mechanical rubric, verdict trailer), candidate (isolated copy, `arena-report.md` with `STATUS`), judge (gates, rubric, conformance, then quality, blind) |
 
 ## Customization
 
@@ -357,8 +369,7 @@ The agent is auto-discovered from the `.claude/agents/` directory. Use model tok
 ### Adding rules
 
 1. Create a `.md` file in the `.claude/rules/` directory.
-2. For OpenCode: add its path to the `instructions` array in `opencode.json`.
-3. For Claude Code: rules in `.claude/rules/` are auto-discovered.
+2. No registration needed: Claude Code reads `.claude/rules/` natively and OpenCode loads every rule through the `instructions` glob in `opencode.json`. Rules are always in context in both tools, so keep them short.
 
 ### Adding skills
 
@@ -387,6 +398,7 @@ This configuration package is part of [DDEV AI Workspace](https://github.com/tre
 | [ddev-opencode](https://github.com/trebormc/ddev-opencode) | [OpenCode](https://opencode.ai) AI CLI container. Reads agents from `/agents-opencode`. | Consumer |
 | [ddev-claude-code](https://github.com/trebormc/ddev-claude-code) | [Claude Code](https://docs.anthropic.com/en/docs/claude-code) CLI container. Reads agents from `/agents-claude`. | Consumer |
 | [ddev-ralph](https://github.com/trebormc/ddev-ralph) | Autonomous AI task orchestrator. Uses `ralph-planner` agent and Beads workflow. | Consumer |
+| [ddev-ai-arena](https://github.com/trebormc/ddev-ai-arena) | Host command that runs N AI candidates in isolated worktree environments, gates them mechanically and judges them blind. | Consumer: the `arena-protocol` skill defines its roles |
 | [ddev-beads](https://github.com/trebormc/ddev-beads) | [Beads](https://github.com/steveyegge/beads) git-backed task tracker. | Task tracking |
 | [ddev-ai-ssh](https://github.com/trebormc/ddev-ai-ssh) | SSH access to the web container. Generates per-project keys, installs sshd. | SSH infrastructure |
 | [ddev-playwright-mcp](https://github.com/trebormc/ddev-playwright-mcp) | Headless Playwright browser for visual testing. | Browser automation |

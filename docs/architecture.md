@@ -20,20 +20,30 @@ AI containers never access the database directly. They use SSH to run commands i
 
 Agents are organized in three tiers by model cost:
 
-### Tier 1: Smart (Opus) — Complex reasoning
-- **code-review**: Quality gate (correctness, security, Drupal quality, performance)
+### Tier 0: Genius — the hardest judgment
+- **code-review**: Judge panel (PLAN mode → Implementation Contract; CODE mode → verdict + conformance)
+
+### Tier 1: Smart — Complex reasoning
+- **output-verifier**: Validation of non-code outputs
 - **ralph-planner**: Requirements generation for autonomous execution
 - **task-router**: Delegation advisor — the cheap orchestrator consults it when routing is unclear
 
-### Tier 2: Normal (Sonnet) — Development work
+### Tier 2: Normal — Development work
 - **drupal-dev**: Backend PHP development
 - **drupal-theme**: Frontend/Twig/CSS development
-- **output-verifier**: Output validation
-- **visual-test**: Playwright visual testing
+- **drupal-test-generator**: Test generation
 
-### Tier 3: Cheap (Haiku) — Fast/mechanical
-- **code-explorer**: Codebase navigation
+### Vision — must accept image input
+- **visual-test**: Playwright browser automation
+- **visual-analyzer**: Screenshot/image interpretation
+
+### Tier 3: Cheap — Fast/mechanical
+- **code-explorer**: Context firewall for codebase exploration
 - **applier**: Mechanical SEARCH/REPLACE application
+
+The always-on rules `task-playbooks` (what steps a task type follows) and
+`engineering-principles` (design defaults) shape how the orchestrator drives these
+agents; the verification bar is "tests alone are not sufficient".
 
 ## The Applier Pattern
 

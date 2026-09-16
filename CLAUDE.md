@@ -108,6 +108,16 @@ You (the main conversation) run on `MODEL_MAIN`, a cheap model chosen for coordi
 
    If the returned ranges are not enough, re-ask NARROWER with what you learned — do not fall back to opening files wholesale. And treat its labels as they are: VERIFIED is usable; INFERRED needs confirmation before you build on it.
 
+### Playbooks first
+
+Match every non-trivial request to a playbook in the **task-playbooks** rule
+(investigation, bug fix, feature, refactoring, prototype, autonomous run, session
+handoff) and open your task list with its steps. The playbooks share one verification
+bar: **tests alone are not sufficient** — behavior is verified when the test passes AND
+it was observed on the real surface (drush output, page loaded through Playwright,
+config read back) AND that evidence is in the summary. Design defaults live in the
+**engineering-principles** rule.
+
 ### Plan → Implement → Verify Loop (significant tasks)
 
 **Is the task significant? Answer these four questions — ANY yes → run the loop:**
@@ -148,6 +158,7 @@ the specialist reports any deviation with its reason.
 MODE: CODE
 Contract: <paste plan-<task-id>.md in full>
 Changed files: <output of: git diff --name-only>
+Evidence: <pasted test output + the live-surface observation the contract's Live Verification section names>
 Task: <same one line as step 1>
 ```
 
@@ -232,6 +243,10 @@ Adding a new rule = drop a `.md` file in `.claude/rules/` — no registration ne
 | `drupal-accessibility` | WCAG 2.2 AA the Drupal way: Form API ARIA, #states vs #access, Drupal.announce |
 | `commit-message` | Generate commit messages from git diff |
 | `session-distill` | Convert verified session learnings into durable guidance (patch > project skill > new skill) |
+| `drupal-blast-radius` | What a change breaks OUTSIDE the diff (hook implementers, decorators, views, config deps, templates) + prove the safety fact by running code |
+| `drupal-verification-skill` | Generate/maintain the project-local `verify-<site>` skill: doctor, drive, evidence, feature map |
+| `technical-writing` | Module READMEs, change records, issue summaries, ADRs, MR bodies: one Diátaxis mode per doc, plain sentences |
+| `arena-protocol` | Roles inside a `ddev ai-arena` run: PM brief (contract + mechanical rubric), candidate report (`STATUS` first line), verdict trailer, blind judging |
 
 ## Beads Task Tracking
 
