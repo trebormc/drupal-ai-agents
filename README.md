@@ -69,7 +69,7 @@ drupal-ai-agents/
 ├── .env.agents                       Model alias definitions (tokens → real model names)
 ├── install.sh                        Installation helper script (standalone mode)
 ├── .claude/
-│   ├── settings.json                 Claude Code permissions and hooks
+│   ├── settings.json                 Claude Code permissions and hooks for STANDALONE installs only (in DDEV, agents-sync generates the settings and the git hook from the .env.agents flags)
 │   ├── agents/                       11 agent definitions (.md files with fat frontmatter)
 │   │   ├── applier.md
 │   │   ├── code-explorer.md
@@ -250,7 +250,7 @@ During sync, [ddev-agents-sync](https://github.com/trebormc/ddev-agents-sync) ge
 
 ## Rules
 
-All rules are always-on global instructions, loaded in both tools: Claude Code reads `.claude/rules/` natively; OpenCode loads them via the `instructions` glob (`~/.config/opencode/rules/*.md`) in `opencode.json`. Adding a new rule requires no registration.
+All rules are global instructions loaded in both tools: Claude Code reads `.claude/rules/` natively and loads a rule with a `paths:` frontmatter only when it reads a matching file (whether that scoping applies to user-level rules is not documented; if it does not, those rules are simply always on); OpenCode loads every rule via the `instructions` glob (`~/.config/opencode/rules/*.md`) in `opencode.json`. Adding a new rule requires no registration.
 
 | File | Scope | Purpose |
 |------|-------|---------|

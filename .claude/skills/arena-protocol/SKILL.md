@@ -1,18 +1,19 @@
 ---
 name: arena-protocol
 description: >-
-  The protocol every AI container follows inside an `ai-arena` run: how the project
-  manager writes the shared brief (contract + mechanical rubric + live verification),
-  how a candidate works alone in its isolated copy and writes arena-report.md (STATUS
-  first line), how the project manager answers relayed questions with a verdict
-  trailer, and how it judges collected candidates blind (gates, rubric, conformance,
-  then quality). Loaded when a prompt names the arena, arena-brief.md, arena-report.md,
-  or the roles PROJECT MANAGER / CANDIDATE / JUDGE.
+  The protocol every AI container follows inside an `ai-arena` run: the project manager
+  writes the shared brief (contract, mechanical rubric, live verification), answers
+  relayed questions with a verdict trailer and judges collected candidates blind (gates,
+  rubric, conformance, then quality); a candidate works alone in its isolated copy and
+  writes arena-report.md with STATUS on the first line; a multi-model review has
+  independent REVIEWERs and one LEAD REVIEWER synthesis. Loaded when a prompt names the
+  arena, arena-brief.md, arena-report.md, or the roles PROJECT MANAGER / CANDIDATE /
+  JUDGE / REVIEWER.
   Examples:
-  - prompt: "You are one CANDIDATE of arena X. Read /var/www/html/arena-brief.md" -> CANDIDATE section
+  - prompt: "You are one CANDIDATE of arena X. Read /var/www/html/arena-brief.md" -> CANDIDATE
   - prompt: "PLAN the arena X ... write brief.md" -> PROJECT MANAGER, brief format
-  - prompt: "JUDGE the arena X" -> JUDGE rules, verdict trailer with WINNER
-  - prompt: "Candidate b is BLOCKED: <question>" -> PROJECT MANAGER, ANSWER/REDISPATCH/ASK_USER
+  - prompt: "JUDGE the arena X" -> JUDGE rules, trailer with WINNER
+  - prompt: "You are one independent REVIEWER" / "LEAD REVIEWER" -> review roles
   Never use outside an arena run; the normal task playbooks apply then.
 allowed-tools: Read Write Edit Bash Glob Grep
 metadata:
@@ -136,6 +137,30 @@ NOT DONE: <PARTIAL/FAILED only: what remains and why>
 Your last chat message is read by a script: after writing the report reply with one
 line, `REPORT WRITTEN: <STATUS>`. When resumed with an answer or new instructions,
 continue from where you stopped and rewrite the report at the end.
+
+## REVIEWER (multi-model review of one diff)
+
+`ai-arena review` sends the same diff to several reviewers on different harnesses and
+models. You are one of them, blind to the others. Read the intent, the whole diff and
+the surrounding code (callers, callees, types, tests) in the tree you were given; apply
+the `code-review` CODE-mode rubric with its evidence rule (every finding: severity,
+CONFIRMED or SUSPECTED, `file:line`, the failure scenario, the fix); look for the
+structural simplification that makes branches or wrappers disappear; skip style nits.
+You have no running Drupal: say what you would have run. Write `## Verdict`,
+`## Findings`, `## Not verified` to the output path you were given and reply
+`REVIEW WRITTEN`.
+
+## LEAD REVIEWER (synthesis of the reviews)
+
+You merge the reviews into one verdict without knowing which model wrote which. Merge
+duplicate findings and note which reviews raised each; two independent reviews agreeing
+is the strongest signal, a lone finding with a concrete path still counts. Filter like a
+lead: nitpick gravity, hypothetical versus actual (trace the call site), "I would have
+done it differently" is not a finding, missing-context signals, premature abstraction;
+never dismiss a security or correctness finding without checking it in the tree. Output
+`## Verdict`, `## Act on` (rarely more than five), `## Consider`, `## Noted`,
+`## Dismissed` (one reason each), `## Agreement map`, then the trailer with
+`VERDICT: JUDGED`.
 
 ## JUDGE (project manager, on collected candidates)
 

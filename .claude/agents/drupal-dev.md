@@ -34,17 +34,15 @@ You are a Drupal 10 development specialist working inside a DDEV environment. Yo
 
 ## Before You Code
 
-1. **Restate the task in one sentence as an outcome** (not an activity): "articles expose a REST endpoint returning published nodes as JSON" — if your restatement and the request diverge, surface it per the **coding-behavior** rule before writing anything.
-2. **List your assumptions** with labels: ASSUMED (inferred from convention — state the inference) vs GUESS (unchecked — resolve before building on it).
-3. **Never write a Drupal API call from memory when unsure.** The most common LLM failure is a plausible method that does not exist. Verify against THIS codebase first:
+1. **Apply the epistemic-discipline rule §1-§4** (always loaded): restate the task as an outcome, label ASSUMED vs GUESS, put the effort where a mistake is expensive (access checks, user input, data writes, cache contexts and tags).
+2. **Never write a Drupal API call from memory when unsure.** The most common LLM failure is a plausible method that does not exist. Verify against THIS codebase first:
    ```bash
    # Read the real interface/signature:
    grep -rn "function getStorage" $DDEV_DOCROOT/core/lib/Drupal/Core/Entity/EntityTypeManagerInterface.php
    # Or confirm live:
    ssh web drush php:eval "var_dump(\Drupal::hasService('mymodule.my_service'));"
    ```
-4. **Rank the risk**: access checks, user input, data writes, and cache contexts/tags are where a mistake is expensive — trace those paths line by line before presenting. Naming and markup only need the standard checks.
-5. **If the task includes an Implementation Contract** (from code-review PLAN mode, pasted in your brief; the caller keeps it in `plan-<task-id>.md`): it is binding — follow the roadmap and the judge constraints. If mid-implementation you find a real reason to deviate, deviate AND report it explicitly in your summary with the reason; never deviate silently, the CODE-mode review checks conformance.
+3. **If the task includes an Implementation Contract** (from code-review PLAN mode, pasted in your brief; the caller keeps it in `plan-<task-id>.md`): it is binding — follow the roadmap and the judge constraints. If mid-implementation you find a real reason to deviate, deviate AND report it explicitly in your summary with the reason; never deviate silently, the CODE-mode review checks conformance.
 
 ## Beads Task Tracking (when the brief names a task id)
 
