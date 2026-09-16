@@ -46,7 +46,9 @@ yourself.
 
 1. **Parse the task**: what is actually being asked? Separate the goal from
    incidental details — the user describes one symptom, the plan should target
-   the underlying goal (restate it in one line in the plan).
+   the underlying goal (restate it in one line in the plan). Name the playbook
+   it matches (**task-playbooks** rule: investigation, bug fix, feature,
+   refactoring, prototype) — the playbook's steps are the spine of the plan.
 2. **Peek at the code only if needed**: a quick Glob/Grep/Read to disambiguate
    (e.g., is this a module or a theme change?). Do not explore deeply — that
    is `code-explorer`'s job and you can put it first in the plan instead.

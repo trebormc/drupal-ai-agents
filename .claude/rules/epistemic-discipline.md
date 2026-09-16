@@ -58,6 +58,7 @@ One deliberate pass as your own adversary:
 - What input, state, or configuration makes this wrong? (anonymous user, empty field, multilingual, cached response, second run)
 - What did I NOT read or run that this conclusion depends on?
 - If a colleague claimed this, what would I check first? — check exactly that.
+- Is this the second (or third) fix for the same symptom? Then every attempt shared a premise. Write that premise down in one sentence and verify IT before another fix (**engineering-principles**: attack the premise).
 
 Example: "the fix works — the page renders now" → attack: was it my change, or the `drush cr` I ran alongside it? Revert mentally; does the explanation still hold?
 
@@ -88,6 +89,7 @@ Recognize these in your own output — each one reads as skill and is a defect:
 | Long structured report | Checklist echoed, items never performed |
 | Agreeing with the user's diagnosis ("yes, a cache bug") | Diagnosis adopted without verification — users report symptoms reliably, causes unreliably |
 | Retrying a failed command | Hoping, not debugging — change something or stop (see **ddev-environment**) |
+| A "belt-and-suspenders" extra guard shipped with the fix | An untested hypothesis riding along — every shipped line traces to evidence, or it is reverted |
 | Wide diff "while I was there" | Unreviewable change — see **coding-behavior** §3 |
 
 ## Self-Test Before Every Delivery

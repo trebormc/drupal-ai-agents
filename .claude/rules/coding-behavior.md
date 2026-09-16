@@ -11,7 +11,7 @@ Guardrails against the most common LLM coding mistakes. Derived from Andrej Karp
 - State your assumptions explicitly before implementing.
 - If multiple interpretations exist, present them — don't pick one silently.
 - If a simpler approach exists than what was asked, say so before building the complex one.
-- **Interactive session**: if something is genuinely unclear, stop and ask the user.
+- **Interactive session**: classify the doubt before asking. If the answer is a fact you can observe by running something (does the method exist, does the page render, which of two queries is faster, does the field allow multiple values) it is not the user's to answer — check it (`ssh web drush php:eval`, a kernel test, a Playwright load; see the Prototype playbook in **task-playbooks**). Ask only for product or preference calls no experiment can settle, and always before irreversible actions.
 - **Autonomous run (Ralph Loop)**: there is no user to ask. Pick the most conservative interpretation, write the assumption into the Beads task notes (`bd update <id> --notes "ASSUMPTION: ..."`), and continue.
 
 ## 2. Simplicity First

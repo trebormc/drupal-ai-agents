@@ -199,8 +199,12 @@ ssh web drush [command]
 3. All PHPUnit tests pass
 4. PHPCS reports no errors
 5. PHPStan level 8 reports no errors
+6. [Live verification — tests alone are not sufficient: the exact surface and observation, e.g. `ssh web drush php:eval "..."` prints X, or the page at `$DDEV_HTTP_URL/<path>` loaded through Playwright MCP shows Y]
 
-**Agent will check these and exit when all are met.**
+**Agent will check these and exit when all are met.** Every iteration records one
+decision row in the task notes (`bd update <id> --notes "<change> | why | evidence:
+<command or file:line> | result: ..."`) so the run can be audited afterwards — see the
+Autonomous run playbook in the **task-playbooks** rule.
 
 ## Error Handling
 

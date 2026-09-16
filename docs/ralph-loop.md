@@ -41,6 +41,20 @@ If you detect `[RALPH LOOP - Iteration X]` in your prompt:
 2. **Execution Phase**: Pick next task, work on it, close it, repeat
 3. **Completion**: Loop exits automatically when `bd ready` returns empty
 
+## Decision Trail
+
+Every iteration leaves one row in the task's Beads notes so a human (or the next
+iteration) can audit the run without the transcript:
+
+```bash
+bd update <id> --notes "<what changed> | why | evidence: <command or file:line> | result: tests green|reverted|blocked"
+```
+
+Assumptions made because no user was available go in as `ASSUMPTION: ...`. The exit
+predicate (`bd ready` empty, named tests green) is stated before the first iteration
+and never relaxed to declare victory. Full steps: the Autonomous run playbook in the
+**task-playbooks** rule.
+
 ## Signals
 
 | Signal | When to use |
