@@ -24,6 +24,7 @@ declare(strict_types=1);  // ALWAYS first line after <?php
 | Cache | Metadata on ALL render arrays |
 | Debug code | NEVER commit: `dpm()`, `kint()`, `dump()`, `console.log()` |
 | User-facing strings | ENGLISH source + translation function (`$this->t()`, `\|t`, `Drupal.t()`) — see **translations** rule |
+| Comments | Docblocks on every class/method/function (PHPCS Drupal standard requires them, one-line summary that says what, not how). Inline comments only for a non-obvious WHY the code cannot show. No narration (`// loop over nodes`), no phase markers (`// Step 1`), no commented-out code, no `@todo` without an issue link. A workaround that needs a paragraph to justify it is a fix in the wrong place |
 
 ## Cache Metadata (Required on ALL render arrays)
 

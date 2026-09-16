@@ -185,6 +185,23 @@ class CLASS_UNDER_TESTTest extends UnitTestCase {
     server) sharing one database but separate memory. State, services, or static
     caches set in test code are invisible to the requests the test makes — when this
     bites, rebuild containers/caches explicitly and comment WHY.
+13. **The NULL test — a test must be able to fail for a defect.** Before keeping a
+    test ask: would it still pass if every method of the class under test returned
+    `NULL`? If yes, it observes no behavior. Five shapes that fail this check:
+    - Weak assertion only: `assertNotNull`, `assertTrue((bool) $x)`, `assertInstanceOf`
+      on the return, no assertion at all.
+    - Mock-only: asserting a mock's `expects($this->once())` was satisfied with no
+      assertion on the result or the state after the call.
+    - Self-referential: `assertSame($sut->compute($a), $sut->compute($a))` or the
+      expected value built by calling the code under test.
+    - Constant pin: restating a hand-maintained constant or config default
+      (`assertSame(50, MyService::LIMIT)`).
+    - Fixture asserts fixture: asserting data the `setUp()` created while the subject
+      never runs in the test body.
+    Fix: call the subject with one concrete input and assert the literal output or the
+    observable effect (`assertSame('hello-world', $sut->slugify('Hello, World!'))`);
+    for a mock, assert the payload it received; for an absence, assert the presence on
+    the other input in the same test. No such assertion exists → delete the test.
 
 ## Module Directory Structure
 
