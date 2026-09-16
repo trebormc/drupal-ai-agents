@@ -70,7 +70,7 @@ if [ -d "$SCRIPT_DIR/.claude/skills" ]; then
         [ -d "$skill_dir" ] || continue
         skill_name=$(basename "$skill_dir")
         mkdir -p "$TARGET/skills/$skill_name"
-        cp "$skill_dir"SKILL.md "$TARGET/skills/$skill_name/"
+        cp -r "$skill_dir". "$TARGET/skills/$skill_name/"
     done
     echo "  Installed $(ls -1d "$SCRIPT_DIR/.claude/skills"/*/ | wc -l) skills"
 fi
