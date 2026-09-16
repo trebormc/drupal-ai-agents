@@ -1,7 +1,7 @@
 ---
 name: arena-protocol
 description: >-
-  The protocol every AI container follows inside a `ddev ai-arena` run: how the project
+  The protocol every AI container follows inside an `ai-arena` run: how the project
   manager writes the shared brief (contract + mechanical rubric + live verification),
   how a candidate works alone in its isolated copy and writes arena-report.md (STATUS
   first line), how the project manager answers relayed questions with a verdict
@@ -23,15 +23,19 @@ metadata:
 # Arena protocol
 
 An arena runs N candidates on the same task in parallel, each in its own worktree, DDEV
-project and database. Containers never see each other. The host (`ddev ai-arena`)
+project and database. Containers never see each other. The host (`ai-arena`)
 executes commands in them and reads files; a question travels up as a report and an
 answer travels down as a resumed session. Three roles, all played by the same agent
 pack; the prompt names which one you are.
 
-## PROJECT MANAGER (main project container)
+## PROJECT MANAGER (coordinator container)
 
 You own the brief, the answers, and the judgment. Candidates never see this
-conversation: everything they need is in the brief.
+conversation: everything they need is in the brief. You run in the coordinator project:
+you have the main repository (read-only for you), the agents and Playwright, but no
+running Drupal. Read the source (core, contrib, config) instead of running drush; when a
+question needs a runtime fact, send the candidate the exact command and ask for the
+output. A candidate's site is reachable from your Playwright at `http://ddev-<env_name>-web`.
 
 ### Brief format (`arena/<slug>/brief.md`)
 

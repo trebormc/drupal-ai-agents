@@ -246,7 +246,7 @@ Adding a new rule = drop a `.md` file in `.claude/rules/` — no registration ne
 | `drupal-blast-radius` | What a change breaks OUTSIDE the diff (hook implementers, decorators, views, config deps, templates) + prove the safety fact by running code |
 | `drupal-verification-skill` | Generate/maintain the project-local `verify-<site>` skill: doctor, drive, evidence, feature map |
 | `technical-writing` | Module READMEs, change records, issue summaries, ADRs, MR bodies: one Diátaxis mode per doc, plain sentences |
-| `arena-protocol` | Roles inside a `ddev ai-arena` run: PM brief (contract + mechanical rubric), candidate report (`STATUS` first line), verdict trailer, blind judging |
+| `arena-protocol` | Roles inside an `ai-arena` run: PM brief (contract + mechanical rubric), candidate report (`STATUS` first line), verdict trailer, blind judging |
 
 ## Beads Task Tracking
 
