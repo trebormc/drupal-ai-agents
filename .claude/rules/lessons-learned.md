@@ -43,6 +43,22 @@ surface error:
 | `STALE_KNOWLEDGE` | A skill/rule contains outdated info (API changed) | Patch the outdated guidance |
 | `ENVIRONMENT_QUIRK` | Correct code, environment behaved unexpectedly | Document in LESSONS_LEARNED.md; promote to ddev-environment rule if recurring |
 
+## Encode in Structure Before Writing More Text
+
+Before appending a lesson, ask whether the rule can be enforced mechanically. A
+mechanism catches the mistake without anyone reading a log; prose only helps the agent
+that happens to read it. Pick the strongest one available:
+
+| Instead of writing... | Encode as |
+|---|---|
+| "remember to add cache metadata" | a PHPStan custom rule, or a kernel test asserting `#cache` on the render array |
+| "never call `\Drupal::service()` in classes" | the existing PHPCS `DrupalPractice` sniff, made mandatory in the project's `phpcs.xml` |
+| "run X after Y" | a `composer.json` script or a GrumPHP task |
+| "this update hook must be rerunnable" | an assertion at the top of the hook, plus the kernel test that runs it twice |
+
+If a mechanism fits, add it (or file a Beads task to add it) and keep the log entry
+to one line pointing at the mechanism. Only lessons that need judgment stay as prose.
+
 ## Promotion Rule
 
 When **3 or more lessons** share the same failure type + category (or the same lesson

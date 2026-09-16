@@ -78,6 +78,8 @@ the exception**:
 | PROJECT + procedural (how to run/test/deploy THIS project) | **Project skill** in the project's `.claude/skills/<name>/SKILL.md` |
 | PROJECT + isolated fact or quirk | `LESSONS_LEARNED.md` entry (lessons-learned rule format) — do not create artifacts for one-offs |
 | Behavioral (how agents should reason/work) | Propose a change to a rule — present the diff to the user, do not decide alone |
+| A skill existed but did not trigger when it should have | Do not add content: tune that skill's `description` (triggers, examples in both languages) via **skill-creator**; a body that never loads is worthless |
+| Enforceable mechanically (a shape PHPStan/PHPCS/a test/a script can catch) | Encode it in structure (**lessons-learned** rule table), not in prose; the artifact is the rule/sniff/test plus one pointer line |
 
 **Where files go:** project-scoped artifacts are written directly into the project.
 UNIVERSAL artifacts belong to the shared agents repo (`drupal-ai-agents`) — if this
@@ -114,6 +116,10 @@ if it grows).
   duplicated.
 - **Right altitude**: no session narrative ("first we tried..."), no project paths in
   UNIVERSAL artifacts, no generalities in PROJECT ones.
+- **Structural check**: for every item routed to prose, say in one line why a lint,
+  test, or script could not enforce it instead. If you cannot, re-route it.
+- **Scope to what the session used**: findings point at skills, rules, or agents that
+  were actually invoked or that visibly failed to trigger — not speculative homes.
 - Report to the user, per candidate: destination chosen, VERIFIED evidence it rests
   on, and anything discarded for failing the epistemic gate (say why).
 
