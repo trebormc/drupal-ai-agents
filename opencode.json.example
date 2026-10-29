@@ -2,7 +2,7 @@
   "$schema": "https://opencode.ai/config.json",
   "model": "${MODEL_MAIN}",
   "small_model": "${MODEL_CHEAP}",
-  "autoupdate": true,
+  "autoupdate": false,
   "instructions": [
     "~/.config/opencode/rules/*.md"
   ],
