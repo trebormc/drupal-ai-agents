@@ -77,6 +77,23 @@ live verification, roadmap, judge constraints, rejected alternatives>
 Write for a weaker model: copy-paste commands with `ssh web`, exact paths, no
 "appropriate"/"as needed". If two developers could read a line differently, rewrite it.
 
+### Approaches mode
+
+When the prompt says APPROACHES MODE, the arena compares designs, not models: every label
+runs the same model and follows an assigned approach in `arena/<slug>/approach-<label>.md`
+(first line: a short title; then what to build differently, where, what to avoid). Two
+variants:
+
+- **User-defined**: the files exist. Read them, keep the contract approach-neutral
+  (rubric and live verification satisfiable by every approach), never rewrite them; if
+  one cannot work in this codebase, `VERDICT: ASK_USER` with why.
+- **PM-proposed**: write one file per label with genuinely different, defensible
+  approaches (different placement, mechanism or trade-off; not cosmetic variants), then
+  reply `VERDICT: ASK_USER` listing them one line per label so the user confirms or edits
+  them before spawn. When resumed with changes, rewrite the files accordingly.
+
+Answers to a label must stay within its approach.
+
 ### Answering relayed events
 
 The host relays each candidate report as a message. Classify and reply:
@@ -112,6 +129,10 @@ never look for them. The brief at `/var/www/html/arena-brief.md` is the whole ta
    can be read two ways or lacks a fact you need, write `STATUS: BLOCKED` with the
    exact question and what you would do under each answer, then stop. Guessing is the
    one way to fail here.
+   If `/var/www/html/arena-approach.md` exists, it is your ASSIGNED APPROACH and binds
+   like the contract: follow it even where you would choose differently, name it in
+   SUMMARY, and if it cannot work here report `STATUS: BLOCKED` with why rather than
+   switching approach silently.
 2. Follow the matching playbook from the **task-playbooks** rule (usually Feature or Bug
    fix) with the contract as binding input. Delegate as usual (`code-explorer`,
    `drupal-dev`, `drupal-theme`, `drupal-test-generator`), then `code-review` CODE mode
@@ -180,6 +201,10 @@ harness or model produced which.
    deviations are judged on their merits.
 4. **Quality last.** Reader load, Drupal quality, the smallest change that meets the
    contract. Run `code-review` CODE mode over the finalists if you need a second pass.
+   In APPROACHES MODE the labels were assigned their approaches: compare the approaches
+   as implemented (conformance, size and reader load, test footprint, config churn, risk)
+   and say which approach wins and why; never penalise a label for its assigned approach,
+   only for abandoning it silently.
 5. Exactly one winner. For each loser, at most one or two concrete grafts worth porting
    into the winner ("file, what, why"), or none. If no candidate is acceptable,
    `VERDICT: BLOCKED` with what is missing and which label is closest.
