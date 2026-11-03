@@ -93,6 +93,9 @@ render arrays), user-facing UI (accessibility, translations).
 - CSRF protection (Form API)
 - Access checks on all routes
 - Permissions properly defined
+- Entity queries on non-node types: `accessCheck(TRUE)` adds only a tag there — expect a per-entity `access('view')` filter or a query alter, and counts/totals computed after it
+- References resolved on input and rendered on output under ONE access rule (no enumeration through different error messages)
+- A service shared by two surfaces (REST + MCP, UI + API): the pre-existing surface keeps its accepted keys and response shape; new keys reach it only on purpose
 - Sensitive data not logged or exposed
 - File upload validation if applicable
 

@@ -123,7 +123,7 @@ final class {ControllerName} extends ControllerBase {
 - Config schema for ALL configuration
 - 2-space indentation
 - Cache metadata on render arrays
-- `accessCheck(TRUE)` on all entity queries
+- `accessCheck(TRUE)` on all entity queries, plus `$entity->access('view')` after loading non-node entity types (the flag alone filters nothing there; see **security-rules**)
 
 ## Verification
 

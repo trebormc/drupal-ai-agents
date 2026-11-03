@@ -33,3 +33,9 @@ ssh web drush config:status
 - `config/sync/` — shared across all environments
 - `config/split/dev/` — dev-only (devel, kint, webprofiler)
 - `config/split/prod/` — production-only (aggregation, caching)
+
+## Deploy order after a merge
+
+`drush updb -y` → `drush cim -y` → `drush cr` → check one new route with `curl`. A new
+module enabled by `cim` is not routable until the cache rebuild (its routes answer 404),
+and update hooks that queue batches (locale imports) need `updb` before you test the UI.

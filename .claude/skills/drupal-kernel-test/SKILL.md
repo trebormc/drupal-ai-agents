@@ -355,9 +355,42 @@ class MyTest extends KernelTestBase {
 1. Do not install unnecessary modules in `$modules`. Each one adds time.
 2. Do not use `installEntitySchema()` for config entities. They have no tables.
 3. Do not use `enableModules()` in setUp(). Use the `$modules` property.
-4. Do not make assertions about rendered HTML. That is a Functional test.
+4. Do not assert on whole-page HTML (blocks, theme regions, forms in a request). That is a Functional test. Rendering ONE render array of your own (`#theme`, `#type`) through `$this->render()` to check its markup is fine — see the pattern below.
 5. Do not create unnecessary fixtures. Only what the test needs.
 6. Do not forget to reload entities. After modifying, use `Entity::load($id)` to verify persisted state.
+
+## Pattern: Rendering a #theme in a kernel test
+
+`KernelTestBase::render()` needs an active theme, which the fixture does not install:
+
+```php
+protected function setUp(): void {
+  parent::setUp();
+  $this->container->get('theme_installer')->install(['stark']);
+  $this->config('system.theme')->set('default', 'stark')->save();
+}
+
+$html = (string) $this->render($build);
+// Twig autoescapes: JSON or code inside <pre> arrives as &quot;...&quot;.
+$this->assertStringContainsString('&quot;type&quot;: &quot;remote&quot;', $html);
+```
+
+Without the theme the render throws or returns nothing; without the escaping note the
+assertion on `"type": "remote"` fails against correct output.
+
+## Fixture fidelity: create fields with the production settings
+
+A kernel fixture that creates a field with looser settings than `config/sync` lets a
+corruption pass green. Seen in practice: a `datetime` field created without
+`datetime_type: date` accepted a timestamp and an ISO datetime in the test, while the
+real field stores `Y-m-d` and ended up with garbage.
+
+- Read the real `field.storage.*.yml` before writing `FieldStorageConfig::create()` and
+  copy its `type` and `settings` (`datetime_type`, `target_type`, `max_length`, ...).
+- For dates use `DateTimeItemInterface::DATE_STORAGE_FORMAT` and assert a round trip
+  (write `2026-11-05`, read `2026-11-05`), not the value you wrote.
+- Permissions: a test user with `bypass node access` hides missing access checks. Use a
+  non-admin fixture (uid 1 bypasses everything) for every "forbidden" assertion.
 
 ## Running Tests
 
@@ -385,6 +418,8 @@ Never use `-c core` alone and never rely on `--testsuite` — see the **drupal-t
 | "Service not found" | Providing module not enabled | Add the module that defines the service to `$modules` |
 | `Class not found` | Stale autoloader or wrong namespace | `ssh web composer dump-autoload`; verify namespace matches directory path |
 | "Could not connect to database" | SIMPLETEST_DB not set | Use Form CORE with explicit env vars (above) |
+| `$this->render()` returns empty or throws about the theme | No active theme in the fixture | Install `stark` and set `system.theme` default in setUp() (pattern above) |
+| A post_update hook "never runs" in a module-install test | Core marks existing post_updates as run when the module is installed | Test the behaviour through the mechanism that runs on install (e.g. `interface translation` keys, `hook_install`), not the post_update |
 
 ## Before blaming your code
 

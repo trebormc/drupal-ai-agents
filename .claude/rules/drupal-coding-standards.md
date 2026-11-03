@@ -49,8 +49,8 @@ $nodes = Node::loadMultiple($nids);
 
 // GOOD - with limits
 $query = $storage->getQuery()
-  ->accessCheck(TRUE)
-  ->condition('status', 1)
+  ->accessCheck(TRUE)   // filters nodes; on other entity types it only adds a tag:
+  ->condition('status', 1)   // filter those with $entity->access('view') after loading
   ->range(0, 50);
 
 // BAD - N+1 queries

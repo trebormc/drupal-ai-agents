@@ -41,8 +41,13 @@ output. A candidate's site is reachable from your Playwright at `http://ddev-<en
 ### Brief format (`arena/<slug>/brief.md`)
 
 Produce the Implementation Contract with `code-review` in PLAN mode first (the
-CLAUDE.md Plan step). Resolve every Open Question from the codebase; a question that
-only the user can answer stops the plan (`VERDICT: ASK_USER`). Then write:
+CLAUDE.md Plan step), in the foreground of your turn: a plan delegated to a background
+subagent is killed when the turn ends and the brief is never written. Resolve every Open
+Question from the codebase; a question that only the user can answer stops the plan
+(`VERDICT: ASK_USER`). Strip from the contract any "work split", "parallel implementers"
+or per-implementer file table the playbook produced: each candidate is ONE implementer
+that owns the whole contract, and a split in the brief makes it believe someone else owns
+the rest. Then write:
 
 ```markdown
 # Arena brief: <slug>
@@ -59,6 +64,10 @@ live verification, roadmap, judge constraints, rejected alternatives>
 2. <e.g. "No `\Drupal::` static call in any new class">
 3. <e.g. "The render array carries `#cache` tags and contexts named in the contract">
 4. <e.g. "Only paths under $DDEV_DOCROOT/modules/custom/<module>/ change">
+<always include, when the task touches code an existing surface (REST route, form, hook,
+service) already uses: "Every pre-existing endpoint/form keeps its accepted inputs and
+response shape; a kernel test pins one of them" — contract regressions through a shared
+service were the most common finding of the multi-model reviews>
 
 ## Live verification (the evidence the report must paste)
 - Surface: <`ssh web drush ...` | Playwright MCP at $DDEV_HTTP_URL/<path> as <role> | `ssh web drush php:eval "..."`>
@@ -142,7 +151,13 @@ never look for them. The brief at `/var/www/html/arena-brief.md` is the whole ta
    output. "Inconclusive" is FAILED or PARTIAL, not DONE.
 4. Hard rules: no `bd`, no git writes, no `drush cex` unless the contract says so, only
    the listed paths. Report anything else you notice.
-5. Write `/var/www/html/arena-report.md`, STATUS on the first line:
+5. Run `git status --short` in the repository and make the FILES section match it
+   exactly: every changed or new path, nothing that does not exist. The host's `report`
+   gate checks this mechanically and a report that contradicts the tree fails. RUBRIC
+   answers come from YOUR diff and YOUR pasted output; "the other agent did it" or
+   "unverified by me" is a `no` (there is no other implementer in your copy; a split in
+   the brief is at most how you delegate internally).
+6. Write `/var/www/html/arena-report.md`, STATUS on the first line:
 
 ```
 STATUS: DONE | PARTIAL | BLOCKED | FAILED
@@ -187,7 +202,8 @@ never dismiss a security or correctness finding without checking it in the tree.
 ## JUDGE (project manager, on collected candidates)
 
 Inputs per label under `arena/<slug>/candidates/<label>/`: `diff.patch`, `report.md`,
-`gates.json` (site, phpstan, phpcs, phpunit: pass|fail|skip), `gates/*.log`,
+`gates.json` (site, config, phpstan, phpcs, phpunit, report: pass|fail|skip; `report`
+fails when the report's FILES names paths absent from the tree), `gates/*.log`,
 `files-changed.txt`. Labels are blind: you do not know, and must not guess, which
 harness or model produced which.
 

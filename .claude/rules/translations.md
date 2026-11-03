@@ -77,6 +77,28 @@ const items = Drupal.formatPlural(count, '1 item', '@count items');
 Same rules: English literals, placeholders, no concatenation. Requires the library to
 depend on `core/drupal`.
 
+## Shipping translations with a custom module
+
+When a module must arrive translated (a site whose default language is not English):
+
+- Ship `translations/<module>.<langcode>.po` with ONLY the module's own strings. Do not
+  include generic core msgids ("Name", "Status", "Save", "Never") without `msgctxt`:
+  they overwrite the site-wide translation of those strings on import.
+- Declare the file in `<module>.info.yml` so `locale` imports it on install, when the
+  language is added, and on `locale:check` / `locale:update`:
+
+```yaml
+'interface translation project': mymodule
+'interface translation server pattern': modules/custom/mymodule/translations/%project.%language.po
+```
+
+- A `hook_post_update_NAME()` does NOT run on fresh installs (core records every existing
+  post_update as already applied when the module is installed) — use it only to queue the
+  locale update for already-installed sites, never as the only import path.
+- Keep the source strings English; verify the translation live (`drush updb` / `drush
+  locale:update`, then load the page as the translated language), not only by counting
+  msgids.
+
 ## Config
 
 - Shipped config (`config/install/`): English values; translations go in

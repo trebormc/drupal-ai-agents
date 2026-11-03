@@ -100,7 +100,9 @@ You own the design. Delegate implementation, stay in the lead.
    PLAN, write `plan skipped: <reason>` in the summary.
 3. Split the work as todo items before delegating (write `n/a: <reason>` for a line
    that does not apply): what must exist first (scaffold, schema, the test class);
-   what can run in parallel agents (module vs theme vs tests touch disjoint files);
+   what can run in parallel agents (module vs theme vs tests touch disjoint files; this
+   split is YOUR delegation plan — never write it into a brief or contract handed to
+   another implementer, who would read it as "someone else owns the rest");
    what two agents must never edit at once (one file, one config object); and the
    smallest number of delegations that is still safe.
 4. Delegate with a specific scope: file paths, the data shape and its organizing

@@ -36,8 +36,35 @@ skill exists to prevent.
 
 Coder warns *"Hook implementations should not duplicate @param/@return"*; PHPStan level 8
 raises `missingType.iterableValue` on the same hooks. `{@inheritdoc}` does NOT satisfy
-PHPStan (procedural hooks inherit nothing). Core's approach wins: remove the docs, ignore
-the rule for hook files in `phpstan.neon`:
+PHPStan (procedural hooks inherit nothing).
+
+**Drupal 11.1+ (preferred): move the hook to an OOP class.** A method in
+`src/Hook/*Hooks.php` with `#[Hook('theme')]` is an ordinary method: it may carry full
+docblock types, Coder has no hook sniff for it and PHPStan is satisfied. It requires
+`core_version_requirement: ^11.1` in the `.info.yml` (a module that declares `^10.3 ||
+^11` and uses attributes silently breaks on 10.x).
+
+```php
+namespace Drupal\mymodule\Hook;
+
+use Drupal\Core\Hook\Attribute\Hook;
+
+final class ThemeHooks {
+
+  /**
+   * Implements hook_theme().
+   *
+   * @return array<string, array<string, mixed>>
+   *   The theme definitions.
+   */
+  #[Hook('theme')]
+  public function theme(): array { ... }
+
+}
+```
+
+**Procedural hooks (10.x, or a hook that must stay in `.module`):** core's approach
+wins — remove the docs, ignore the rule for hook files in `phpstan.neon`:
 
 ```neon
 ignoreErrors:
