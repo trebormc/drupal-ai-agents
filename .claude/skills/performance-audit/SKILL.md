@@ -23,7 +23,7 @@ ssh web drush pm:list --status=enabled --format=list | wc -l
 ssh web drush watchdog:show --type=php --count=20
 
 # Slow queries counter — a value > 0 that grows on reload means slow SQL to investigate
-ssh web drush sqlq "SHOW STATUS LIKE 'Slow_queries'"
+ssh web "drush sqlq \"SHOW STATUS LIKE 'Slow_queries'\""
 ```
 
 For function-level profiling, use the **xdebug-profiling** skill.
@@ -115,7 +115,7 @@ $nids = $query->execute();
 
 ### Database
 - [ ] No N+1 queries (check: "How to Detect N+1 Queries" above)
-- [ ] Proper indexes on custom tables (check: `ssh web drush sqlq "EXPLAIN SELECT ..."`)
+- [ ] Proper indexes on custom tables (check: `ssh web 'drush sqlq "EXPLAIN SELECT ..."'`)
 - [ ] Entity queries use accessCheck() (check: `grep -rn "entityQuery" $DDEV_DOCROOT/modules/custom/`)
 - [ ] Batch API for bulk operations (>50 items)
 

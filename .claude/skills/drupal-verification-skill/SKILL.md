@@ -37,7 +37,7 @@ grep "^docroot:\|^name:\|^type:" .ddev/config.yaml            # site name, docro
 ssh web drush status --fields=drupal-version,bootstrap,db-status,uri
 ssh web drush pm:list --status=enabled --type=module --format=list | head -80
 ssh web drush config:get system.site page.front                # front page route
-ssh web drush php:eval "foreach (\Drupal::entityTypeManager()->getStorage('node_type')->loadMultiple() as \$t) echo \$t->id().PHP_EOL;"
+ssh web 'drush php:eval "foreach (\Drupal::entityTypeManager()->getStorage(\"node_type\")->loadMultiple() as \$t) echo \$t->id().PHP_EOL;"'
 ssh web drush role:list --format=list
 ls config/sync/views.view.*.yml 2>/dev/null | sed 's/.*views.view.//; s/.yml//'   # user-facing listings
 grep -rn "^  path:" $DDEV_DOCROOT/modules/custom/*/*.routing.yml | grep -v "/admin/"   # custom public routes

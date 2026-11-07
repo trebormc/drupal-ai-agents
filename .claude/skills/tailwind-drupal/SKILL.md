@@ -42,9 +42,9 @@ most common cause of "Tailwind classes not working."
 
 ```bash
 # Navigate to theme directory inside container
-ssh web bash -c "cd $DDEV_DOCROOT/themes/custom/<THEME> && npm init -y"
-ssh web bash -c "cd $DDEV_DOCROOT/themes/custom/<THEME> && npm install -D tailwindcss"
-ssh web bash -c "cd $DDEV_DOCROOT/themes/custom/<THEME> && npx tailwindcss init"
+ssh web "cd $DDEV_DOCROOT/themes/custom/<THEME> && npm init -y"
+ssh web "cd $DDEV_DOCROOT/themes/custom/<THEME> && npm install -D tailwindcss"
+ssh web "cd $DDEV_DOCROOT/themes/custom/<THEME> && npx tailwindcss init"
 ```
 
 ## Configuration files

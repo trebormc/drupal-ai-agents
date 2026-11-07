@@ -110,7 +110,7 @@ Unless the **git-workflow** rule enables git operations, `git checkout` must be 
 ssh web composer install
 
 # 3. Restore database (if needed)
-ssh web bash -c 'gunzip -c /tmp/pre-update-backup.sql.gz | drush sql:cli'
+ssh web 'gunzip -c /tmp/pre-update-backup.sql.gz | drush sql:cli'
 
 # 4. Clear caches
 ssh web drush cache:rebuild

@@ -136,7 +136,7 @@ a request context that does not exist ("leaked metadata" errors).
 ssh web curl -s -o /dev/null -D - http://localhost/PATH | grep -i "x-drupal-cache\|cache-tags\|cache-contexts"
 
 # Confirm a tag invalidation produces a fresh read:
-ssh web drush php:eval "\Drupal::service('cache_tags.invalidator')->invalidateTags(['node:1']);"
+ssh web 'drush php:eval "\Drupal::service(\"cache_tags.invalidator\")->invalidateTags([\"node:1\"]);"'
 ```
 
 ## See also

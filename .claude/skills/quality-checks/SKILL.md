@@ -51,6 +51,10 @@ ssh web test -f ./vendor/bin/phpunit && echo "PHPUnit: OK" || echo "PHPUnit: MIS
 
 ## PRIMARY PATH: Audit Module Installed
 
+**`audit:run phpstan` does not read the project's `phpstan.neon`:** it runs its own level
+(5 by default). A clean result proves nothing at a stricter level, so when the project has
+a `phpstan.neon`, also run the raw command in Step 3B before reporting PHPStan as clean.
+
 ### Step 1A: PHPCS via Audit
 
 ```bash
@@ -124,6 +128,9 @@ Same as Step 2A above.
 ```bash
 # If the project has its own phpstan.neon, respect it (do NOT override its level):
 ssh web ./vendor/bin/phpstan analyse <TARGET>
+# "Ignored error pattern ... was not matched" naming files outside <TARGET> is the shared
+# config's ignoreErrors, not your code. Analyse everything and filter:
+ssh web './vendor/bin/phpstan analyse --no-progress --error-format=raw | grep <MODULE>'
 
 # Only if the project has NO phpstan.neon:
 ssh web ./vendor/bin/phpstan analyse --level=8 <TARGET>
@@ -149,7 +156,7 @@ Learned from real regressions — apply on every PHPCBF / PHPStan-fixing pass:
 - **PHPCBF can fatally break `.module` files.** Its use-statement fixer inserts `use` imports right after the `@file` docblock — ABOVE `declare(strict_types=1)` — causing a PHP fatal ("strict_types declaration must be the very first statement") that takes the whole site down. The only order that satisfies both PHP and Drupal coder is: `<?php` → `@file` docblock → `declare(strict_types=1);` → `use` statements. **After ANY PHPCBF pass, lint every touched file:**
   ```bash
   # Lints only PHP-parseable extensions, skips deleted files; prints nothing when all is clean.
-  ssh web bash -c 'cd "$(git rev-parse --show-toplevel)" && for f in $(git diff --name-only --diff-filter=d -- "*.php" "*.module" "*.install" "*.theme" "*.inc" "*.profile"); do php -l "$f" >/dev/null || echo "BROKEN: $f"; done'
+  ssh web 'cd "$(git rev-parse --show-toplevel)" && for f in $(git diff --name-only --diff-filter=d -- "*.php" "*.module" "*.install" "*.theme" "*.inc" "*.profile"); do php -l "$f" >/dev/null || echo "BROKEN: $f"; done'
   ```
 - **After bulk / regex edits, verify with PHPStan, not just `php -l`.** Syntax linting passes on code with silently-deleted constants or members; only PHPStan catches "access to undefined constant/member". Normalize to a canonical shape first, then match only that exact shape.
 

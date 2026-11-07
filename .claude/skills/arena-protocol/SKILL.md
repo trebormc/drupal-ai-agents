@@ -79,7 +79,7 @@ response shape; a kernel test pins one of them" — contract regressions through
 service were the most common finding of the multi-model reviews>
 
 ## Live verification (the evidence the report must paste)
-- Surface: <`ssh web drush ...` | Playwright MCP at $DDEV_HTTP_URL/<path> as <role> | `ssh web drush php:eval "..."`>
+- Surface: <`ssh web drush ...` | Playwright MCP at $DDEV_HTTP_URL/<path> as <role> | `ssh web 'drush php:eval "..."'`>
 - Pass state: <the exact output, element, or value that must appear>
 
 ## Constraints
@@ -95,6 +95,18 @@ service were the most common finding of the multi-model reviews>
 Write for a weaker model: copy-paste commands with `ssh web`, exact paths, no
 "appropriate"/"as needed". If two developers could read a requirement differently, rewrite
 it. How to implement it stays open: that is what the arena measures.
+
+Every command in the brief has to run as written, or each candidate loses time on the same
+failure and reports the same deviation:
+
+- PHP and SQL use the forms of "Quoting Through `ssh web`" in the **ddev-environment** rule,
+  usually `ssh web drush php:script -` with a heredoc. `ssh web drush php:eval '...'` fails.
+- PHPUnit commands carry `SIMPLETEST_DB` and the project's real `vendor/` path.
+- No `git` commands: git fails in the container. The host compares the files.
+- A test gate is `0 failures`, never a literal such as `OK (9 tests`: PHPUnit prints
+  `OK, but there were issues!` on any deprecation, which pushes a candidate to hide it with
+  `#[IgnoreDeprecations]`.
+- Expected UI text is written in the site's default language.
 
 ### Approaches mode
 
@@ -158,7 +170,8 @@ never look for them. The brief at `/var/www/html/arena-brief.md` is the whole ta
    with the contract. Every delegation brief starts with: "Arena candidate: no `bd`
    commands, no git writes, no task id, touch only <paths>".
 3. Run the live verification the brief names and the quality checks; paste real
-   output. "Inconclusive" is FAILED or PARTIAL, not DONE.
+   output. "Inconclusive" is FAILED or PARTIAL, not DONE. Never change a test or its
+   attributes to reach a gate's exact text: report the difference in DEVIATIONS.
 4. Hard rules: no `bd`, no git writes, no `drush cex` unless the contract says so, only
    the listed paths. Report anything else you notice.
 5. Make the FILES section match your working tree exactly: every changed or new path,

@@ -79,7 +79,7 @@ Preconditions:
   `browser_snapshot`. A form with textbox `Title`, group `Date`, textbox `Venue`.
 - **Validation.** `browser_type` textbox `Title` = `Verify: No date`, `browser_click`
   button `Save`. Snapshot shows alert containing `Date field is required`;
-  `ssh web drush php:eval "var_dump((bool) \Drupal::entityQuery('node')->accessCheck(FALSE)->condition('title','Verify: No date')->count()->execute());"` prints `bool(false)`.
+  `ssh web 'drush php:eval "var_dump((bool) \Drupal::entityQuery(\"node\")->accessCheck(FALSE)->condition(\"title\",\"Verify: No date\")->count()->execute());"'` prints `bool(false)`.
 - **Publish.** Fill `Date` with `2030-01-15 20:00`, `Venue` with `Verify Hall`, check
   `Published`, click `Save`. Snapshot shows status `Event Verify: No date has been created`.
   Read back: the same entityQuery prints `bool(true)`; `screenshots/event-create-published.png`.
@@ -87,7 +87,7 @@ Preconditions:
   Snapshot lists link `Verify: No date`. `screenshots/event-create-listing.png`.
 - **Unpublished hidden.** As editor, edit the node, uncheck `Published`, save; as
   anonymous, `/` no longer lists it.
-- **Cleanup.** `ssh web drush php:eval "foreach (\Drupal::entityTypeManager()->getStorage('node')->loadByProperties(['title' => 'Verify: No date']) as \$n) \$n->delete();"`
+- **Cleanup.** `ssh web 'drush php:eval "foreach (\Drupal::entityTypeManager()->getStorage(\"node\")->loadByProperties([\"title\" => \"Verify: No date\"]) as \$n) \$n->delete();"'`
   then `ssh web drush cr`.
 
 ## Gotchas

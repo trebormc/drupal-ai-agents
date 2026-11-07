@@ -73,7 +73,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 final class MyForm extends FormBase {
 
   public function __construct(
-    private readonly MyService $myService,
+    protected MyService $myService,
   ) {}
 
   public static function create(ContainerInterface $container): self {
@@ -112,6 +112,13 @@ final class MyForm extends FormBase {
 }
 ```
 
+Forms and plugins use `DependencySerializationTrait`, so these properties are `protected`
+(see **drupal-coding-standards**). Services and controllers keep `private readonly`.
+
+For a custom content entity, core's `EntityForm::save()` only saves: the user stays on the
+form. Subclass `ContentEntityForm`, override `save()`, and call
+`$form_state->setRedirectUrl($this->entity->toUrl())`.
+
 ## Block Plugin
 
 **Reference:** `$DDEV_DOCROOT/modules/contrib/examples/modules/block_example`
@@ -143,7 +150,7 @@ final class MyBlock extends BlockBase implements ContainerFactoryPluginInterface
     array $configuration,
     $plugin_id,
     $plugin_definition,
-    private readonly MyService $myService,
+    protected MyService $myService,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
   }

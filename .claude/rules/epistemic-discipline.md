@@ -33,7 +33,7 @@ Example: a form alter that adds a field AND changes `#access` — the field is l
 
 A claim that "sounds right" is a hypothesis, not a result.
 
-- **API claims**: never write a Drupal API call from memory when unsure — the classic failure is a plausible method that does not exist. Verify against THIS codebase: read the interface in `$DDEV_DOCROOT/core` or `modules/contrib`, or confirm live: `ssh web drush php:eval "var_dump(method_exists(\Drupal::entityTypeManager(), 'getStorage'));"`
+- **API claims**: never write a Drupal API call from memory when unsure — the classic failure is a plausible method that does not exist. Verify against THIS codebase: read the interface in `$DDEV_DOCROOT/core` or `modules/contrib`, or confirm live: `ssh web 'drush php:eval "var_dump(method_exists(\Drupal::entityTypeManager(), \"getStorage\"));"'`
 - **Behavior claims** ("this handles empty input"): trace the actual code path with that input in mind and cite `file:line` — do not assert from the shape of the code.
 - **Environment claims** ("tests pass", "PHPStan is clean"): only after running the command and reading its output. Expected output is not observed output.
 

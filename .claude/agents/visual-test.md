@@ -59,7 +59,7 @@ Screenshots always land in `/var/www/html/screenshots/` (mounted from the host a
    drush cr`, and report the differences.
 2. Capture the action AND the resulting state (a snapshot after the click, then the
    screenshot), not only the final screen.
-3. Check both anonymous and authenticated views when the change can differ per role.
+3. Check both anonymous and authenticated views when the change can differ per role. The browser keeps its session after `drush uli`, so check anonymous access with curl (**playwright-testing** skill).
 4. A form is verified by submitting it (`browser_fill_form`, `browser_click`,
    `browser_wait_for` the confirmation) and reading the stored result back through
    the calling agent (`drush php:eval`), not by the confirmation message alone.

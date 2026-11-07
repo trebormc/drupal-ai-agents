@@ -44,7 +44,7 @@ Run only the rows the change touches. Always state which rows you ran.
 | Changed thing | Consumers that break silently | How to find them |
 |---|---|---|
 | Hook implementation / invocation | Other modules implementing the same hook or altering its output | `grep -rn "function [a-z_]*_HOOKNAME(" $DDEV_DOCROOT/modules $DDEV_DOCROOT/themes`; check `hook_module_implements_alter` ordering |
-| Service | Decorators, `services.yml` aliases, `ServiceProvider` classes, event subscribers, other services with it as an argument | `grep -rn "'@SERVICE_ID'\|decorates: SERVICE_ID" $DDEV_DOCROOT/modules --include=*.yml`; `ssh web drush php:eval "print_r(get_class(\Drupal::service('SERVICE_ID')));"` (a decorator shows up here, grep does not) |
+| Service | Decorators, `services.yml` aliases, `ServiceProvider` classes, event subscribers, other services with it as an argument | `grep -rn "'@SERVICE_ID'\|decorates: SERVICE_ID" $DDEV_DOCROOT/modules --include=*.yml`; `ssh web 'drush php:eval "print_r(get_class(\Drupal::service(\"SERVICE_ID\")));"'` (a decorator shows up here, grep does not) |
 | Field or base field | Views, entity form/view displays, field formatters/widgets, config entities referencing it, Twig `content.field_x` | `grep -rln "FIELD_NAME" config/sync/` (views.view.*, core.entity_*_display.*), `grep -rn "field_x\|\.field_x" $DDEV_DOCROOT/themes --include=*.twig` |
 | Config key or schema | `dependencies:` in other config, config_split overrides, `settings.php` overrides, `hook_update_N` that already migrated it | `grep -rln "CONFIG_NAME" config/`; `ssh web drush config:get CONFIG_NAME` (active DB value may differ from sync) |
 | Template / theme hook | Theme overrides, suggestions (`hook_theme_suggestions_*`), preprocess functions, `#theme` usages in PHP | `find $DDEV_DOCROOT/themes -name "TEMPLATE*.html.twig"`; `grep -rn "'#theme' => 'HOOK'\|template_preprocess_HOOK\|_preprocess_HOOK" $DDEV_DOCROOT/modules $DDEV_DOCROOT/themes` |
@@ -75,15 +75,15 @@ Step 4 is usually one small check:
 
 ```bash
 # Who really implements/alters the hook at runtime (includes contrib you did not grep)
-ssh web drush php:eval "print_r(\Drupal::moduleHandler()->getImplementations('HOOK'));"
+ssh web 'drush php:eval "print_r(\Drupal::moduleHandler()->getImplementations(\"HOOK\"));"'
 # Actual service class after decoration
-ssh web drush php:eval "echo get_class(\Drupal::service('SERVICE_ID'));"
+ssh web 'drush php:eval "echo get_class(\Drupal::service(\"SERVICE_ID\"));"'
 # Does any view use the field
-ssh web drush php:eval "foreach (\Drupal::entityTypeManager()->getStorage('view')->loadMultiple() as \$v) { if (str_contains(json_encode(\$v->toArray()), 'FIELD_NAME')) echo \$v->id().PHP_EOL; }"
+ssh web 'drush php:eval "foreach (\Drupal::entityTypeManager()->getStorage(\"view\")->loadMultiple() as \$v) { if (str_contains(json_encode(\$v->toArray()), \"FIELD_NAME\")) echo \$v->id().PHP_EOL; }"'
 # Cache tag consumers still invalidate: change, then check the render cache entry is gone
-ssh web drush php:eval "\Drupal::service('cache_tags.invalidator')->invalidateTags(['TAG']);"
+ssh web 'drush php:eval "\Drupal::service(\"cache_tags.invalidator\")->invalidateTags([\"TAG\"]);"'
 # Config dependents
-ssh web drush php:eval "print_r(\Drupal::service('config.manager')->findConfigEntityDependencies('config', ['CONFIG_NAME']));"
+ssh web 'drush php:eval "print_r(\Drupal::service(\"config.manager\")->findConfigEntityDependencies(\"config\", [\"CONFIG_NAME\"]));"'
 ```
 
 A fact you cannot get to step 4 stays labeled **UNPROVEN** in the report. Do not

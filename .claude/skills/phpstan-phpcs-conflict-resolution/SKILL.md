@@ -76,6 +76,19 @@ ignoreErrors:
 phpstan-drupal DOES analyze `.module/.install/.theme` (it extends fileExtensions), so run
 a targeted analyse to confirm the ignore matches — do not assume they are excluded.
 
+
+**Procedural hook you cannot move: prefixed tags.** PHPStan reads them and Coder's hook sniff
+ignores them, so both tools stay at zero. The same tags work under `{@inheritdoc}`, where a
+real `@param` makes Coder demand every parameter:
+
+```php
+/**
+ * Implements hook_ENTITY_TYPE_view().
+ *
+ * @phpstan-param array<string, mixed> $build
+ */
+```
+
 ## Recipe 2 — Native type hints vs mockability
 
 Narrowing `object $x` to a concrete class (e.g. `\Drupal\Core\Extension\Extension`)

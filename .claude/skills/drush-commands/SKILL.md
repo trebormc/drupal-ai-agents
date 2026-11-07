@@ -46,13 +46,18 @@ NEVER use just `drush` — it will not be found without the full vendor path.
 `drush cget <config> <key> --format=string` renders real newlines as literal `\n`
 text. Feeding that back through `drush cset` stores the literal backslash-n and
 **corrupts every existing line**. To append to or edit a multiline value, use
-`php:eval`, then verify with `var_export`:
+PHP from stdin, then verify with `var_export`:
 
 ```bash
 # Append a line to a newline-separated value:
-ssh web drush php:eval '$c=\Drupal::configFactory()->getEditable("mymodule.settings"); $c->set("patterns", $c->get("patterns")."\nnew-pattern")->save();'
+ssh web drush php:script - <<'PHP'
+$c = \Drupal::configFactory()->getEditable('mymodule.settings');
+$c->set('patterns', $c->get('patterns') . "\nnew-pattern")->save();
+PHP
 # Verify the stored value has REAL newlines, not literal \n:
-ssh web drush php:eval 'var_export(\Drupal::config("mymodule.settings")->get("patterns"));'
+ssh web drush php:script - <<'PHP'
+var_export(\Drupal::config('mymodule.settings')->get('patterns'));
+PHP
 ```
 
 ## Custom Drush commands (Drush 12+)

@@ -368,7 +368,7 @@ code they cover, never as an afterthought.
 ### Live Verification (MANDATORY — tests alone are not sufficient)
 Name the real surface and the observation that proves the behavior, so the implementer
 can run it and paste the evidence, and CODE mode can demand it:
-- Surface: [browser via Playwright MCP at `$DDEV_HTTP_URL/<path>` as <role> | `ssh web drush <command>` | `ssh web drush php:eval "..."` reading a value back]. If the project ships a `verify-<site>` skill (see **drupal-verification-skill**), name its feature and recipe instead of inventing a path.
+- Surface: [browser via Playwright MCP at `$DDEV_HTTP_URL/<path>` as <role> | `ssh web drush <command>` | `ssh web 'drush php:eval "..."'` reading a value back]. If the project ships a `verify-<site>` skill (see **drupal-verification-skill**), name its feature and recipe instead of inventing a path.
 - Observed pass state: [the exact text, element, output line, or config value that must appear — and the side effect read back (node exists, watchdog has no new error, cache entry invalidated)]
 - Regression check: [the same observation on the state BEFORE the change, or `n/a: <reason>`]
 

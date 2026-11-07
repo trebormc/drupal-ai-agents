@@ -66,8 +66,8 @@ You own the diagnosis. Every shipped line traces to runtime evidence; a change t
    drush/cron/queue bug reproduces by running it. Paste the failing output. If it
    will not reproduce, force it: tighten conditions (anonymous user, empty field,
    second language, warm cache) or have `drupal-dev` instrument it (a logger call or
-   a throwaway `drush php:script` under `/tmp`, never a `dump()` left in project
-   code) until it fires.
+   a throwaway `ssh web drush php:script -` from stdin, never a `dump()` left in
+   project code) until it fires.
 2. **Binary-search the cause.** Write 2-4 candidate hypotheses, then eliminate them
    with evidence, taking the split that cuts the most remaining space each pass.
    Suspect state before code for "works after `drush cr`" bugs (render cache, config
@@ -148,7 +148,7 @@ how long does this query take) instead of asking the user.
 1. State the decision the experiment settles. No decision → not a prototype; route to
    Feature.
 2. Have the specialist (`drupal-dev` or `drupal-theme`) build the smallest throwaway
-   thing that answers it: a `drush php:script` under `/tmp`, a kernel test asserting
+   thing that answers it: an `ssh web drush php:script -` from stdin, a kernel test asserting
    the questioned behavior, two variants of a template behind a query parameter for
    screenshots, a query timed with `Database::startLog()` or Xdebug. Tell it
    explicitly that this is a prototype: no production framework, and its mandatory

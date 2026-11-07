@@ -236,13 +236,16 @@ ssh web drush uli
 | 403 Forbidden | Authenticate with `drush uli` first |
 | Element not found | Use `browser_snapshot` to see available elements, then `browser_wait_for` |
 | Site not accessible | `ssh web drush status` |
-| Screenshots not saving | Use `filename` parameter in `browser_take_screenshot` — directory is auto-created by Docker volume mount |
+| Screenshots not saving | Use a bare name in the `filename` parameter of `browser_take_screenshot`: a `./` prefix saves to the project root |
+| `EACCES: permission denied, open '/var/www/html/screenshots/...'` on every browser tool | `screenshots/` is `root:root` (add-on older than v1.0.60). `sudo chmod 777 /var/www/html/screenshots`, then retry; it is not an MCP connection problem |
+| An "anonymous" page shows admin content | The MCP browser keeps one context, so an earlier `drush uli` session is still active; `/user` shows who you are. This browser cannot prove anonymous behaviour: use curl |
 
 ## When to use curl (exceptions)
 
 curl is ONLY acceptable for:
 - Health checks: `curl -s http://playwright-mcp:8931/sse -H "Accept: text/event-stream" | head -1`
 - HTTP header inspection (cache headers, redirects)
+- Anonymous access checks: `curl -s -o /dev/null -w '%{http_code}\n' "$DDEV_HTTP_URL/<path>"`
 - Quick connectivity tests
 
 NEVER use curl for page content, forms, or functionality testing.

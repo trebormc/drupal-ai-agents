@@ -157,7 +157,7 @@ final class MyCustomSource extends SqlBase {
 ssh web drush migrate:status --format=table
 
 # 2. Verify migrated content count matches expectations
-ssh web drush sqlq "SELECT COUNT(*) FROM node WHERE type = 'article'"
+ssh web "drush sqlq \"SELECT COUNT(*) FROM node WHERE type = 'article'\""
 
 # 3. Check for migration errors
 ssh web drush migrate:messages my_migration

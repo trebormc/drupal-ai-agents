@@ -50,7 +50,7 @@ ssh web php -i | grep "xdebug.mode"
 ### Step 1: Enable trace
 
 ```bash
-ssh web bash -c "
+ssh web "
   PHP_VER=\$(php -r 'echo PHP_MAJOR_VERSION.\".\".PHP_MINOR_VERSION;')
   cat > /etc/php/\${PHP_VER}/fpm/conf.d/99-xdebug-custom.ini <<'EOF'
 xdebug.mode=trace
@@ -127,7 +127,7 @@ ssh web grep "query\|execute\|select" /tmp/xdebug/TRACE_FILE | head -30
 ### Step 1: Enable profiler
 
 ```bash
-ssh web bash -c "
+ssh web "
   PHP_VER=\$(php -r 'echo PHP_MAJOR_VERSION.\".\".PHP_MINOR_VERSION;')
   cat > /etc/php/\${PHP_VER}/fpm/conf.d/99-xdebug-custom.ini <<'EOF'
 xdebug.mode=profile
@@ -152,7 +152,7 @@ ssh web curl -s -b 'XDEBUG_TRIGGER=1' 'http://localhost/slow-page' -o /dev/null 
 ssh web ls -lt /tmp/xdebug/cachegrind.out.* | head -3
 
 # Analyze with callgrind_annotate (install if needed)
-ssh web bash -c "
+ssh web "
   which callgrind_annotate || (apt-get update -qq && apt-get install -y -qq valgrind > /dev/null 2>&1)
   callgrind_annotate --inclusive=yes /tmp/xdebug/CACHEGRIND_FILE | head -80
 "
@@ -189,17 +189,17 @@ ssh web php /tmp/analyze-cachegrind.php /tmp/xdebug/CACHEGRIND_FILE
 
 ```bash
 # Trace a Drush command (XDEBUG_MODE env var = single-command, zero impact)
-ssh web bash -c 'XDEBUG_MODE=trace php -d xdebug.start_with_request=yes -d xdebug.output_dir=/tmp/xdebug -d xdebug.trace_format=1 -d xdebug.collect_return=1 -d xdebug.trace_output_name=trace.%t.%p drush cr'
+ssh web 'XDEBUG_MODE=trace php -d xdebug.start_with_request=yes -d xdebug.output_dir=/tmp/xdebug -d xdebug.trace_format=1 -d xdebug.collect_return=1 -d xdebug.trace_output_name=trace.%t.%p drush cr'
 
 # Profile a Drush command
-ssh web bash -c 'XDEBUG_MODE=profile php -d xdebug.start_with_request=yes -d xdebug.output_dir=/tmp/xdebug -d xdebug.profiler_output_name=cachegrind.out.%t.%p drush status'
+ssh web 'XDEBUG_MODE=profile php -d xdebug.start_with_request=yes -d xdebug.output_dir=/tmp/xdebug -d xdebug.profiler_output_name=cachegrind.out.%t.%p drush status'
 ```
 
 ## ALWAYS: Disable and Cleanup
 
 ```bash
 # Disable Xdebug (CRITICAL — leaving it on kills performance)
-ssh web bash -c "
+ssh web "
   PHP_VER=\$(php -r 'echo PHP_MAJOR_VERSION.\".\".PHP_MINOR_VERSION;')
   rm -f /etc/php/\${PHP_VER}/fpm/conf.d/99-xdebug-custom.ini
   kill -USR2 \$(pgrep -o php-fpm)

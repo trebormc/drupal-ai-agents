@@ -15,6 +15,21 @@ paths:
 - **Use config_split** for environment-specific config (dev modules, performance settings)
 - **Validate schema** — ensure `.schema.yml` exists for custom config
 
+## Exporting Only Your Change
+
+`drush cex` exports ALL active config, including drift that predates your task:
+
+1. Run `ssh web drush config:status` BEFORE changing anything and keep the list.
+2. After `cex`, check `git status` against that list and restore every file you did not
+   mean to change, so the diff holds only your change.
+3. Read the export for unexpected keys, on multilingual sites above all. Drush runs in the
+   default language, so a config ENTITY loaded and saved from a script writes that
+   language's overrides into the base config. Edit raw data instead:
+   `\Drupal::configFactory()->getEditable($name)->set(...)->save()`, and
+   `\Drupal::languageManager()->getLanguageConfigOverride($langcode, $name)` for translations.
+4. `drush locale:update` can rewrite active config whose `langcode` is not `en`: run
+   `config:status` right after it.
+
 ## Commands
 
 ```bash
