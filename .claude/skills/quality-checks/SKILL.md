@@ -98,11 +98,15 @@ ssh web drush audit:filters phpstan --format=json
 **Context economy**: when a tool can produce hundreds of lines, capture the output and read it only on failure:
 
 ```bash
-ssh web ./vendor/bin/phpcs --standard=Drupal,DrupalPractice <TARGET> > /tmp/phpcs.log 2>&1 \
+ssh web ./vendor/bin/phpcs --standard=Drupal,DrupalPractice --extensions=php,module,inc,install,test,profile,theme <TARGET> > /tmp/phpcs.log 2>&1 \
   && echo "PHPCS: PASS" || tail -60 /tmp/phpcs.log
 ```
 
 ### Step 1B: PHPCS (raw)
+
+Always pass `--standard` and `--extensions` unless the project has its own `phpcs.xml`: without
+them PHPCS applies a default standard or skips `.module` and `.install` files, so a clean run
+proves nothing.
 
 ```bash
 ssh web ./vendor/bin/phpcs \

@@ -46,6 +46,10 @@ paths:
 <article class="node node--{{ node.bundle }}">
 ```
 
+Whitespace: Twig removes the single newline right after a `%}` or `#}`, so a tag that ends a
+line joins the next line (for example a `{% endfor %}` before an `<input>` in an
+`inline_template`). When the markup must stay byte-identical, compare rendered output.
+
 ## Component Isolation
 
 ```twig

@@ -47,7 +47,16 @@ Question from the codebase; a question that only the user can answer stops the p
 (`VERDICT: ASK_USER`). Strip from the contract any "work split", "parallel implementers"
 or per-implementer file table the playbook produced: each candidate is ONE implementer
 that owns the whole contract, and a split in the brief makes it believe someone else owns
-the rest. Then write:
+the rest.
+
+**Contract altitude.** The arena compares what candidates build, so the contract fixes the
+WHAT and leaves the HOW to them. It states the outcome, data model, public interfaces
+(service IDs, routes, method signatures), file tree, behaviours to test, traps found in the
+code and live verification. It carries no implementation bodies: no final file contents, no
+method code, no ready-made test code. Identical code from every candidate means the brief
+dictated it, and the arena then measured who follows instructions, not who builds better.
+Rewrite any `code-review` output that crosses this line before it goes in the brief. Then
+write:
 
 ```markdown
 # Arena brief: <slug>
@@ -56,8 +65,8 @@ the rest. Then write:
 <one line, the goal as an OUTCOME, in the user's words plus your restatement>
 
 ## Implementation Contract
-<the code-review PLAN output verbatim: approach, placement & file tree, test plan,
-live verification, roadmap, judge constraints, rejected alternatives>
+<the code-review PLAN output at the altitude above: approach, placement & file tree, test
+plan, live verification, roadmap, judge constraints, rejected alternatives>
 
 ## Mechanical rubric (3-6 items, yes/no, checkable from the diff and gate logs)
 1. <e.g. "A Kernel test in tests/src/Kernel/ exercises the new service and fails without it">
@@ -84,7 +93,8 @@ service were the most common finding of the multi-model reviews>
 ```
 
 Write for a weaker model: copy-paste commands with `ssh web`, exact paths, no
-"appropriate"/"as needed". If two developers could read a line differently, rewrite it.
+"appropriate"/"as needed". If two developers could read a requirement differently, rewrite
+it. How to implement it stays open: that is what the arena measures.
 
 ### Approaches mode
 
@@ -151,9 +161,12 @@ never look for them. The brief at `/var/www/html/arena-brief.md` is the whole ta
    output. "Inconclusive" is FAILED or PARTIAL, not DONE.
 4. Hard rules: no `bd`, no git writes, no `drush cex` unless the contract says so, only
    the listed paths. Report anything else you notice.
-5. Run `git status --short` in the repository and make the FILES section match it
-   exactly: every changed or new path, nothing that does not exist. The host's `report`
-   gate checks this mechanically and a report that contradicts the tree fails. RUBRIC
+5. Make the FILES section match your working tree exactly: every changed or new path,
+   nothing that does not exist, no scratch file left in the repository (keep those under
+   `/tmp`). The host's `report` gate checks both directions and `promote` refuses undeclared
+   files. Try `git status --short`, but `git` can fail in the container because the worktree
+   points at a host path: do not repair it, list the paths from your own edits and say so
+   in DEVIATIONS. RUBRIC
    answers come from YOUR diff and YOUR pasted output; "the other agent did it" or
    "unverified by me" is a `no` (there is no other implementer in your copy; a split in
    the brief is at most how you delegate internally).
@@ -183,7 +196,8 @@ the surrounding code (callers, callees, types, tests) in the tree you were given
 the `code-review` CODE-mode rubric with its evidence rule (every finding: severity,
 CONFIRMED or SUSPECTED, `file:line`, the failure scenario, the fix); look for the
 structural simplification that makes branches or wrappers disappear; skip style nits.
-You have no running Drupal: say what you would have run. Write `## Verdict`,
+You have no running Drupal: say what you would have run. The tree is read-only for you:
+scratch files, test databases and probes go under `/tmp`, or they reach the branch. Write `## Verdict`,
 `## Findings`, `## Not verified` to the output path you were given and reply
 `REVIEW WRITTEN`.
 
@@ -194,7 +208,8 @@ duplicate findings and note which reviews raised each; two independent reviews a
 is the strongest signal, a lone finding with a concrete path still counts. Filter like a
 lead: nitpick gravity, hypothetical versus actual (trace the call site), "I would have
 done it differently" is not a finding, missing-context signals, premature abstraction;
-never dismiss a security or correctness finding without checking it in the tree. Output
+never dismiss a security or correctness finding without checking it in the tree, which is
+read-only for you too (probes and scratch databases go under `/tmp`). Output
 `## Verdict`, `## Act on` (rarely more than five), `## Consider`, `## Noted`,
 `## Dismissed` (one reason each), `## Agreement map`, then the trailer with
 `VERDICT: JUDGED`.
@@ -203,7 +218,7 @@ never dismiss a security or correctness finding without checking it in the tree.
 
 Inputs per label under `arena/<slug>/candidates/<label>/`: `diff.patch`, `report.md`,
 `gates.json` (site, config, phpstan, phpcs, phpunit, report: pass|fail|skip; `report`
-fails when the report's FILES names paths absent from the tree), `gates/*.log`,
+fails when the report's FILES and the changed files differ, in either direction), `gates/*.log`,
 `files-changed.txt`. Labels are blind: you do not know, and must not guess, which
 harness or model produced which.
 

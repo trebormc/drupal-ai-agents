@@ -186,7 +186,6 @@ Adding a new rule = drop a `.md` file in `.claude/rules/` — no registration ne
 | `tailwind-drupal` | TailwindCSS in Drupal |
 | `drupal-accessibility` | WCAG 2.2 AA the Drupal way: Form API ARIA, #states vs #access, Drupal.announce |
 | `commit-message` | Generate commit messages from git diff |
-| `session-distill` | Convert verified session learnings into durable guidance (patch > project skill > new skill) |
 | `drupal-blast-radius` | What a change breaks OUTSIDE the diff (hook implementers, decorators, views, config deps, templates) + prove the safety fact by running code |
 | `drupal-verification-skill` | Generate/maintain the project-local `verify-<site>` skill: doctor, drive, evidence, feature map |
 | `technical-writing` | Module READMEs, change records, issue summaries, ADRs, MR bodies: one Diátaxis mode per doc, plain sentences |

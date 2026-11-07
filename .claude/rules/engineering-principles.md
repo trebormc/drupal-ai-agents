@@ -91,4 +91,4 @@ These principles are stated in full where they are applied; this is the index:
   checked, not asked; only product or preference calls and irreversible actions go to
   the user).
 - **Encode lessons in structure** — the **lessons-learned** rule (a PHPStan rule, PHPCS
-  sniff, test, or script beats another paragraph) and the **session-distill** skill.
+  sniff, test, or script beats another paragraph).

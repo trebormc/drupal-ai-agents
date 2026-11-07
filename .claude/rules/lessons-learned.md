@@ -64,9 +64,7 @@ to one line pointing at the mechanism. Only lessons that need judgment stay as p
 When **3 or more lessons** share the same failure type + category (or the same lesson
 appears in a second project), the fix is no longer a log entry — propose to the user a
 patch to the target skill/rule/agent named in "Applies to". Lessons that only accumulate
-in the log do not change future sessions; patched guidance does. The **session-distill**
-skill implements this promotion (harvest → classify → route → write); suggest it to the
-user at session end when the session produced promotable lessons.
+in the log do not change future sessions; patched guidance does.
 
 ## What NOT to Document
 
