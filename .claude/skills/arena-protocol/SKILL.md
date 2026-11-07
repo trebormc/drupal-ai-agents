@@ -6,12 +6,17 @@ description: >-
   relayed questions with a verdict trailer and judges collected candidates blind (gates,
   rubric, conformance, then quality); a candidate works alone in its isolated copy and
   writes arena-report.md with STATUS on the first line; a multi-model review has
-  independent REVIEWERs and one LEAD REVIEWER synthesis. Loaded when a prompt names the
-  arena, arena-brief.md, arena-report.md, or the roles PROJECT MANAGER / CANDIDATE /
-  JUDGE / REVIEWER.
+  independent REVIEWERs and one LEAD REVIEWER synthesis. In a phased arena, PLANNERs write
+  competing plans, the PM merges them and a GRAFTER ports the best of the losers into the
+  winner. Loaded when a prompt names the arena, arena-brief.md, arena-plan.md,
+  arena-report.md, or the roles PROJECT MANAGER / PLANNER / CANDIDATE / JUDGE / REVIEWER /
+  GRAFTER.
   Examples:
   - prompt: "You are one CANDIDATE of arena X. Read /var/www/html/arena-brief.md" -> CANDIDATE
   - prompt: "PLAN the arena X ... write brief.md" -> PROJECT MANAGER, brief format
+  - prompt: "You are one PLANNER of arena X" -> PLANNER, writes arena-plan.md, no code
+  - prompt: "MERGE THE PLANS of arena X" -> PROJECT MANAGER, merging the plans
+  - prompt: "You finish arena X" -> GRAFTER
   - prompt: "JUDGE the arena X" -> JUDGE rules, trailer with WINNER
   - prompt: "You are one independent REVIEWER" / "LEAD REVIEWER" -> review roles
   Never use outside an arena run; the normal task playbooks apply then.
@@ -125,6 +130,16 @@ variants:
 
 Answers to a label must stay within its approach.
 
+### Merging the plans
+
+In a phased arena you do not plan: each candidate already did, and the plans are under
+`arena/<slug>/plans/<label>.md`, blind. Check the facts of each one against the code, pick
+one base, and improve it with what the others saw better. The brief you write has the
+format above and the same altitude: its contract binds every candidate, so it fixes the
+design they compete to build, not the code. Keep the verification and rubric at their
+strongest across the plans. Name in your reply what each label contributed. A plan's open
+question that only the user can answer is `VERDICT: ASK_USER`.
+
 ### Answering relayed events
 
 The host relays each candidate report as a message. Classify and reply:
@@ -150,6 +165,20 @@ TO: <label|all|user|none>
 WINNER: <label|none>
 MESSAGE: <text to relay; may span lines to the end>
 ```
+
+## PLANNER (candidate container, phased arena)
+
+You compete on the investigation and the design, not on the code. The task is in
+`/var/www/html/arena-brief.md`. Use the running site to check what the code only suggests.
+Change nothing in the repository; scratch work stays out of it, and read-only `drush` is
+fine. No `bd` and no git writes. Use `code-review` PLAN mode only when the task is
+significant by the four questions of CLAUDE.md: the planners' time counts in the result.
+
+Write `/var/www/html/arena-plan.md` in this order: outcome; the facts you verified, each
+with the command or file that proves it; design and why it beats the alternatives you
+rejected; data model and public interfaces; file tree; traps found in this codebase; tests;
+live verification with exact commands and expected output; 3-6 yes/no rubric items; open
+questions. No implementation bodies. A claim you did not check is labeled ASSUMED.
 
 ## CANDIDATE (candidate container)
 
@@ -201,6 +230,14 @@ Your last chat message is read by a script: after writing the report reply with 
 line, `REPORT WRITTEN: <STATUS>`. When resumed with an answer or new instructions,
 continue from where you stopped and rewrite the report at the end.
 
+## GRAFTER (the winner's real environment, phased arena)
+
+The list in `/var/www/html/arena-grafts/grafts.md` names what to port and from which label;
+`<label>.patch` beside it is that label's whole diff. Port the idea into this code, one item
+at a time, with its test. Skip an item that conflicts or no longer pays, and say why. Port
+nothing else. Then rerun the contract's tests and live verification, and write the report.
+No git writes: the user reviews the result here and commits it.
+
 ## REVIEWER (multi-model review of one diff)
 
 `ai-arena review` sends the same diff to several reviewers on different harnesses and
@@ -250,7 +287,8 @@ harness or model produced which.
    and say which approach wins and why; never penalise a label for its assigned approach,
    only for abandoning it silently.
 5. Exactly one winner. For each loser, at most one or two concrete grafts worth porting
-   into the winner ("file, what, why"), or none. If no candidate is acceptable,
+   into the winner ("file, what, why"), or none. In a phased arena a grafter applies that
+   list, so write it to `arena/<slug>/grafts.md`. If no candidate is acceptable,
    `VERDICT: BLOCKED` with what is missing and which label is closest.
 
 Reply with a scoring table (label × rubric item, plus gates), the ranking with one line
