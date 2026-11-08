@@ -8,7 +8,6 @@ model: ${MODEL_APPLIER}
 mode: subagent
 temperature: 0.0
 effort: low
-hidden: true
 tools:
   read: true
   edit: true

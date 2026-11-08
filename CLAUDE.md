@@ -60,9 +60,9 @@ Agents declare a model token (`MODEL_MAIN`, `MODEL_GENIUS`, `MODEL_SMART`, `MODE
 | Apply SEARCH/REPLACE blocks mechanically | `applier` |
 | Unsure which agent fits, task spans several agents, or needs decomposition | `task-router` |
 
-**Invocation:** OpenCode uses `Task: agent-name`. Claude Code uses `Agent` tool with `subagent_type`.
+**Invocation:** OpenCode uses the `subagent` tool (agent id, short `description`, full `prompt`; `background: true` runs it while you keep working). Claude Code uses the `Agent` tool with `subagent_type`.
 
-**Agents with Agent tool** (can delegate to `applier` and to `code-explorer` for project-wide searches): `drupal-dev`, `drupal-theme`.
+**Agents that delegate** (can delegate to `applier` and to `code-explorer` for project-wide searches): `drupal-dev`, `drupal-theme`.
 
 ### Delegation Protocol
 

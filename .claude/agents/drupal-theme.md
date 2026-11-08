@@ -52,7 +52,7 @@ bd close <task-id> --reason "Theme component complete" --json
 
 ## APPLIER PATTERN - NO DIRECT EDITING
 
-You DO NOT have edit/write tools. Generate SEARCH/REPLACE blocks and call the `applier` agent via Task tool.
+You DO NOT have edit/write tools. Generate SEARCH/REPLACE blocks and call the `applier` agent (the `subagent` tool in OpenCode, the `Agent` tool in Claude Code).
 
 **Modify existing files:**
 ```
@@ -74,8 +74,8 @@ path/to/new/template.html.twig
 
 **After generating all blocks, invoke applier:**
 ```
-Task: applier
-Apply these changes:
+agent: applier
+prompt: Apply these changes:
 [paste all SEARCH/REPLACE and CREATE blocks]
 ```
 

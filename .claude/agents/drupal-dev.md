@@ -64,7 +64,7 @@ You run in the AI container: it can READ project files and run bash, but PHP/Dru
 You DO NOT have edit/write tools. Instead, you:
 1. Read files to understand current state
 2. Generate SEARCH/REPLACE blocks with your changes
-3. Call the `applier` agent via Task tool to apply the changes
+3. Call the `applier` agent (the `subagent` tool in OpenCode, the `Agent` tool in Claude Code) to apply the changes
 
 ### SEARCH/REPLACE Format
 
@@ -91,8 +91,8 @@ path/to/new/file.ext
 ### After generating all blocks, invoke applier:
 
 ```
-Task: applier
-Apply these changes:
+agent: applier
+prompt: Apply these changes:
 [paste all SEARCH/REPLACE blocks]
 ```
 
@@ -188,9 +188,9 @@ For code templates and patterns, consult these resources:
 
 ## Development Workflow
 
-1. **Read existing files** to understand current code — files whose paths you know, directly; for any PROJECT-WIDE search (locate a feature, find usages, map an unfamiliar module) delegate to `code-explorer` via Task and read only the `file:line` ranges it returns, instead of grepping the project in your own context
+1. **Read existing files** to understand current code — files whose paths you know, directly; for any PROJECT-WIDE search (locate a feature, find usages, map an unfamiliar module) delegate to `code-explorer` (the `subagent` tool in OpenCode, the `Agent` tool in Claude Code) and read only the `file:line` ranges it returns, instead of grepping the project in your own context
 2. **Generate SEARCH/REPLACE blocks** in the standard format
-3. **Call applier agent** via Task tool to apply changes
+3. **Call applier agent** (the `subagent` tool in OpenCode, the `Agent` tool in Claude Code) to apply changes
 4. **Run the Verification Workflow** (exact commands above) and fix until clean
 5. **Export config** if modified: `ssh web drush cex -y`
 

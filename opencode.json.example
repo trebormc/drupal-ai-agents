@@ -3,6 +3,9 @@
   "model": "${MODEL_MAIN}",
   "small_model": "${MODEL_CHEAP}",
   "autoupdate": false,
+  "experimental": {
+    "subagent_depth": 2
+  },
   "instructions": [
     "~/.config/opencode/rules/*.md"
   ],
