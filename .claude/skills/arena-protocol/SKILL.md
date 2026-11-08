@@ -137,8 +137,9 @@ In a phased arena you do not plan: each candidate already did, and the plans are
 one base, and improve it with what the others saw better. The brief you write has the
 format above and the same altitude: its contract binds every candidate, so it fixes the
 design they compete to build, not the code. Keep the verification and rubric at their
-strongest across the plans. Name in your reply what each label contributed. A plan's open
-question that only the user can answer is `VERDICT: ASK_USER`.
+strongest across the plans. Name in your reply what each label contributed. A plan stopped at
+the deadline is unfinished: it cannot be the base, and only its checked facts count. A plan's
+open question that only the user can answer is `VERDICT: ASK_USER`.
 
 ### Answering relayed events
 
@@ -195,12 +196,16 @@ never look for them. The brief at `/var/www/html/arena-brief.md` is the whole ta
    switching approach silently.
 2. Follow the matching playbook from the **task-playbooks** rule (usually Feature or Bug
    fix) with the contract as binding input. Delegate as usual (`code-explorer`,
-   `drupal-dev`, `drupal-theme`, `drupal-test-generator`), then `code-review` CODE mode
-   with the contract. Every delegation brief starts with: "Arena candidate: no `bd`
+   `drupal-dev`, `drupal-theme`, `drupal-test-generator`). Every delegation brief starts with: "Arena candidate: no `bd`
    commands, no git writes, no task id, touch only <paths>".
 3. Run the live verification the brief names and the quality checks; paste real
    output. "Inconclusive" is FAILED or PARTIAL, not DONE. Never change a test or its
    attributes to reach a gate's exact text: report the difference in DEVIATIONS.
+   Then review your own diff: `code-review` CODE mode with the contract. Fix every finding
+   you confirm and run the tests and the live verification again. Other models review your
+   code after you, with your site running; what you catch here is the cheapest fix. List
+   each finding under SELF-REVIEW, fixed or not and why: a DONE report without it fails the
+   `report` gate.
 4. Hard rules: no `bd`, no git writes, no `drush cex` unless the contract says so, only
    the listed paths. Report anything else you notice.
 5. Make the FILES section match your working tree exactly: every changed or new path,
@@ -224,6 +229,7 @@ DEVIATIONS: <each deviation from the contract and why, or "none">
 ASSUMED: <inferences you made, labeled, or "none">
 QUESTION: <BLOCKED only: the exact question and what you would do under each answer>
 NOT DONE: <PARTIAL/FAILED only: what remains and why>
+SELF-REVIEW: <each finding of your own review: fixed (how) or not fixed (why), or "no findings">
 ```
 
 Your last chat message is read by a script: after writing the report reply with one
@@ -246,7 +252,16 @@ the surrounding code (callers, callees, types, tests) in the tree you were given
 the `code-review` CODE-mode rubric with its evidence rule (every finding: severity,
 CONFIRMED or SUSPECTED, `file:line`, the failure scenario, the fix); look for the
 structural simplification that makes branches or wrappers disappear; skip style nits.
-You have no running Drupal: say what you would have run. The tree is read-only for you:
+The prompt says whether you have a running site. Without one, say what you would have run.
+With one (you work inside the reviewed environment), use it: run the tests the change
+touches and the brief's live verification, query with `ssh web drush`, open the pages, and
+turn each finding into CONFIRMED or refuted by running it. Never change code, config or
+modules there (no `cim`, `cex`, `en`, `pmu`, `updb`); probe content carries the prefix
+`arena-review-` and is deleted when you finish; another reviewer may share the site. When
+the intent names the arena brief (a review of one candidate, or the arena's final code), conformance with that
+contract is part of the review: scope, rubric, required tests. When it names a previous
+verdict, check first that each of its Act-on items is really fixed, then review in depth what
+changed since that diff. The tree is read-only for you:
 scratch files, test databases and probes go under `/tmp`, or they reach the branch. Write `## Verdict`,
 `## Findings`, `## Not verified` to the output path you were given and reply
 `REVIEW WRITTEN`.
@@ -269,7 +284,9 @@ read-only for you too (probes and scratch databases go under `/tmp`). Output
 Inputs per label under `arena/<slug>/candidates/<label>/`: `diff.patch`, `report.md`,
 `gates.json` (site, config, phpstan, phpcs, phpunit, report: pass|fail|skip; `report`
 fails when the report's FILES and the changed files differ, in either direction), `gates/*.log`,
-`files-changed.txt`. Labels are blind: you do not know, and must not guess, which
+`files-changed.txt`, the SELF-REVIEW section of the report (what the author found and fixed),
+and the reviews run with that label's site: `review-self.md` by a fresh session of the
+author's model, `review-x1.md`... by different models. A label the prompt names as stopped at the deadline is unfinished. Labels are blind: you do not know, and must not guess, which
 harness or model produced which.
 
 1. **Gates first.** Read the logs. A failed gate cannot win over passing gates,
@@ -280,15 +297,21 @@ harness or model produced which.
    pasted evidence. A "yes" the diff or output does not show counts as "no".
 3. **Contract conformance.** Silent deviations and scope creep are findings; reported
    deviations are judged on their merits.
-4. **Quality last.** Reader load, Drupal quality, the smallest change that meets the
+4. **Reviews.** Treat each finding as a lead: confirm it in the diff, the code or the pasted
+   output, or refute it in one line. Confirmed findings count in the ranking like your own.
+   Found by both self and another: strongest. Found only by another model: the author's
+   blind spot. A finding the SELF-REVIEW says was fixed must be fixed in the diff.
+5. **Quality last.** Reader load, Drupal quality, the smallest change that meets the
    contract. Run `code-review` CODE mode over the finalists if you need a second pass.
    In APPROACHES MODE the labels were assigned their approaches: compare the approaches
    as implemented (conformance, size and reader load, test footprint, config churn, risk)
    and say which approach wins and why; never penalise a label for its assigned approach,
    only for abandoning it silently.
-5. Exactly one winner. For each loser, at most one or two concrete grafts worth porting
-   into the winner ("file, what, why"), or none. In a phased arena a grafter applies that
-   list, so write it to `arena/<slug>/grafts.md`. If no candidate is acceptable,
+6. Exactly one winner; a label stopped at the deadline cannot be it. For each loser, cut ones
+   included, at most one or two concrete grafts worth porting into the winner ("file, what,
+   why"), or none. In a phased arena a grafter applies that list, so write it to
+   `arena/<slug>/grafts.md`, adding each confirmed review finding on the winner as a
+   fix. If no candidate is acceptable,
    `VERDICT: BLOCKED` with what is missing and which label is closest.
 
 Reply with a scoring table (label × rubric item, plus gates), the ranking with one line
