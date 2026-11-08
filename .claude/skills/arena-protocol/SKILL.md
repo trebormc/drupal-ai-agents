@@ -172,7 +172,7 @@ MESSAGE: <text to relay; may span lines to the end>
 You compete on the investigation and the design, not on the code. The task is in
 `/var/www/html/arena-brief.md`. Use the running site to check what the code only suggests.
 Change nothing in the repository; scratch work stays out of it, and read-only `drush` is
-fine. No `bd` and no git writes. Use `code-review` PLAN mode only when the task is
+fine. No `bd` and no git writes. Follow the context budget below. Use `code-review` PLAN mode only when the task is
 significant by the four questions of CLAUDE.md: the planners' time counts in the result.
 
 Write `/var/www/html/arena-plan.md` in this order: outcome; the facts you verified, each
@@ -180,6 +180,21 @@ with the command or file that proves it; design and why it beats the alternative
 rejected; data model and public interfaces; file tree; traps found in this codebase; tests;
 live verification with exact commands and expected output; 3-6 yes/no rubric items; open
 questions. No implementation bodies. A claim you did not check is labeled ASSUMED.
+
+## Context budget (PLANNER and CANDIDATE)
+
+Your session's context fills, then the harness compacts it: what you read is lost and read
+again, and a compaction that does not fit ends the run with nothing reported. Keep your own
+context for decisions.
+
+- Reading belongs to subagents. An investigation that reads more than two or three files of
+  core or contrib code, a schema, or a data sample goes to `code-explorer` (or the harness's
+  explore subagent) with the exact question; keep only its answer and the `file:line` it cites.
+- In your own session, `grep -n` first and then read only the range you need. Cap command
+  output (`| head -n 40`, SQL `LIMIT 20`). Never print a whole config file, table, log, or
+  `drush php` dump.
+- Write a fact down once (the plan, the report, a scratch note under `/tmp`) instead of
+  carrying it by re-reading.
 
 ## CANDIDATE (candidate container)
 
@@ -196,7 +211,8 @@ never look for them. The brief at `/var/www/html/arena-brief.md` is the whole ta
    switching approach silently.
 2. Follow the matching playbook from the **task-playbooks** rule (usually Feature or Bug
    fix) with the contract as binding input. Delegate as usual (`code-explorer`,
-   `drupal-dev`, `drupal-theme`, `drupal-test-generator`). Every delegation brief starts with: "Arena candidate: no `bd`
+   `drupal-dev`, `drupal-theme`, `drupal-test-generator`) and follow the context budget
+   above: in an arena the run ends if your context does not fit. Every delegation brief starts with: "Arena candidate: no `bd`
    commands, no git writes, no task id, touch only <paths>".
 3. Run the live verification the brief names and the quality checks; paste real
    output. "Inconclusive" is FAILED or PARTIAL, not DONE. Never change a test or its
