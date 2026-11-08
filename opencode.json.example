@@ -4,7 +4,7 @@
   "small_model": "${MODEL_CHEAP}",
   "autoupdate": false,
   "experimental": {
-    "subagent_depth": 2
+    "subagent_depth": 3
   },
   "instructions": [
     "~/.config/opencode/rules/*.md"
