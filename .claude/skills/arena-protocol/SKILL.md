@@ -197,6 +197,15 @@ context for decisions.
   `drush php` dump.
 - Write a fact down once (the plan, the report, a scratch note under `/tmp`) instead of
   carrying it by re-reading.
+- Run independent work in parallel: launch the subagents in one message, in the background
+  (OpenCode: `background: true` on the `subagent` tool; Claude Code: several `Agent` calls
+  in one message run at once), and collect every result before you go on. This holds while implementing,
+  not only while planning: separate investigations, long test suites, the `code-review`
+  pass, the browser check, and writing a test while you write the code it covers.
+- Parallel work shares one worktree, one database and one site, so: never two writers on
+  the same file; commands that change the site (`drush deploy`, `updb`, `cim`, `cr`, entity
+  or config saves) run only in your own session, never in a parallel subagent; and never
+  end your turn with a background subagent still running, because its work is lost.
 
 ## CANDIDATE (candidate container)
 
