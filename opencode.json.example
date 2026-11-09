@@ -59,11 +59,16 @@
     }
   },
   "mcp": {
-    "playwright": {
-      "type": "remote",
-      "url": "http://playwright-mcp:8931/mcp",
-      "enabled": true,
-      "timeout": 30000
+    "servers": {
+      "playwright": {
+        "type": "remote",
+        "url": "http://playwright-mcp:8931/mcp",
+        "disabled": false,
+        "codemode": false,
+        "timeout": {
+          "catalog": 30000
+        }
+      }
     }
   },
   "plugin": ["@mohak34/opencode-notifier@latest", "@devtheops/opencode-plugin-otel@latest"]

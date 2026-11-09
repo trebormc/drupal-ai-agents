@@ -18,6 +18,11 @@ tools:
 permission:
   bash:
     "*": allow
+  task:
+    "*": deny
+    applier: allow
+    code-explorer: allow
+    visual-test: allow
 allowed_tools: Read, Glob, Grep, Bash, Agent
 ---
 

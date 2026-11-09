@@ -231,6 +231,7 @@ ssh web drush uli
 | Problem | Fix |
 |---------|-----|
 | MCP tools not available | The container registers the Playwright MCP itself (`$PLAYWRIGHT_MCP_URL`); check the playwright-mcp container is up (`ddev restart` on the host) and that a project-level `.mcp.json`/`opencode.json` does not override the `playwright` server |
+| OpenCode lists no `browser_*` tool, or only `execute` | OpenCode 2 hides MCP tools behind `execute` (Code Mode) unless the server sets `"codemode": false`; the shipped config does, and then the tools are `playwright_browser_*`. A project `opencode.json` that redefines `mcp` loses it |
 | Playwright not responding | Run the MCP health-check curl from "If MCP tools are not available" above; if it fails, ask the user to run `ddev restart` |
 | SSL/certificate errors | Convert HTTPS to HTTP in ALL URLs |
 | 403 Forbidden | Authenticate with `drush uli` first |

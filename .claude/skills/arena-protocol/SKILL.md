@@ -172,7 +172,9 @@ MESSAGE: <text to relay; may span lines to the end>
 You compete on the investigation and the design, not on the code. The task is in
 `/var/www/html/arena-brief.md`. Use the running site to check what the code only suggests.
 Change nothing in the repository; scratch work stays out of it, and read-only `drush` is
-fine. No `bd` and no git writes. Follow the context budget below. Use `code-review` PLAN mode only when the task is
+fine. Never write to the database either: no config or entity saves, no `php:eval` that
+saves. To learn how a save behaves, read the code or a kernel test; the host reports any
+config a planner leaves behind. No `bd` and no git writes. Follow the context budget below. Use `code-review` PLAN mode only when the task is
 significant by the four questions of CLAUDE.md: the planners' time counts in the result.
 
 Write `/var/www/html/arena-plan.md` in this order: outcome; the facts you verified, each

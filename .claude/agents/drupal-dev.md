@@ -18,6 +18,12 @@ tools:
 permission:
   bash:
     "*": allow
+  task:
+    "*": deny
+    applier: allow
+    code-explorer: allow
+    drupal-theme: allow
+    visual-test: allow
 allowed_tools: Read, Glob, Grep, Bash, Agent
 ---
 
