@@ -15,7 +15,8 @@ rule governs evidence; this rule governs the design choices in between.
 - **Laziness protocol** — sizing a diff, refactoring, tempted to add a layer, an
   interface, a service, or a config option. Bias to deletion and the smallest change
   that solves the problem. One caller does not justify an abstraction; a `.module`
-  hook that does the job beats a service + event subscriber pair that "might scale".
+  hook that does the job beats a service + event subscriber pair that "might scale"
+  (for glue; business rules still live in a service).
 - **Subtract before you add** — sequencing an addition or rewrite. Remove the dead
   hook, the unused `#states`, the redundant validator, the stub reference first, then
   build on the simpler base. Cut before you polish.
@@ -84,7 +85,8 @@ These principles are stated in full where they are applied; this is the index:
   mechanism) and the **epistemic-discipline** rule §5 (attack the premise after two
   failed fixes).
 - **Test behavior, not implementation** — the NULL test, rule 13 of the
-  **drupal-testing** rule.
+  **drupal-testing** rule (on Claude Code it loads only with test files: read
+  `~/.claude/rules/drupal-testing.md` if it is not in your context).
 - **Guard the context window** — CLAUDE.md's Delegation Protocol (`code-explorer` as
   context firewall, summaries and `file:line` pointers in the main thread).
 - **Never block on the human** — the **coding-behavior** rule §1 (observable facts are

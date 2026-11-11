@@ -4,7 +4,7 @@ description: >-
   Generates PHPUnit unit tests for Drupal 10/11 custom modules following
   community best practices. Covers services, plugins, forms, controllers,
   and event subscribers with proper mocking patterns. Uses PHPDoc annotations
-  (not PHP 8 attributes) for Drupal 10+11 compatibility.
+  while the module supports Drupal 10, PHP attributes on Drupal 11-only modules.
   Examples:
   - user: "write unit tests for my module" -> generate unit test classes
   - user: "generate unit tests" -> create PHPUnit unit tests
@@ -18,16 +18,25 @@ description: >-
 All commands via `ssh web`. Use `$DDEV_DOCROOT` for paths.
 Detect test gaps: `ssh web drush audit:run phpunit --filter="module:MODULE" --format=json`
 
-## Drupal 10+11 Compatibility (CRITICAL)
+## Test Metadata: Annotations or Attributes
 
-Use **PHPDoc annotations only** — no PHP 8 metadata attributes (`#[CoversClass]`, `#[Group]`, `#[DataProvider]`). Drupal 10 = PHPUnit 9.x (no attribute support). The single exception in this ecosystem, `#[RunTestsInSeparateProcesses]`, applies to Kernel/Functional/FunctionalJS classes on Drupal 11.3+ — never to Unit tests (see the **drupal-testing** rule).
+Decide from the module's `core_version_requirement` in `MODULE.info.yml`, and
+match the tests the module already has:
 
-| Use THIS | NOT this |
+- **Includes `^10`** → PHPDoc annotations only. Drupal 10 runs PHPUnit 9.x,
+  which does not read metadata attributes, so `#[Group]` there silently drops
+  the test from its group. The templates below are written this way.
+- **`^11` only** → PHP attributes. PHPUnit 10+ deprecates doc-comment metadata.
+
+| Annotation (supports Drupal 10) | Attribute (Drupal 11 only) |
 |---|---|
 | `@coversDefaultClass \My\Class` | `#[CoversClass(MyClass::class)]` |
-| `@covers ::methodName` | `#[Covers('methodName')]` |
+| `@covers ::methodName` | `#[CoversMethod(MyClass::class, 'methodName')]` on the class (PHPUnit 11+), or omit |
 | `@group mymodule` | `#[Group('mymodule')]` |
 | `@dataProvider providerName` | `#[DataProvider('providerName')]` |
+
+`#[RunTestsInSeparateProcesses]` belongs to Kernel/Functional/FunctionalJS
+classes, never to Unit tests (see the **drupal-testing** rule).
 
 ## Workflow
 
@@ -96,20 +105,20 @@ class MyServiceTest extends UnitTestCase {
     $config->method('get')->willReturn('value');
     $this->configFactory->method('get')->willReturn($config);
     $result = $this->service->process('test');
-    $this->assertIsArray($result);
-    $this->assertNotEmpty($result);
+    // Assert the concrete value this input must produce. assertIsArray() or
+    // assertNotEmpty() on the result would pass for any implementation.
+    $this->assertSame(['input' => 'test', 'setting' => 'value'], $result);
   }
 
   /**
    * @covers ::process
    * @dataProvider processDataProvider
    */
-  public function testProcessScenarios(string $input, bool $expectEmpty): void {
+  public function testProcessScenarios(string $input, array $expected): void {
     $config = $this->createMock(ImmutableConfig::class);
     $config->method('get')->willReturn('default');
     $this->configFactory->method('get')->willReturn($config);
-    $result = $this->service->process($input);
-    $this->assertEquals($expectEmpty, empty($result));
+    $this->assertSame($expected, $this->service->process($input));
   }
 
   /**
@@ -118,28 +127,35 @@ class MyServiceTest extends UnitTestCase {
    */
   public static function processDataProvider(): array {
     return [
-      'valid input' => ['valid', FALSE],
-      'another case' => ['other', FALSE],
+      'valid input' => ['valid', ['input' => 'valid', 'setting' => 'default']],
+      'empty input' => ['', []],
     ];
   }
 
 }
 ```
 
-## Template: Plugin setUp (Reflection for DI)
+## Template: Plugin setUp (Constructor Injection)
 
 ```php
 protected function setUp(): void {
   parent::setUp();
-  $this->block = new MyBlock([], 'my_block', ['id' => 'my_block', 'provider' => 'mymodule']);
-  // Inject mock via reflection (ONLY for DI, never for testing logic).
+  // A plugin that implements ContainerFactoryPluginInterface takes its
+  // dependencies as constructor arguments after the three plugin ones:
+  // pass the mocks there, exactly as create() does.
   $this->entityTypeManager = $this->createMock(EntityTypeManagerInterface::class);
-  $ref = new \ReflectionClass($this->block);
-  $prop = $ref->getProperty('entityTypeManager');
-  $prop->setAccessible(TRUE);
-  $prop->setValue($this->block, $this->entityTypeManager);
+  $this->block = new MyBlock(
+    [],
+    'my_block',
+    ['id' => 'my_block', 'provider' => 'mymodule'],
+    $this->entityTypeManager,
+  );
 }
 ```
+
+If a dependency cannot be passed through the constructor, the class is not
+injectable as written: fix the class or use a Kernel test. Do not reach for
+reflection to set properties.
 
 ## Template: Form Test Methods
 
@@ -147,8 +163,9 @@ protected function setUp(): void {
 /** @covers ::buildForm */
 public function testBuildFormStructure(): void {
   $result = $this->form->buildForm([], new FormState());
-  $this->assertIsArray($result);
-  $this->assertArrayHasKey('actions', $result);
+  $this->assertSame('textfield', $result['name']['#type']);
+  $this->assertTrue($result['name']['#required']);
+  $this->assertArrayHasKey('submit', $result['actions']);
 }
 
 /** @covers ::validateForm */
@@ -211,39 +228,15 @@ $entityTypeManager->expects($this->once())
 
 $service = new MyService($entityTypeManager);
 $result = $service->loadEntity(1);
-$this->assertNotNull($result);
+// Assert identity/values, not just "something came back".
+$this->assertSame($entity, $result);
 ```
 
 ## PHPUnit Configuration (phpunit.xml)
 
-Place this file at the PROJECT ROOT. It is what enables the simple "Form ROOT" commands (no `-c` flag, no env vars).
-
-**WARNING — BEFORE copying this template**: it uses `web/` as the docroot. Check the real docroot with `grep "^docroot:" .ddev/config.yaml` and replace EVERY `web/` below if it differs (e.g. `docroot/`):
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
-         bootstrap="web/core/tests/bootstrap.php"
-         colors="true">
-  <testsuites>
-    <testsuite name="unit">
-      <directory>web/modules/custom/*/tests/src/Unit</directory>
-    </testsuite>
-    <testsuite name="kernel">
-      <directory>web/modules/custom/*/tests/src/Kernel</directory>
-    </testsuite>
-    <testsuite name="functional">
-      <directory>web/modules/custom/*/tests/src/Functional</directory>
-    </testsuite>
-  </testsuites>
-  <php>
-    <env name="SIMPLETEST_BASE_URL" value=""/>
-    <env name="SIMPLETEST_DB" value="mysql://db:db@db/db"/>
-    <env name="BROWSERTEST_OUTPUT_DIRECTORY" value="/var/www/html/sites/simpletest/browser_output"/>
-  </php>
-</phpunit>
-```
+A project-root `phpunit.xml` is what enables the simple "Form ROOT" commands
+(no `-c` flag, no env vars). The template lives in the **quality-tools-setup**
+skill; without the file, use Form CORE from the **drupal-testing** skill.
 
 For PHPCS, PHPStan, Rector, and GrumPHP configuration, see the **quality-tools-setup** skill.
 
@@ -258,8 +251,8 @@ For PHPCS, PHPStan, Rector, and GrumPHP configuration, see the **quality-tools-s
 ## Test Debugging Commands
 
 ```bash
-# Run single test with verbose output
-ssh web ./vendor/bin/phpunit --filter testMethodName path/to/Test.php -v
+# Run a single test method (-v/--verbose was removed in PHPUnit 10)
+ssh web ./vendor/bin/phpunit --filter testMethodName path/to/Test.php
 
 # Run tests with debug info
 ssh web ./vendor/bin/phpunit $DDEV_DOCROOT/modules/custom/mymodule --debug
@@ -290,12 +283,12 @@ ssh web ./vendor/bin/phpunit --testdox $DDEV_DOCROOT/modules/custom/mymodule
 ## Rules
 
 1. Base class: `Drupal\Tests\UnitTestCase` (never `PHPUnit\Framework\TestCase`)
-2. PHPDoc annotations only — no PHP 8 attributes (`#[RunTestsInSeparateProcesses]` belongs to Kernel/Functional/FunctionalJS classes, never Unit)
+2. Metadata style per "Test Metadata" above: annotations while the module supports Drupal 10, attributes on `^11`-only modules (`#[RunTestsInSeparateProcesses]` never on Unit tests)
 3. `declare(strict_types=1)` first line after `<?php`
 4. All dependencies mocked — no DB, filesystem, or HTTP
-5. No `\Drupal::service()` in tests — DI via constructor or reflection
+5. No `\Drupal::service()` in tests — DI via the constructor
 6. No `sleep()` — use controlled time objects
 7. 2-space indentation (Drupal standard)
-8. Test public API only — reflection only for injecting mock dependencies
+8. Test public API only — no reflection to reach private state
 9. One assertion concept per test method
 10. Descriptive names: `testProcessReturnsEmptyArrayWhenNoData`

@@ -9,17 +9,21 @@ description: >-
   - user: "test the homepage" -> navigate and screenshot via Playwright
   - user: "check the admin page" -> authenticate with drush uli then navigate
   - user: "take a screenshot" -> browser_take_screenshot via Playwright MCP
-  - user: "verify the login page works" -> authenticate and navigate
-  - user: "screenshot the content listing" -> browser_take_screenshot
-  Never use curl for testing Drupal functionality. Use Playwright MCP instead.
+  Never use to write a Playwright test suite (use drupal-playwright-test) or to
+  judge what a screenshot shows (use screenshot-analysis). curl is not a
+  substitute for this skill: it only answers raw HTTP questions.
 ---
 
-## Critical Rules
+## Ground Rules
 
-1. **NEVER use curl** for testing Drupal pages — it cannot execute JS or simulate user navigation
-2. **ALWAYS use HTTP** (not HTTPS) for all Playwright navigation in DDEV — self-signed SSL certificates cause failures
-3. **Convert ALL URLs** from `https://` to `http://` before passing to `browser_navigate`, including drush uli output
-4. **NEVER create JavaScript files, Node.js scripts, or Playwright test scripts** to interact with the browser. Always use the Playwright MCP tools directly. If MCP fails, troubleshoot the connection — do NOT generate script files as a workaround
+1. **Do not use curl to judge what a page renders or does**: it cannot execute JS or simulate navigation. It is for raw HTTP facts only (see "When to use curl").
+2. **Use HTTP, not HTTPS**, for all Playwright navigation in DDEV: the self-signed certificate makes HTTPS fail.
+3. **Convert every URL** from `https://` to `http://` before passing it to `browser_navigate`, including `drush uli` output.
+4. **Do not create JavaScript files, Node.js scripts, or Playwright test scripts** to drive the browser. Use the Playwright MCP tools directly. If MCP fails, troubleshoot the connection; a generated script is not a workaround.
+
+**Tool names carry a harness prefix.** This skill writes the bare name
+(`browser_navigate`). Claude Code exposes it as `mcp__playwright__browser_navigate`,
+OpenCode as `playwright_browser_navigate`. Use whichever form your tool list shows.
 
 ## MCP Connection
 
@@ -50,7 +54,7 @@ echo $PLAYWRIGHT_MCP_URL
 # (tell the user to run: ddev restart)
 ```
 
-**NEVER** work around a failed MCP connection by writing `.js` or `.mjs` files.
+Do not work around a failed MCP connection by writing `.js` or `.mjs` files.
 
 ## Environment Architecture
 
@@ -73,51 +77,37 @@ echo $PLAYWRIGHT_MCP_URL
                               └───────────────────────────────┘
 ```
 
-## Available Browser Tools (Playwright MCP v0.0.56+)
+## Available Browser Tools
 
-| Tool | Purpose | Key parameters |
-|------|---------|----------------|
-| `browser_navigate` | Navigate to URL | `url` |
-| `browser_take_screenshot` | Capture screenshot | `filename`, `fullPage` |
-| `browser_snapshot` | Accessibility tree (text) | (none) |
-| `browser_click` | Click element | `element`, `ref` |
-| `browser_fill_form` | Fill form field | `ref`, `value` |
-| `browser_select_option` | Select dropdown | `ref`, `values` |
-| `browser_hover` | Hover over element | `element`, `ref` |
-| `browser_evaluate` | Execute JavaScript | `expression` |
-| `browser_press_key` | Press keyboard key | `key` |
-| `browser_type` | Type text | `text`, `ref` |
-| `browser_wait_for` | Wait for element | `selector`, `timeout` |
-| `browser_tabs` | List open tabs | (none) |
-| `browser_close` | Close browser | (none) |
-| `browser_resize` | Resize viewport | `width`, `height` |
-| `browser_console_messages` | Get console output | (none) |
-| `browser_network_requests` | Get network activity | (none) |
-| `browser_navigate_back` | Go back | (none) |
-| `browser_file_upload` | Upload files | `paths` |
-| `browser_handle_dialog` | Handle alerts | `accept` |
-| `browser_drag` | Drag and drop | `startRef`, `endRef` |
+Parameter names change between Playwright MCP versions, so they are not listed
+here: the tool definition your harness shows is the source of truth.
 
-### Tool Discovery (RECOVERY only — skip if the tools above work)
+| Tool | Purpose |
+|------|---------|
+| `browser_navigate` | Navigate to a URL |
+| `browser_navigate_back` | Go back |
+| `browser_snapshot` | Accessibility tree as text, with the element references the other tools take |
+| `browser_take_screenshot` | Capture a screenshot (optional filename, full page) |
+| `browser_click` | Click an element from the snapshot |
+| `browser_type` | Type text into one element |
+| `browser_fill_form` | Fill several form fields in one call |
+| `browser_select_option` | Select dropdown values |
+| `browser_hover` | Hover over an element |
+| `browser_press_key` | Press a keyboard key |
+| `browser_drag` | Drag and drop between two elements |
+| `browser_file_upload` | Upload files |
+| `browser_handle_dialog` | Accept or dismiss an alert/confirm |
+| `browser_wait_for` | Wait for a TEXT to appear or disappear, or for a time. It does not take CSS selectors |
+| `browser_evaluate` | Run a JavaScript function in the page |
+| `browser_console_messages` | Console output |
+| `browser_network_requests` | Network activity |
+| `browser_resize` | Resize the viewport |
+| `browser_tabs` | List, open, select or close tabs |
+| `browser_close` | Close the page |
 
-If tool names have changed (new Playwright MCP version), list available tools dynamically:
-
-```bash
-# Quick check: send tools/list via SSE
-curl -s -N http://playwright-mcp:8931/sse -H "Accept: text/event-stream" > /tmp/sse.txt &
-PID=$!; sleep 1
-EP=$(grep "data:" /tmp/sse.txt | head -1 | sed 's/data: //')
-curl -s -X POST "http://playwright-mcp:8931${EP}" \
-  -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"check","version":"1.0"}}}'
-sleep 1
-curl -s -X POST "http://playwright-mcp:8931${EP}" \
-  -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
-sleep 2
-grep -o '"name":"[^"]*"' /tmp/sse.txt | sort -u
-kill $PID 2>/dev/null
-```
+To wait for an element rather than a text, take a `browser_snapshot` and look
+for it; repeat once after a short `browser_wait_for` time if the page is still
+loading.
 
 ## Screenshot Storage — How It Works
 
@@ -156,7 +146,7 @@ Screenshots auto-save to `<project-root>/screenshots/` via a Docker volume mount
 ssh web drush uli
 # Output: https://project.ddev.site/user/reset/1/123456/abc/login
 
-# 2. CRITICAL: Convert HTTPS to HTTP
+# 2. Convert HTTPS to HTTP (the HTTPS link fails on the self-signed certificate)
 # From: https://project.ddev.site/user/reset/1/123456/abc/login
 # To:   http://project.ddev.site/user/reset/1/123456/abc/login
 
@@ -188,9 +178,8 @@ ssh web drush uli
 ### Public page verification
 
 1. `browser_navigate` → `http://<project>.ddev.site/path`
-2. `browser_wait_for` → `"main"`
+2. `browser_snapshot` (text content; confirms the page rendered and what it contains)
 3. `browser_take_screenshot`
-4. `browser_snapshot` (for text content)
 
 ### Admin page testing
 
@@ -198,7 +187,7 @@ ssh web drush uli
 2. Convert HTTPS → HTTP
 3. `browser_navigate` → http login URL
 4. `browser_navigate` → `http://<project>.ddev.site/admin/content`
-5. `browser_wait_for` → `".view-content"`
+5. `browser_snapshot` (confirm the listing is there)
 6. `browser_take_screenshot`
 
 ### Form submission testing
@@ -206,13 +195,15 @@ ssh web drush uli
 1. Authenticate (drush uli + login)
 2. `browser_navigate` → `http://<project>.ddev.site/node/add/article`
 3. `browser_snapshot` (get element refs)
-4. `browser_fill_form` → ref for title, value "Test Article"
-5. `browser_fill_form` → ref for body, value "Content text"
-6. `browser_click` → ref for submit button
-7. `browser_wait_for` → `".messages--status"`
-8. `browser_take_screenshot`
+4. `browser_fill_form` → title "Test Article" and body "Content text", using the references from the snapshot
+5. `browser_click` → the submit button from the snapshot
+6. `browser_wait_for` → text `has been created`
+7. `browser_take_screenshot`
 
 ## Common Drupal Selectors
+
+For `browser_evaluate` and for reading a snapshot; the interaction tools take
+snapshot references, not these selectors.
 
 | Element | Selector |
 |---------|----------|
@@ -235,18 +226,18 @@ ssh web drush uli
 | Playwright not responding | Run the MCP health-check curl from "If MCP tools are not available" above; if it fails, ask the user to run `ddev restart` |
 | SSL/certificate errors | Convert HTTPS to HTTP in ALL URLs |
 | 403 Forbidden | Authenticate with `drush uli` first |
-| Element not found | Use `browser_snapshot` to see available elements, then `browser_wait_for` |
+| Element not found | Use `browser_snapshot` to see the available elements; if the page is still loading, `browser_wait_for` a text you expect, then snapshot again |
 | Site not accessible | `ssh web drush status` |
 | Screenshots not saving | Use a bare name in the `filename` parameter of `browser_take_screenshot`: a `./` prefix saves to the project root |
-| `EACCES: permission denied, open '/var/www/html/screenshots/...'` on every browser tool | `screenshots/` is `root:root` (add-on older than v1.0.60). `sudo chmod 777 /var/www/html/screenshots`, then retry; it is not an MCP connection problem |
-| An "anonymous" page shows admin content | The MCP browser keeps one context, so an earlier `drush uli` session is still active; `/user` shows who you are. This browser cannot prove anonymous behaviour: use curl |
+| `EACCES: permission denied, open '/var/www/html/screenshots/...'` on every browser tool | `screenshots/` is `root:root` (add-on older than v1.0.60). You cannot fix it from here (`sudo` is denied): ask the user to fix the ownership of `screenshots/` on the host or update the add-on, then retry; it is not an MCP connection problem |
+| An "anonymous" page shows admin content | The MCP browser keeps one context, so an earlier `drush uli` session is still active; `/user` shows who you are. Log out first: `browser_navigate` → `$DDEV_HTTP_URL/user/logout`, then `browser_click` the `Log out` button of the confirmation form (Drupal 10.3+; a plain GET no longer logs out). For a status code alone, curl is enough |
 
 ## When to use curl (exceptions)
 
-curl is ONLY acceptable for:
+curl is for raw HTTP facts only (same rule as **ddev-environment**):
 - Health checks: `curl -s http://playwright-mcp:8931/sse -H "Accept: text/event-stream" | head -1`
 - HTTP header inspection (cache headers, redirects)
 - Anonymous access checks: `curl -s -o /dev/null -w '%{http_code}\n' "$DDEV_HTTP_URL/<path>"`
 - Quick connectivity tests
 
-NEVER use curl for page content, forms, or functionality testing.
+Page content, forms and behaviour go through the browser tools.

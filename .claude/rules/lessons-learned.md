@@ -75,6 +75,6 @@ in the log do not change future sessions; patched guidance does.
 
 ## Session Workflow
 
-**Start**: `test -f LESSONS_LEARNED.md && cat LESSONS_LEARNED.md | head -100`
+**Start**: read the newest lessons (the command is in the **beads-workflow** rule, Session Start)
 **During**: Append lessons immediately after solving non-trivial problems
 **End**: Mention lessons documented in session summary

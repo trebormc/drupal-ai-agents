@@ -23,7 +23,7 @@ metadata:
 ## What It Is
 
 A Kernel test partially boots the Drupal kernel: service container,
-database (SQLite by default), entity system, configuration and hooks.
+database (the one in `SIMPLETEST_DB`), entity system, configuration and hooks.
 There is NO web server or browser.
 
 Speed: 1-10 seconds per test (vs 10-120s for Functional).
@@ -70,7 +70,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  *
  * @group MODULE
  */
-#[RunTestsInSeparateProcesses] // Required on Drupal 11.3+, omit on 10.x.
+#[RunTestsInSeparateProcesses] // Required on Drupal 11.3+, harmless on 10.x.
 class NameTest extends KernelTestBase {
 
   /**
@@ -261,6 +261,10 @@ use Drupal\user\Entity\User;
 use Drupal\user\Entity\Role;
 
 public function testAccessCheck(): void {
+  // The first user saved becomes uid 1, which passes every permission check.
+  // Burn it so the users under test are ordinary accounts.
+  User::create(['name' => 'root', 'status' => 1])->save();
+
   $user_without_permission = User::create(['name' => 'no_access', 'status' => 1]);
   $user_without_permission->save();
 

@@ -95,6 +95,11 @@ ssh web composer require --dev palantirnet/drupal-rector
 ```
 
 ### rector.php (project root)
+
+Prefer the template the package ships, which tracks the current Drupal sets:
+`ssh web cp vendor/palantirnet/drupal-rector/rector.php .` — then adjust the
+paths. The hand-written form below covers Drupal 10 deprecations only:
+
 ```php
 <?php
 
@@ -131,8 +136,13 @@ ssh web ./vendor/bin/rector process $DDEV_DOCROOT/modules/custom
 ### Installation
 ```bash
 ssh web composer require --dev axelerant/drupal-quality-checker
-ssh web ./vendor/bin/grumphp git:init
 ```
+
+The hook itself is installed with `./vendor/bin/grumphp git:init`, which writes
+into `.git/hooks/`. Do not run it yourself: give the command to the user. The
+hook fires on the HOST at commit time, where PHP and `vendor/bin` may not
+resolve, so on DDEV it usually has to be run as `ddev exec ./vendor/bin/grumphp git:init`
+or with GrumPHP's `git_hook_variables.EXEC_GRUMPHP_COMMAND` set to `ddev exec`.
 
 ### What it does
 - Intercepts `git commit` on the host
@@ -178,9 +188,15 @@ Remember: this template hardcodes `web/` — adapt to the real `$DDEV_DOCROOT` a
     <ini name="error_reporting" value="32767"/>
     <env name="SIMPLETEST_BASE_URL" value="http://localhost"/>
     <env name="SIMPLETEST_DB" value="mysql://db:db@db/db"/>
-    <env name="BROWSERTEST_OUTPUT_DIRECTORY" value="/var/www/html/sites/simpletest/browser_output"/>
-    <!-- goog:chromeOptions works on Drupal 10 and 11 (mandatory on 11) -->
-    <env name="MINK_DRIVER_ARGS_WEBDRIVER" value='["chrome", {"browserName":"chrome","goog:chromeOptions":{"args":["--disable-gpu","--headless","--no-sandbox"]}}, "http://chrome:9515"]'/>
+    <env name="BROWSERTEST_OUTPUT_DIRECTORY" value="/var/www/html/web/sites/simpletest/browser_output"/>
+    <!-- FunctionalJavascript only. Uncomment after running the detection in
+         "Browser driver in DDEV" (drupal-testing skill) and replace DRIVER_URL
+         with the endpoint it gives; leave it out when the environment already
+         sets MINK_DRIVER_ARGS_WEBDRIVER. With a driver in another container,
+         SIMPLETEST_BASE_URL above must be http://web.
+         goog:chromeOptions works on Drupal 10 and 11 (mandatory on 11).
+    <env name="MINK_DRIVER_ARGS_WEBDRIVER" value='["chrome", {"browserName":"chrome","goog:chromeOptions":{"args":["--disable-gpu","--headless","--no-sandbox"]}}, "DRIVER_URL"]'/>
+    -->
   </php>
   <testsuites>
     <testsuite name="unit">

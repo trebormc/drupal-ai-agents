@@ -1,10 +1,12 @@
 ---
-name: drupal-test-generator
 description: >
   Agent for generating automated tests in Drupal 10/11 projects.
   Analyzes the code under test, decides the appropriate test type according to
   the rules defined in drupal-testing, and uses the corresponding skill to generate it.
   Supports Unit, Kernel, Functional, FunctionalJavascript, Behat and Playwright.
+  Use after or alongside implementation when the brief names code that needs
+  tests, or to pin behavior with a characterization test before a refactor.
+  Returns the tests written with the real PHPUnit output.
 model: ${MODEL_NORMAL}
 mode: subagent
 tools:
@@ -84,3 +86,18 @@ All PHP/Drupal commands must use SSH.
 Run the generated test with the canonical PHPUnit pattern in the **drupal-testing** skill (section "Running PHPUnit"): pick the config form ONCE per session (`ssh web test -f phpunit.xml && echo "ROOT" || echo "CORE"`), then run the test directory with the matching form (Form ROOT: plain `ssh web ./vendor/bin/phpunit <path>`; Form CORE: `-c $DDEV_DOCROOT/core` plus explicit `SIMPLETEST_*` env vars). Behat runs with `ssh web ./vendor/bin/behat --config=behat.yml`.
 
 Expected success output: `OK (X tests, Y assertions)`. If the test fails to start (DB/URL/autoload errors), see the setup-error table in that same skill section.
+
+## Return to the caller (this exact shape)
+
+Your final message goes to the calling agent, not to the user, and you cannot ask the user anything: put questions under OPEN QUESTIONS and stop.
+
+```
+RESULT: done | partial | blocked — one sentence
+TESTS: path — type (Unit|Kernel|Functional|FunctionalJavascript|Behat|Playwright) — the behavior it covers and why this type
+EVIDENCE: the run command and the tail of its REAL output (`OK (X tests, Y assertions)` or the failure)
+MUTATION CHECK: done (what you broke, which test went red) | not done: <reason>
+NOT VERIFIED: what you did not run and why
+OPEN QUESTIONS: decisions only the user can make, or "none"
+```
+
+A test that does not pass is `partial`, never `done`. If the brief names a Beads task id, add notes to it but never close it: the caller closes it after review.

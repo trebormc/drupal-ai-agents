@@ -35,9 +35,10 @@ return [
   '#theme' => 'my_template',
   '#data' => $data,
   '#cache' => [
-    'tags' => ['node:123', 'node_list'],
+    // Tags from the objects rendered, contexts for what the output varies by.
+    // Set max-age only when the data really expires on a clock.
+    'tags' => $node->getCacheTags(),
     'contexts' => ['user.permissions'],
-    'max-age' => 3600,
   ],
 ];
 ```

@@ -19,8 +19,16 @@ All commands via `ssh web drush`.
 ## Required modules
 
 ```bash
-ssh web composer require drupal/migrate_plus drupal/migrate_tools drupal/migrate_upgrade
+ssh web composer require drupal/migrate_plus drupal/migrate_tools
 ssh web drush en migrate migrate_plus migrate_tools -y
+
+# Only for a CSV source (the `csv` source plugin below is not in core):
+ssh web composer require drupal/migrate_source_csv
+ssh web drush en migrate_source_csv -y
+
+# Only for a Drupal 7 source (provides `drush migrate:upgrade`):
+ssh web composer require drupal/migrate_upgrade
+ssh web drush en migrate_drupal migrate_upgrade -y
 ```
 
 ## Migration YAML structure
@@ -72,6 +80,10 @@ migration_dependencies:
 ## D7 to D10/D11 workflow
 
 ### Step 1: Generate migration config
+
+Needs `migrate_drupal` and `migrate_upgrade` enabled (see "Required modules")
+and the D7 database declared as the `d7` key in `settings.php`.
+
 ```bash
 ssh web drush migrate:upgrade --legacy-db-key=d7 --configure-only
 ```
@@ -107,6 +119,8 @@ use Drupal\migrate\Row;
 /**
  * @MigrateSource(id = "my_custom_source")
  */
+// On a Drupal 11-only module (or 10.3+ with attribute plugins) use
+// #[MigrateSource(id: 'my_custom_source')] from Drupal\migrate\Attribute instead.
 final class MyCustomSource extends SqlBase {
 
   public function query(): \Drupal\Core\Database\Query\SelectInterface {

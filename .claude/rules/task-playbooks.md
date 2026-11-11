@@ -1,5 +1,5 @@
 ---
-description: Task playbooks — match the request to a playbook (investigation, bug fix, feature, refactoring, prototype, autonomous run, session handoff) and follow its steps; the verification bar for each
+description: Task playbooks — match the request to a playbook (investigation, bug fix, feature, refactoring, prototype, hillclimb, issue intake, autonomous run, session handoff) and follow its steps; the verification bar for each
 ---
 
 # Task Playbooks
@@ -8,6 +8,10 @@ Before starting a non-trivial task, match it to one playbook below and open your
 list with that playbook's steps first, then the task-specific items. A step you skip
 stays in the list as `skip: <reason>`. Trivial work (a one-line edit, answer from
 context, run one command) needs no playbook.
+
+"Revert" in these playbooks means the specialist applies the inverse edit (or `drush
+cim` for config). `git restore`, `git checkout` and `git stash` are blocked unless the
+**git-workflow** rule says otherwise.
 
 | The request is... | Playbook |
 |---|---|

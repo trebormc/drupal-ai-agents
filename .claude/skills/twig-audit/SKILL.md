@@ -5,7 +5,14 @@ description: >-
   in templates, improper |raw usage, missing cache bubbling, component isolation
   issues, incorrect attribute handling. Use when reviewing templates, refactoring
   themes, or modernizing legacy Drupal templates.
-allowed-tools: Read Grep Glob
+  Examples:
+  - user: "review the templates of my theme" -> detection greps, read hits, classify
+  - user: "is this |raw safe?" -> trace where the variable comes from
+  - user: "clean up this legacy node template" -> list anti-patterns with fixes
+  Never use to explain why cached output is stale or leaks between users (use
+  drupal-render-pipeline) or to build new components (use tailwind-drupal or the
+  drupal-theme agent).
+allowed-tools: Bash Read Grep Glob
 metadata:
   drupal-version: "10.x/11.x"
   environment: "ddev"

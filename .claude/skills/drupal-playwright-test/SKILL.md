@@ -75,7 +75,7 @@ test/playwright/
 
 ## Configuration Reference -- playwright.config.ts
 
-**ALWAYS use HTTP, never HTTPS, in baseURL and all navigation** — DDEV uses self-signed certificates that fail even with `ignoreHTTPSErrors`.
+Use HTTP, not HTTPS, in `baseURL` and all navigation: DDEV serves a self-signed certificate, and HTTP sidesteps it on every machine.
 
 When the user needs a config file, generate it with these DDEV-specific settings:
 
@@ -104,29 +104,29 @@ export default defineConfig({
 });
 ```
 
-**Important**: Always use HTTP, never HTTPS. DDEV uses self-signed certificates
-that cause failures even with `ignoreHTTPSErrors`.
-
 ## Pattern: Authentication with drush uli
 
-Use `globalSetup` to authenticate via one-time login link (the standard pattern
-in this ecosystem). Never hardcode credentials.
+Use a fixture that authenticates through a one-time login link (the standard
+pattern in this ecosystem). Never hardcode credentials.
 
 ```typescript
 // fixtures/auth.ts
 import { test as base, expect, type Page } from '@playwright/test';
 import { execSync } from 'child_process';
 
-async function drupalLogin(page: Page, role?: string): Promise<void> {
+// `username` is an existing account name (--name takes a user, not a role).
+// Without it, drush uli logs in as user 1.
+async function drupalLogin(page: Page, username?: string): Promise<void> {
   // Runs on the host: go through `ddev drush` (drush itself lives in the web container).
   const uri = process.env.BASE_URL || 'http://myproject.ddev.site';
-  const cmd = role
-    ? `ddev drush uli --name=${role} --uri=${uri}`
+  const cmd = username
+    ? `ddev drush uli --name=${username} --uri=${uri}`
     : `ddev drush uli --uri=${uri}`;
   const loginUrl = execSync(cmd, { encoding: 'utf-8' }).trim()
     .replace('https://', 'http://');
   await page.goto(loginUrl);
-  await expect(page.getByText('Member for')).toBeVisible();
+  // A one-time login link lands on the account edit form.
+  await expect(page).toHaveURL(/\/user\/\d+\/edit/);
 }
 
 export const test = base.extend({
@@ -161,8 +161,10 @@ test.describe('Article creation', () => {
   });
 
   test('anonymous cannot create articles', async ({ page }) => {
-    await page.goto('/node/add/article');
-    await expect(page).toHaveURL(/user\/login/);
+    // Core answers 403 here; it only redirects to /user/login when a module
+    // such as r4032login is installed. Assert what THIS site does.
+    const response = await page.goto('/node/add/article');
+    expect(response?.status()).toBe(403);
   });
 });
 ```

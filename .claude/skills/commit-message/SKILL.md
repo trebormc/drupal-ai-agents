@@ -12,21 +12,11 @@ description: >-
   - user: "prepare commit message for my changes" -> analyze diff, write commit-msg.txt
   - user: "hazme el mensaje de commit" -> analyze diff, write commit-msg.txt
   Never use this to execute git commit. Never push to remote.
-# Enforcement, not just prose: while this skill is active the harness blocks
-# every state-changing git command. The skill only reads git state and writes
-# commit-msg.txt.
-disallowed-tools:
-  - Bash(git commit*)
-  - Bash(* && git commit*)
-  - Bash(git add*)
-  - Bash(* && git add*)
-  - Bash(git push*)
-  - Bash(* && git push*)
 ---
 
 ## Purpose
 
-Generate a commit message file from the current git state. The user reviews it and commits manually. This skill does NOT run `git commit` or `git push`.
+Generate a commit message file from the current git state. The user reviews it and commits manually. This skill does NOT run `git commit` or `git push`: it only reads git state and writes `commit-msg.txt`. Skill frontmatter cannot block tools in either harness; the git-policy hook (Claude Code), the permission rules (OpenCode) and the **git-workflow** rule are what enforce it.
 
 ## Output File
 

@@ -130,20 +130,24 @@ declare(strict_types=1);
 
 namespace Drupal\mymodule\Plugin\Block;
 
+use Drupal\Core\Block\Attribute\Block;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\mymodule\Service\MyService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides my custom block.
- *
- * @Block(
- *   id = "mymodule_my_block",
- *   admin_label = @Translation("My Block"),
- *   category = @Translation("Custom"),
- * )
  */
+// Plugin attributes: core form since Drupal 10.2. Keep the `@Block(...)`
+// annotation only when the module must run on < 10.2 or its other plugins
+// still use annotations (match what the module already does).
+#[Block(
+  id: 'mymodule_my_block',
+  admin_label: new TranslatableMarkup('My Block'),
+  category: new TranslatableMarkup('Custom'),
+)]
 final class MyBlock extends BlockBase implements ContainerFactoryPluginInterface {
 
   public function __construct(
@@ -163,10 +167,11 @@ final class MyBlock extends BlockBase implements ContainerFactoryPluginInterface
     return [
       '#theme' => 'mymodule_block',
       '#data' => $this->myService->getData(),
+      // Declare only what this output really depends on. A `user` context or a
+      // max-age copied "to be safe" multiplies cache entries or expires them
+      // for no reason.
       '#cache' => [
-        'contexts' => ['user'],
         'tags' => ['mymodule:data'],
-        'max-age' => 3600,
       ],
     ];
   }
@@ -275,10 +280,13 @@ Every render array MUST have cache metadata:
 public function build(): array {
   return [
     '#markup' => $this->getData(),
+    // One entry per real dependency: the context the output varies by, the
+    // tags of the data it shows. Take tags from the objects themselves
+    // ($node->getCacheTags()), never a literal id. Add max-age only when the
+    // output is time-based.
     '#cache' => [
-      'contexts' => ['user', 'url.path', 'url.query_args'],
-      'tags' => ['node:1', 'node_list', 'mymodule:data'],
-      'max-age' => 3600,
+      'contexts' => ['user.permissions'],
+      'tags' => ['node_list', 'mymodule:data'],
     ],
   ];
 }
@@ -336,21 +344,39 @@ declare(strict_types=1);
 
 namespace Drupal\mymodule\Plugin\QueueWorker;
 
+use Drupal\Core\Mail\MailManagerInterface;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Queue\Attribute\QueueWorker;
 use Drupal\Core\Queue\QueueWorkerBase;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Process queue items.
- *
- * @QueueWorker(
- *   id = "mymodule.email_sender",
- *   title = @Translation("Email sender"),
- *   cron = {"time" = 60}
- * )
  */
-class EmailQueueWorker extends QueueWorkerBase {
+// Attribute form (Drupal 10.3+); on older cores use the @QueueWorker annotation.
+#[QueueWorker(
+  id: 'mymodule.email_sender',
+  title: new TranslatableMarkup('Email sender'),
+  cron: ['time' => 60],
+)]
+final class EmailQueueWorker extends QueueWorkerBase implements ContainerFactoryPluginInterface {
+
+  public function __construct(
+    array $configuration,
+    $plugin_id,
+    $plugin_definition,
+    protected MailManagerInterface $mailManager,
+  ) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
+  }
+
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): self {
+    return new self($configuration, $plugin_id, $plugin_definition, $container->get('plugin.manager.mail'));
+  }
 
   public function processItem($data): void {
-    \Drupal::service('plugin.manager.mail')->mail(
+    $this->mailManager->mail(
       'mymodule', 'notification', $data['to'], $data['langcode'], $data['params']
     );
   }

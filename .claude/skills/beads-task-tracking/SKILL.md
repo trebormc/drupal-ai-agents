@@ -9,9 +9,6 @@ description: >-
   - user: "create a task for this feature" -> bd create "Title" -p 1 --json
   - user: "what tasks are pending" -> bd ready --json
   - user: "mark this done" -> bd close <id> --reason "Done" --json
-  - user: "create a task" -> bd create "Title" -p 1 --json
-  - user: "what tasks are left" -> bd ready --json
-  - user: "start tracking work" -> bd create tasks
   Never use `bd edit` (opens interactive editor). Git access follows the git-workflow rule.
 ---
 
@@ -21,21 +18,16 @@ Beads runs in its own DDEV container (`ddev-{project}-beads`). A wrapper script 
 
 The `.beads/` directory lives in the project root (`/var/www/html/.beads/`) and is shared across all containers through the project volume.
 
-## Session Start (ALWAYS DO THIS FIRST)
+## Session start and end
 
-```bash
-# 1. Check Beads is initialized. The beads container auto-initializes the
-#    database on start — NEVER run `bd init` yourself (it can touch the
-#    project's git state). If missing, ask the user to run `ddev restart`.
-ls .beads/ 2>/dev/null || echo "Beads not initialized — ask the user to run: ddev restart"
+The session rituals (`bd prime`, `bd ready --json`, landing the plane) are in the
+always-loaded **beads-workflow** rule and belong to the main conversation.
+Subagents touch Beads only when their brief names a task id, and never close a
+task: the caller closes it after review. This skill is the command reference.
 
-# 2. Get context from previous sessions (prints a project/task summary — if it
-#    prints without error, Beads is working)
-bd prime
-
-# 3. See what tasks are ready
-bd ready --json
-```
+The beads container initializes the database itself. Do not run `bd init` (it can
+touch the project's git state); if `.beads/` is missing, ask the user to run
+`ddev restart`.
 
 ### If bd fails
 
@@ -47,7 +39,7 @@ bd ready --json
 
 ## Creating Tasks
 
-**`bd create` is NOT idempotent — running it twice creates two tasks.** Before creating, check the task does not already exist (`bd ready --json` or `bd list --json`). If a previous create attempt failed ambiguously (e.g., SSH error), verify with `bd ready --json` before retrying.
+**`bd create` is not idempotent: running it twice creates two tasks.** Before creating, check the task does not already exist (`bd ready --json` or `bd list --json`). If a previous create attempt failed ambiguously (e.g., SSH error), verify with `bd ready --json` before retrying.
 
 ```bash
 # Create a task with priority (P0-P3)
@@ -92,22 +84,6 @@ bd ready --json
 
 # Show details of a specific task
 bd show <id> --json
-```
-
-## Session End ("Land the Plane") - MANDATORY
-
-Before finishing any work session, ALWAYS complete these steps:
-
-```bash
-# 1. File follow-up tasks for remaining work
-bd create "TODO: Add integration tests" -p 2 --json
-
-# 2. Close all completed tasks
-bd close <id> --reason "Done: implemented service and unit tests" --json
-
-# 3. Document paused state for in-progress tasks
-bd update <id> --notes "Paused at: form validation logic, needs edge case handling"
-
 ```
 
 ## Quick Reference
@@ -162,8 +138,8 @@ The loop exits automatically when `bd ready` returns an empty array `[]`.
 
 ## Rules
 
-1. **NEVER use `bd edit`** -- it opens an interactive editor that will hang
+1. **Do not use `bd edit`** -- it opens an interactive editor that hangs the session; use `bd update <id> --flags`
 2. **Git access follows the git-workflow rule** -- by default leave all git operations to the user
 3. **Always use `--json` flag** on create, close, and show for parseable output
 4. **Always close tasks with a reason** -- this documents what was accomplished
-5. **Reference task IDs in commit messages** -- suggest format: `"Add feature X (bd-a1b2)"`
+5. **Reference task IDs in commit messages** -- same format as the Commit Convention above: `"feat(mymodule): add feature X (bd-a1b2)"`

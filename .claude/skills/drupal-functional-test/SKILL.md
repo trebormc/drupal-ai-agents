@@ -68,7 +68,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  *
  * @group MODULE
  */
-#[RunTestsInSeparateProcesses] // Required on Drupal 11.3+, omit on 10.x.
+#[RunTestsInSeparateProcesses] // Required on Drupal 11.3+, harmless on 10.x.
 class NameTest extends BrowserTestBase {
 
   protected $defaultTheme = 'stark';
@@ -100,6 +100,7 @@ declare(strict_types=1);
 namespace Drupal\Tests\my_module\Functional;
 
 use Drupal\Tests\BrowserTestBase;
+use Drupal\user\UserInterface;
 
 /**
  * @group my_module
@@ -108,6 +109,10 @@ class SettingsFormTest extends BrowserTestBase {
 
   protected $defaultTheme = 'stark';
   protected static $modules = ['my_module'];
+
+  // Declare every property you assign: an undeclared one is a dynamic-property
+  // deprecation on PHP 8.2+, and Drupal tests fail on deprecations.
+  protected UserInterface $adminUser;
 
   protected function setUp(): void {
     parent::setUp();
@@ -168,6 +173,8 @@ class ArticleFormTest extends BrowserTestBase {
 
   protected $defaultTheme = 'stark';
   protected static $modules = ['node', 'field', 'text', 'filter', 'my_module'];
+
+  protected \Drupal\user\UserInterface $author;
 
   protected function setUp(): void {
     parent::setUp();
@@ -248,6 +255,7 @@ class ArticleFormTest extends BrowserTestBase {
 public function testBlockAppears(): void {
   $this->drupalLogin($this->adminUser);
   $this->drupalPlaceBlock('my_module_stats_block', [
+    'id' => 'stats_block',
     'region' => 'content',
     'label' => 'Stats',
     'label_display' => TRUE,
@@ -256,7 +264,8 @@ public function testBlockAppears(): void {
   $this->drupalGet('<front>');
   $assert = $this->assertSession();
   $assert->pageTextContains('Stats');
-  $assert->elementExists('css', '.block-my-module-stats-block');
+  // stark adds no theme classes; the block id attribute comes from core.
+  $assert->elementExists('css', '#block-stats-block');
 }
 ```
 

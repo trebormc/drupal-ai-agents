@@ -1,23 +1,19 @@
 ---
 name: arena-protocol
 description: >-
-  The protocol every AI container follows inside an `ai-arena` run: the project manager
-  writes the shared brief (contract, mechanical rubric, live verification), answers
-  relayed questions with a verdict trailer and judges collected candidates blind (gates,
-  rubric, conformance, then quality); a candidate works alone in its isolated copy and
-  writes arena-report.md with STATUS on the first line; a multi-model review has
-  independent REVIEWERs and one LEAD REVIEWER synthesis. In a phased arena, PLANNERs write
-  competing plans, the PM merges them and a GRAFTER ports the best of the losers into the
-  winner. Loaded when a prompt names the arena, arena-brief.md, arena-plan.md,
-  arena-report.md, or the roles PROJECT MANAGER / PLANNER / CANDIDATE / JUDGE / REVIEWER /
-  GRAFTER.
+  The protocol every AI container follows inside an `ai-arena` run: the PROJECT MANAGER
+  writes the shared brief, answers relayed questions with a verdict trailer, merges plans
+  and judges candidates blind; a CANDIDATE works alone in its isolated copy and writes
+  arena-report.md with STATUS on the first line; PLANNERs write competing plans, a GRAFTER
+  ports the best of the losers into the winner, REVIEWERs and a LEAD REVIEWER review a
+  diff. Loaded when a prompt names the arena, an arena-*.md file, or one of those roles.
   Examples:
-  - prompt: "You are one CANDIDATE of arena X. Read /var/www/html/arena-brief.md" -> CANDIDATE
-  - prompt: "PLAN the arena X ... write brief.md" -> PROJECT MANAGER, brief format
-  - prompt: "You are one PLANNER of arena X" -> PLANNER, writes arena-plan.md, no code
-  - prompt: "MERGE THE PLANS of arena X" -> PROJECT MANAGER, merging the plans
+  - prompt: "You are one CANDIDATE of arena X. Read arena-brief.md" -> CANDIDATE
+  - prompt: "PLAN the arena X ... write brief.md" -> PROJECT MANAGER
+  - prompt: "You are one PLANNER of arena X" -> PLANNER
+  - prompt: "MERGE THE PLANS of arena X" -> PROJECT MANAGER
   - prompt: "You finish arena X" -> GRAFTER
-  - prompt: "JUDGE the arena X" -> JUDGE rules, trailer with WINNER
+  - prompt: "JUDGE the arena X" -> JUDGE
   - prompt: "You are one independent REVIEWER" / "LEAD REVIEWER" -> review roles
   Never use outside an arena run; the normal task playbooks apply then.
 allowed-tools: Read Write Edit Bash Glob Grep
@@ -31,8 +27,10 @@ metadata:
 An arena runs N candidates on the same task in parallel, each in its own worktree, DDEV
 project and database. Containers never see each other. The host (`ai-arena`)
 executes commands in them and reads files; a question travels up as a report and an
-answer travels down as a resumed session. Three roles, all played by the same agent
-pack; the prompt names which one you are.
+answer travels down as a resumed session. Seven roles (PROJECT MANAGER, PLANNER,
+CANDIDATE, GRAFTER, REVIEWER, LEAD REVIEWER, JUDGE), all played by the same agent
+pack; the prompt names which one you are. Read your role's section and the sections it
+points to; the others do not apply to you.
 
 ## PROJECT MANAGER (coordinator container)
 
@@ -249,7 +247,8 @@ never look for them. The brief at `/var/www/html/arena-brief.md` is the whole ta
 ```
 STATUS: DONE | PARTIAL | BLOCKED | FAILED
 SUMMARY: <what you built, 3 lines max>
-FILES: <one path per line, relative to the repository root>
+FILES:
+<one bare path per line, relative to the repository root: no bullets, no backticks, no notes>
 EVIDENCE: <commands run and their real output, verbatim, including the live verification>
 RUBRIC: <one line per brief rubric item: item -> yes|no, with the file:line or output that shows it>
 DEVIATIONS: <each deviation from the contract and why, or "none">

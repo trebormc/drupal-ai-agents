@@ -10,10 +10,9 @@ description: >-
   - user: "debug this page error" -> enable Xdebug trace, trigger request, analyze trace
   - user: "why is this page slow" -> enable Xdebug profiler, trigger request, analyze cachegrind
   - user: "trace the execution of /admin/content" -> trace mode workflow
-  - user: "find where this error comes from" -> enable Xdebug trace and analyze
-  - user: "this page loads slowly" -> enable profiler and analyze bottlenecks
-  - user: "analyze performance of this request" -> profile mode workflow
-  Never use for step debugging with IDE breakpoints (that requires IDE integration).
+  Never use for step debugging with IDE breakpoints (that requires IDE integration),
+  for a first look at an error (use drupal-debugging: watchdog first), or for
+  cache and query-count problems (use performance-audit).
 ---
 
 ## Environment
@@ -60,6 +59,7 @@ xdebug.trace_format=1
 xdebug.collect_return=1
 xdebug.collect_assignments=1
 xdebug.trace_output_name=trace.%t.%p
+xdebug.use_compression=0
 EOF
   kill -USR2 \$(pgrep -o php-fpm)
 "
@@ -134,6 +134,7 @@ xdebug.mode=profile
 xdebug.start_with_request=trigger
 xdebug.output_dir=/tmp/xdebug
 xdebug.profiler_output_name=cachegrind.out.%t.%p
+xdebug.use_compression=0
 EOF
   kill -USR2 \$(pgrep -o php-fpm)
 "
@@ -151,13 +152,11 @@ ssh web curl -s -b 'XDEBUG_TRIGGER=1' 'http://localhost/slow-page' -o /dev/null 
 # Find latest profile
 ssh web ls -lt /tmp/xdebug/cachegrind.out.* | head -3
 
-# Analyze with callgrind_annotate (install if needed)
-ssh web "
-  which callgrind_annotate || (apt-get update -qq && apt-get install -y -qq valgrind > /dev/null 2>&1)
-  callgrind_annotate --inclusive=yes /tmp/xdebug/CACHEGRIND_FILE | head -80
-"
-
-# Or: quick PHP analysis of top 20 expensive functions.
+# Top 20 expensive functions with a small PHP analyzer (no extra packages:
+# the web user cannot apt-get install valgrind/callgrind_annotate).
+# A file ending in .gz was written with compression on: Xdebug 3.1+ gzips
+# output by default, hence xdebug.use_compression=0 above. Read one anyway
+# with: ssh web 'zcat /tmp/xdebug/FILE.gz > /tmp/xdebug/FILE'
 # First write the analyzer script ONCE (copy EXACTLY — quoted 'EOF' prevents expansion):
 ssh web "cat > /tmp/analyze-cachegrind.php" <<'EOF'
 <?php
@@ -169,7 +168,8 @@ foreach ($lines as $l) {
   if (strpos($l, 'fn=') === 0) {
     $cur = substr($l, 3);
   }
-  elseif (preg_match('/^(\d+) (\d+)$/', $l, $m) && $cur) {
+  // Cost line: "<line> <time>" (Xdebug 2) or "<line> <time> <memory>" (Xdebug 3).
+  elseif (preg_match('/^(\d+) (\d+)(?: \d+)*$/', $l, $m) && $cur) {
     $fns[$cur] = ($fns[$cur] ?? 0) + (int) $m[2];
   }
 }
@@ -189,10 +189,10 @@ ssh web php /tmp/analyze-cachegrind.php /tmp/xdebug/CACHEGRIND_FILE
 
 ```bash
 # Trace a Drush command (XDEBUG_MODE env var = single-command, zero impact)
-ssh web 'XDEBUG_MODE=trace php -d xdebug.start_with_request=yes -d xdebug.output_dir=/tmp/xdebug -d xdebug.trace_format=1 -d xdebug.collect_return=1 -d xdebug.trace_output_name=trace.%t.%p drush cr'
+ssh web 'XDEBUG_MODE=trace php -d xdebug.start_with_request=yes -d xdebug.output_dir=/tmp/xdebug -d xdebug.trace_format=1 -d xdebug.collect_return=1 -d xdebug.trace_output_name=trace.%t.%p -d xdebug.use_compression=0 drush cr'
 
 # Profile a Drush command
-ssh web 'XDEBUG_MODE=profile php -d xdebug.start_with_request=yes -d xdebug.output_dir=/tmp/xdebug -d xdebug.profiler_output_name=cachegrind.out.%t.%p drush status'
+ssh web 'XDEBUG_MODE=profile php -d xdebug.start_with_request=yes -d xdebug.output_dir=/tmp/xdebug -d xdebug.profiler_output_name=cachegrind.out.%t.%p -d xdebug.use_compression=0 drush status'
 ```
 
 ## ALWAYS: Disable and Cleanup

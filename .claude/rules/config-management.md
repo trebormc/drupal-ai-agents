@@ -11,7 +11,7 @@ paths:
 ## Rules
 
 - **Always export after changes**: `ssh web drush cex -y`
-- **Never edit config YAML files manually** — use Drupal admin UI or drush, then export
+- **Never hand-edit `config/sync/`** — change active config (admin UI or drush), then export. Module `config/install`, `config/optional` and `config/schema` are source files and are written by hand
 - **Use config_split** for environment-specific config (dev modules, performance settings)
 - **Validate schema** — ensure `.schema.yml` exists for custom config
 
@@ -20,8 +20,9 @@ paths:
 `drush cex` exports ALL active config, including drift that predates your task:
 
 1. Run `ssh web drush config:status` BEFORE changing anything and keep the list.
-2. After `cex`, check `git status` against that list and restore every file you did not
-   mean to change, so the diff holds only your change.
+2. After `cex`, compare `git status` with that list. Do not restore files with git
+   (blocked by default): list every file that changed outside your task in your summary
+   as "pre-existing config drift, exclude from the commit".
 3. Read the export for unexpected keys, on multilingual sites above all. Drush runs in the
    default language, so a config ENTITY loaded and saved from a script writes that
    language's overrides into the base config. Edit raw data instead:
@@ -46,11 +47,11 @@ ssh web drush config:status
 ## Config Split
 
 - `config/sync/` — shared across all environments
-- `config/split/dev/` — dev-only (devel, kint, webprofiler)
+- `config/split/dev/` — dev-only (devel, webprofiler)
 - `config/split/prod/` — production-only (aggregation, caching)
 
 ## Deploy order after a merge
 
-`drush updb -y` → `drush cim -y` → `drush cr` → check one new route with `curl`. A new
+`drush updb -y` → `drush cim -y` → `drush cr` → check one new route's status code with `curl`. A new
 module enabled by `cim` is not routable until the cache rebuild (its routes answer 404),
 and update hooks that queue batches (locale imports) need `updb` before you test the UI.

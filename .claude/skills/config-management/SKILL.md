@@ -9,10 +9,9 @@ description: >-
   - user: "set up config split for dev/stage/prod" -> configure config_split
   - user: "my config import fails" -> diagnose and fix config sync issues
   - user: "add config schema for my module" -> generate proper schema.yml
-  - user: "configure config split" -> configure config_split
   - user: "export configuration" -> guide through drush cex workflow
-  - user: "config import fails" -> diagnose config sync issues
-  Never directly modify files in config/sync/ — always use drush cex.
+  Never use for one-off drush operations (use drush-commands). Do not hand-edit
+  config/sync/: change active config and export it with drush cex.
 ---
 
 ## Environment
@@ -101,7 +100,7 @@ ssh web drush config:status
 |-------|-------|-----|
 | "Site UUID ... does not match" on cim | Sync dir from a different site | Only if intentional: `ssh web drush config:set system.site uuid <uuid-from-sync-dir> -y`, then retry |
 | Unmet dependency / unknown module on cim | Config references a missing module | `ssh web composer require drupal/<module>` + `ssh web drush en <module> -y`, then retry |
-| Validation/schema error on cim | Invalid config in sync dir | Read the named file in `config/sync/`, fix it (or re-export from a working env), retry |
+| Validation/schema error on cim | Invalid config in sync dir | Read the named file in `config/sync/` to find the offending key, correct it in active config on a working environment and re-export. Hand-editing the file is the last resort for config that cannot be imported at all: say so in your summary |
 | cex writes nothing | No changes to export | Confirm with `ssh web drush config:status` — that is normal |
 
 ## Config Split setup
@@ -116,8 +115,8 @@ ssh web drush en config_split -y
 ```
 config/
 ├── sync/          # Base config (shared across all environments)
-├── splits/
-│   ├── dev/       # Dev-only config (devel, kint, etc.)
+├── split/
+│   ├── dev/       # Dev-only config (devel, webprofiler, etc.)
 │   ├── stage/     # Stage-specific overrides
 │   └── prod/      # Production overrides
 ```
@@ -138,7 +137,7 @@ $config['config_split.config_split.prod']['status'] = TRUE;
 
 | Split | Modules | Purpose |
 |-------|---------|---------|
-| dev | devel, kint, webprofiler, field_ui, views_ui | Development tools |
+| dev | devel, webprofiler, field_ui, views_ui | Development tools |
 | stage | stage_file_proxy | Asset proxying |
 | prod | redis, cdn, advagg | Performance modules |
 
@@ -203,7 +202,9 @@ $config['smtp.settings']['smtp_password'] = getenv('SMTP_PASSWORD');
 # Check config sync status
 ssh web drush config:status
 
-# Validate config schema (check for missing schemas)
+# Validate config schema (check for missing schemas). `config:inspect` comes
+# from the contrib config_inspector module; without it, a Kernel test that
+# saves the config runs with strict schema checking and catches the same errors.
 ssh web drush config:inspect
 
 # Verify config split is active

@@ -145,7 +145,7 @@ If PHPStan reports MANY errors in code you did not touch (legacy project), do no
 ssh web ./vendor/bin/phpstan analyse --generate-baseline
 ```
 
-This writes `phpstan-baseline.neon` and registers it in `phpstan.neon`. Rules: never generate a baseline to hide errors in code YOU just wrote; your new/modified code must always be clean.
+This writes `phpstan-baseline.neon`; it only takes effect once it is listed under `includes:` in `phpstan.neon` (add `- phpstan-baseline.neon` there). Rules: never generate a baseline to hide errors in code YOU just wrote; your new/modified code must always be clean.
 
 ---
 
@@ -219,6 +219,6 @@ Re-run quality checks on any files modified during fix steps.
 |--------------------|-----------|
 | PHP service/controller/plugin | `phpcs` + `phpstan` |
 | Form class | `phpcs` + `phpstan` |
-| Twig template | `twig` + `phpcs` |
+| Twig template | `drush audit:run twig` (Audit module) or the **twig-audit** skill, + `phpcs` |
 | Test file | `phpunit` + `phpcs` |
 | Any file (safety net) | `phpcs` + `phpstan` |

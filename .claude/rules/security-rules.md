@@ -21,13 +21,6 @@ UrlHelper::filterBadProtocol($url); // URLs
 $db->query("SELECT * FROM {users} WHERE name = :name", [':name' => $input]);
 ```
 
-## Translations
-
-```php
-$this->t('Hello @name', ['@name' => $username]);
-// @=escape, :=URL, %=em+escape
-```
-
 ## Route Access
 
 ```yaml

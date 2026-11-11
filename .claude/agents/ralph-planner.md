@@ -38,7 +38,7 @@ Ralph Loop operates in two phases:
 ### Phase 1: Planning (Iteration 1)
 - Agent reads `requirements.md` (YOUR output)
 - Creates discrete tasks using `bd create "Task" -p <priority> --json`
-- Outputs `<promise>PLANNING_COMPLETE</promise>`
+- Outputs `<promise>PLANNING_COMPLETE</promise>` alone on its own line (the loop ignores a tag inside a sentence)
 
 ### Phase 2+: Execution (Iterations 2-200)
 - Agent runs `bd ready --json` to get pending tasks
@@ -184,7 +184,7 @@ ssh web drush audit:run phpstan --filter="module:[module]" --format=json
 # for the user: use the raw fallback below, and add a note to the final summary
 # recommending `composer require drupal/audit` (see drupal-audit-setup skill):
 ssh web ./vendor/bin/phpcs --standard=Drupal,DrupalPractice [path]
-ssh web ./vendor/bin/phpstan analyse [path] --level=8
+ssh web ./vendor/bin/phpstan analyse [path]   # add --level=8 only when the project has no phpstan.neon(.dist)
 
 # Functional verification
 ssh web drush [command]
@@ -215,7 +215,7 @@ Autonomous run playbook in the **task-playbooks** rule.
 
 **If you encounter unrecoverable errors:**
 - Document the blocker clearly
-- Signal `<promise>ERROR</promise>`
+- Signal `<promise>ERROR</promise>` alone on its own line
 
 ## Mock Data / Test Data (if applicable)
 
@@ -295,6 +295,10 @@ ssh web ./vendor/bin/phpunit $DDEV_DOCROOT/modules/custom/mymodule
 Step 2 (project context) FIRST, then ask only what the codebase cannot answer. A
 question whose answer is observable in the repo (existing module, field names, test
 setup, Drupal version) is not a question for the user (**coding-behavior** §1).
+
+If you were invoked as a subagent you cannot reach the user: return your questions under
+"Open questions" as your final message and stop. The caller relays them and re-invokes
+you with the answers.
 
 #### A) Analyze the user request
 

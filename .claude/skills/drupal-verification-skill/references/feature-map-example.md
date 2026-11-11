@@ -83,7 +83,9 @@ Preconditions:
 - **Publish.** Fill `Date` with `2030-01-15 20:00`, `Venue` with `Verify Hall`, check
   `Published`, click `Save`. Snapshot shows status `Event Verify: No date has been created`.
   Read back: the same entityQuery prints `bool(true)`; `screenshots/event-create-published.png`.
-- **Listing.** Log out (`browser_navigate $DDEV_HTTP_URL/user/logout`), navigate `/`.
+- **Listing.** Log out (`browser_navigate $DDEV_HTTP_URL/user/logout`, then `browser_click`
+  button `Log out` on the confirmation form: since Drupal 10.3 a plain GET no longer
+  logs out), navigate `/`.
   Snapshot lists link `Verify: No date`. `screenshots/event-create-listing.png`.
 - **Unpublished hidden.** As editor, edit the node, uncheck `Published`, save; as
   anonymous, `/` no longer lists it.

@@ -43,7 +43,7 @@ Run only the rows the change touches. Always state which rows you ran.
 
 | Changed thing | Consumers that break silently | How to find them |
 |---|---|---|
-| Hook implementation / invocation | Other modules implementing the same hook or altering its output | `grep -rn "function [a-z_]*_HOOKNAME(" $DDEV_DOCROOT/modules $DDEV_DOCROOT/themes`; check `hook_module_implements_alter` ordering |
+| Hook implementation / invocation | Other modules implementing the same hook or altering its output | Procedural: `grep -rn "function [a-z_]*_HOOKNAME(" $DDEV_DOCROOT/modules $DDEV_DOCROOT/themes`. OOP hooks (Drupal 11.1+, `src/Hook/`): `grep -rn "#\[Hook('HOOKNAME'" $DDEV_DOCROOT/modules` (HOOKNAME without the `hook_` prefix). Ordering: `hook_module_implements_alter`, and on 11.2+ the `order:` argument of `#[Hook]` and `#[ReorderHook]` |
 | Service | Decorators, `services.yml` aliases, `ServiceProvider` classes, event subscribers, other services with it as an argument | `grep -rn "'@SERVICE_ID'\|decorates: SERVICE_ID" $DDEV_DOCROOT/modules --include=*.yml`; `ssh web 'drush php:eval "print_r(get_class(\Drupal::service(\"SERVICE_ID\")));"'` (a decorator shows up here, grep does not) |
 | Field or base field | Views, entity form/view displays, field formatters/widgets, config entities referencing it, Twig `content.field_x` | `grep -rln "FIELD_NAME" config/sync/` (views.view.*, core.entity_*_display.*), `grep -rn "field_x\|\.field_x" $DDEV_DOCROOT/themes --include=*.twig` |
 | Config key or schema | `dependencies:` in other config, config_split overrides, `settings.php` overrides, `hook_update_N` that already migrated it | `grep -rln "CONFIG_NAME" config/`; `ssh web drush config:get CONFIG_NAME` (active DB value may differ from sync) |
@@ -75,7 +75,8 @@ Step 4 is usually one small check:
 
 ```bash
 # Who really implements/alters the hook at runtime (includes contrib you did not grep)
-ssh web 'drush php:eval "print_r(\Drupal::moduleHandler()->getImplementations(\"HOOK\"));"'
+# (HOOK without the hook_ prefix; getImplementations() was removed in Drupal 10)
+ssh web 'drush php:eval "\Drupal::moduleHandler()->invokeAllWith(\"HOOK\", function (\$hook, \$module) { echo \$module . PHP_EOL; });"'
 # Actual service class after decoration
 ssh web 'drush php:eval "echo get_class(\Drupal::service(\"SERVICE_ID\"));"'
 # Does any view use the field

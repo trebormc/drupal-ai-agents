@@ -17,7 +17,6 @@ ${GIT_POLICY}
 - Suggest clear commit messages in Conventional Commits format, always in English,
   referencing Beads task IDs (e.g. `"feat(mymodule): add feature X (bd-a1b2)"`) —
   generate them with the **commit-message** skill.
-- Close completed Beads tasks with `bd close <id> --reason "Done" --json`.
 - Never rewrite or destroy remote history: no force-push and no remote-branch
   deletion, whatever the flags allow.
 - When a git write is blocked, do not try to work around it — present the

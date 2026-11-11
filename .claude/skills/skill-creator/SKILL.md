@@ -1,8 +1,8 @@
 ---
 name: skill-creator
 description: >-
-  Creates, reviews, and validates OpenCode skills following the Anthropic Agent
-  Skills specification (agentskills.io). Use when creating a new skill, auditing
+  Creates, reviews, and validates skills for Claude Code and OpenCode following
+  the Anthropic Agent Skills specification (agentskills.io). Use when creating a new skill, auditing
   an existing skill, or when user says "create skill", "new skill", "review skill",
   "audit skills".
   Examples:
@@ -14,13 +14,14 @@ description: >-
 
 ## What I do
 
-Create and validate OpenCode skills following the Anthropic Agent Skills spec.
+Create and validate skills that both Claude Code and OpenCode load, following the
+Anthropic Agent Skills spec.
 Skills that violate these rules fail silently: not discovered, not matched, or
 waste tokens.
 
 ## Golden-template rule: copy, don't compose
 
-NEVER write a new skill from a blank file. Find the existing skill closest in shape to
+Do not write a new skill from a blank file. Find the existing skill closest in shape to
 what you need (a command-reference skill, a workflow skill, an audit skill), copy its
 SKILL.md as the starting point, and modify the minimum: name, description, and the
 body sections that differ. The frontmatter idioms, section order, and command style
@@ -63,8 +64,8 @@ name: {skill-name}
 description: >-
   {capability summary}. {use cases}. {proactive triggers}.
   Examples:
-  - user: "{english phrase}" -> {action}
-  - user: "{spanish phrase}" -> {action}
+  - user: "{typical phrase}" -> {action}
+  - user: "{another phrasing of a different request}" -> {action}
   Never use this for {anti-pattern}.
 ---
 
@@ -90,8 +91,17 @@ This is the ONLY text the LLM sees during skill selection. Structure:
 1. **Capability**: What it does (1 sentence)
 2. **Use cases**: When to invoke (1-2 sentences)
 3. **Examples**: 2-4 with `user: "X" -> Y` format
-4. **Anti-pattern**: "Never use for X"
-5. Must include Spanish AND English triggers
+4. **Anti-pattern**: "Never use for X", naming the sibling skill that owns X
+5. Write it in English. The harness matches by meaning, so a request in Spanish
+   still triggers an English description; translated duplicates of the same
+   example only spend the listing budget.
+
+### allowed-tools (optional)
+Space-separated tool names. In Claude Code it pre-approves those tools while the
+skill is active; OpenCode ignores it; in neither harness does it restrict
+anything, and there is no `disallowed-tools` field. Restrictions belong in
+permissions, hooks and rules. List every tool the body needs (a skill that
+writes a report needs `Write`).
 
 ## Progressive disclosure
 
@@ -100,7 +110,7 @@ Startup: Only name + description loaded (XML summary)
 User message -> LLM matches description -> skill tool called -> full body loaded
 ```
 
-If description doesn't match user intent, body NEVER loads.
+If the description does not match the user's intent, the body never loads.
 
 ## Validation checklist
 
@@ -108,7 +118,8 @@ If description doesn't match user intent, body NEVER loads.
 - [ ] Name: lowercase, hyphens only, 1-64 chars
 - [ ] Description: 1-1024 chars
 - [ ] Description has: capability, use cases, 2+ examples, anti-pattern
-- [ ] Description has Spanish triggers
+- [ ] Examples are distinct requests (no translated or reworded duplicates)
+- [ ] `allowed-tools`, when present, lists every tool the body uses
 - [ ] YAML frontmatter valid
 - [ ] Body has actionable instructions (not prose)
 - [ ] Commands use `ssh web`
@@ -145,5 +156,6 @@ Report as:
 | No anti-pattern | Add "Never use for X" |
 | Bare commands | Prefix `ssh web` |
 | Body 200+ lines | Move subtask depth into `references/{subtask}.md` with a routing table |
-| English-only triggers | Add Spanish phrases |
+| Same example twice in two languages | Keep one; matching is semantic |
+| Unknown frontmatter key (`disallowed-tools`...) | Remove it: both harnesses ignore unknown keys silently |
 | Duplicates other skill | Merge or add anti-pattern boundary |

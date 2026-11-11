@@ -30,8 +30,10 @@ config). Never silently drop the user's wording; never put it in the source.
 ## PHP
 
 - Classes: `$this->t()` (via `StringTranslationTrait` or injected `string_translation`).
-  Procedural code (`.module`, `.install`): global `t()`. Plugin annotations:
-  `@Translation("...")`. No DI available (rare): `new TranslatableMarkup()`.
+  Procedural code (`.module`, `.install`): global `t()`. Plugin definitions: PHP
+  attributes with `new TranslatableMarkup('...')` (core form since 10.2, the only form
+  for new code on 11); `@Translation("...")` only in plugins that still use
+  annotations. No DI available (rare): `new TranslatableMarkup()`.
 - **Literal strings only** inside `t()` — never variables, never concatenation, never
   interpolation. Extraction tools and translators need the complete literal:
 

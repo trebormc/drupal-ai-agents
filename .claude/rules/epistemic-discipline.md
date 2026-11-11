@@ -47,6 +47,8 @@ Three levels. Use them explicitly in summaries, reviews, and task notes:
 - **ASSUMED** — inferred from convention or context; state the inference ("ASSUMED: field is single-valued — standard for this field type, not checked").
 - **GUESS** — plausible but unchecked; say so BEFORE anyone builds on it.
 
+Reviewers write **CONFIRMED** (= VERIFIED) and **SUSPECTED** (= ASSUMED or GUESS). **NOT VERIFIED** lists what nobody ran; **UNKNOWN** means you searched and found nothing.
+
 Never silently upgrade a level. An ASSUMED that later matters becomes a verification step, not a fact.
 
 *Avoids:* guesses hardening into "facts" as they get repeated across agents and iterations.
@@ -82,7 +84,7 @@ Recognize these in your own output — each one reads as skill and is a defect:
 
 | Looks like | Actually is |
 |---|---|
-| Test suite with many green assertions | Tests asserting the mocks you configured; they cannot fail (**drupal-testing** rule 13) |
+| Test suite with many green assertions | Tests asserting the mocks you configured; they cannot fail (the NULL test, **drupal-testing** rule 13) |
 | Error gone after fix + `drush cr` | Cause never derived — the cache clear may be the whole "fix" |
 | Agreeing with the user's diagnosis ("yes, a cache bug") | Diagnosis adopted without verification — users report symptoms reliably, causes unreliably |
 | A "belt-and-suspenders" extra guard shipped with the fix | An untested hypothesis riding along — every shipped line traces to evidence, or it is reverted |

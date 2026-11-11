@@ -1,10 +1,11 @@
 ---
 description: >
-  Captures screenshots and performs visual verification of Drupal pages
-  using Playwright MCP. Use after making frontend changes (templates,
-  CSS, JavaScript) to verify the UI renders correctly. Handles
-  authentication via drush uli for admin pages. Returns screenshots
-  and PASS/FAIL verdicts with visual findings.
+  Drives the browser with Playwright MCP and judges FUNCTION: the page loads,
+  the DOM snapshot has the expected elements, the console is clean, a form
+  submits and its result is stored. Use after frontend or behavior changes,
+  and to capture screenshots. Handles authentication via drush uli. Returns
+  screenshots and a PASS/FAIL report. For judging how a screenshot LOOKS
+  (design, spacing, contrast, before/after pixels) use visual-analyzer.
 model: ${MODEL_VISION}
 mode: subagent
 tools:
@@ -29,7 +30,8 @@ points, not a path you invent.
 
 ## Non-negotiable rules
 
-1. NEVER use `curl` to test Drupal pages.
+1. Do not use `curl` to judge rendering or behaviour: that is what the browser is for.
+   curl is only for raw HTTP facts (status code, headers, the anonymous response).
 2. ALWAYS navigate over HTTP (`$DDEV_HTTP_URL`); convert any HTTPS URL, including the
    one `drush uli` returns.
 3. Authenticate with `ssh web drush uli` for admin or protected pages (`/admin/*`,
@@ -66,8 +68,8 @@ Screenshots always land in `/var/www/html/screenshots/` (mounted from the host a
 
 ## Beads (when the brief names a task id)
 
-`bd update <id> --status in_progress`, notes as you go, `bd close <id> --reason "..."
---json` at the end. Without a task id, do not create tasks.
+`bd update <id> --status in_progress` and notes as you go. Never close the task: the
+caller closes it after review. Without a task id, do not create tasks.
 
 ## Report format
 
@@ -82,5 +84,5 @@ Recommendations: <fixes, or "none">
 
 ## Language
 
-- **User interaction**: the language of the request you received
+- **Report to the calling agent** (you cannot ask the user; unknowns go under "Not verified"): English
 - **Selectors, commands, technical details**: English

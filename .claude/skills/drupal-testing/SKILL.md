@@ -6,6 +6,12 @@ description: >-
   Unit, Kernel, Functional, FunctionalJavascript, Behat and Playwright.
   Use when writing tests, improving coverage, running test suites, or when
   the user asks to "generate tests" without specifying a type.
+  Examples:
+  - user: "add tests for this service" -> pick the type with the decision table, load that skill
+  - user: "run the module's tests" -> canonical PHPUnit pattern below
+  - user: "the JS tests cannot find a browser" -> Browser driver in DDEV section
+  Never use for phpcs/phpstan runs (use quality-checks) or to judge an existing
+  suite's quality (use drupal-test-suite-audit).
   For specific test types, use the specialized skills directly:
   drupal-unit-test (unit), drupal-kernel-test (kernel), drupal-functional-test
   (functional), drupal-functionaljs-test (JS), drupal-behat-test (behat),
@@ -47,9 +53,18 @@ See the `drupal-testing` rule for the complete decision tree. Quick summary:
 6. **Execute and verify** — run the test, fix if it fails
 
 Common rules 1-13 in the **drupal-testing** rule apply to every generated test.
-Annotations (`@group`, `@covers`, `@dataProvider`), not attributes — except
-`#[RunTestsInSeparateProcesses]` on Kernel/Functional/FunctionalJS classes on Drupal 11.3+
-(see the rule; the specialized skills' templates already include it).
+
+**Test metadata style follows the module's `core_version_requirement`** (and the
+style of the tests the module already has, which wins):
+
+- Includes `^10` → annotations (`@group`, `@covers`, `@dataProvider`). Drupal 10
+  runs PHPUnit 9, which does not read attributes. The templates in the testing
+  skills are written this way.
+- `^11` only → PHP attributes (`#[Group]`, `#[CoversClass]`, `#[DataProvider]`):
+  PHPUnit 10+ deprecates doc-comment metadata.
+- Either way, `#[RunTestsInSeparateProcesses]` goes on Kernel/Functional/FunctionalJS
+  classes: required on Drupal 11.3+, harmless on 10.x (see the rule; the
+  specialized skills' templates already include it).
 
 ## Unit Test Template
 
@@ -160,7 +175,7 @@ ssh web env SIMPLETEST_DB=mysql://db:db@db/db SIMPLETEST_BASE_URL=http://localho
 Rules for BOTH forms:
 - Always pass the test directory (or file) as an explicit path argument. Do NOT rely on `--testsuite` — suite definitions differ between configs.
 - Narrow with `--filter testMethodName` or `--group MODULE` before the path argument.
-- NEVER use `-c core` — the working directory in the web container is the project root, so `core/` only exists there when the docroot IS the project root. Always use `-c $DDEV_DOCROOT/core`.
+- Do not use `-c core`: the working directory in the web container is the project root, so `core/` only exists there when the docroot IS the project root. Always use `-c $DDEV_DOCROOT/core`.
 - Do not `export` env vars in the agent container (they would not reach the web container via SSH) — pass them inline with `env` as shown.
 
 ```bash
@@ -171,8 +186,9 @@ ssh web ./vendor/bin/phpunit --filter testMethodName $DDEV_DOCROOT/modules/custo
 ssh web env XDEBUG_MODE=coverage ./vendor/bin/phpunit --coverage-html /tmp/coverage \
   $DDEV_DOCROOT/modules/custom/MODULE/tests/src/Unit
 
-# Behat (uses behat.yml, not phpunit.xml — no config form needed)
-ssh web ./vendor/bin/behat --config=behat.yml
+# Behat (uses behat.yml, not phpunit.xml — no config form needed).
+# Pass the path where the project keeps it: find . -name behat.yml -not -path './vendor/*'
+ssh web ./vendor/bin/behat --config=tests/behat/behat.yml
 
 # Playwright (runs on the HOST, not inside containers — ask the user to run it)
 # npx playwright test
@@ -188,7 +204,32 @@ A project-root `phpunit.xml` (Form ROOT) can be created with the template in the
 | `Could not connect to database` / `SQLSTATE` | SIMPLETEST_DB not set | Use Form CORE with explicit env vars |
 | `Failed to connect to localhost` | SIMPLETEST_BASE_URL not set | Use Form CORE with explicit env vars |
 | `Test site directory exists already` | Stale test site | `ssh web rm -rf $DDEV_DOCROOT/sites/simpletest/` then retry |
-| ChromeDriver/WebDriver errors (FunctionalJS) | Driver not running | See **drupal-functionaljs-test** skill troubleshooting |
+| ChromeDriver/WebDriver errors (FunctionalJS, Behat `@javascript`) | No browser driver reachable from the web container | See "Browser driver in DDEV" below |
+
+## Browser driver in DDEV
+
+FunctionalJavascript tests and Behat `@javascript` scenarios need a WebDriver
+endpoint that the **web** container can reach. A stock DDEV project has none,
+and this workspace's add-ons do not ship one (the Playwright MCP container is a
+different thing: PHPUnit and Behat cannot drive it). Detect before you run or
+write driver config:
+
+```bash
+ssh web 'echo "MINK=${MINK_DRIVER_ARGS_WEBDRIVER:-unset}"; echo "BASE=${SIMPLETEST_BASE_URL:-unset}"; command -v chromedriver || echo "no chromedriver binary"; getent hosts selenium-chrome || echo "no selenium-chrome host"'
+```
+
+| Result | Endpoint | Site base URL |
+|--------|----------|---------------|
+| `MINK` is set | Already configured by the environment: do not pass your own `MINK_DRIVER_ARGS_WEBDRIVER` | The value of `SIMPLETEST_BASE_URL` |
+| `selenium-chrome` resolves | `http://selenium-chrome:4444/wd/hub` | `http://web` (the browser runs in another container, so `localhost` is not the site) |
+| `chromedriver` binary in web | `http://127.0.0.1:9515`, and it must be running: `ssh web 'curl -s http://127.0.0.1:9515/status'` | `http://localhost` |
+| None of the above | No driver | — |
+
+With no driver: do not install anything and do not start a browser from the
+agent container. Report to the caller that browser tests were NOT RUN and that
+the project needs `ddev add-on get ddev/ddev-selenium-standalone-chrome`
+followed by `ddev restart` (a host action for the user). Unit, Kernel and
+Functional tests do not need any of this.
 
 ## Recommended Coverage
 
@@ -196,7 +237,7 @@ No official minimum in Drupal. Reasonable targets:
 
 - 80% line coverage as industry standard.
 - More important than percentage: cover critical paths and edge cases.
-- Use `@covers` / `@coversDefaultClass` for precise coverage (annotations, not `#[CoversClass()]`, for D10+D11 compatibility).
+- Use `@covers` / `@coversDefaultClass` for precise coverage (`#[CoversClass()]` on a `^11`-only module; see the metadata style note above).
 - Use `@codeCoverageIgnore` only for genuinely untestable code.
 
 ## Related Skills

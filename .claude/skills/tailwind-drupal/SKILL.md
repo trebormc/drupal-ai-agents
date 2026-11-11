@@ -9,23 +9,21 @@ description: >-
   - user: "add Tailwind to my theme" -> setup and configure TailwindCSS
   - user: "my Tailwind classes don't work" -> diagnose and recompile
   - user: "build the CSS" -> run Tailwind compilation
-  - user: "set up Tailwind" -> setup and configure TailwindCSS
-  - user: "Tailwind classes don't work" -> diagnose and recompile
-  - user: "compile the CSS" -> run Tailwind compilation
   Never use for non-Tailwind CSS (vanilla CSS, SCSS, PostCSS without Tailwind).
 ---
 
-## CRITICAL RULE
+## The rule that matters
 
-**Every time you add, modify, or remove Tailwind classes in ANY file (.twig,
-.html.twig, .php, .module, .theme), you MUST recompile the CSS and clear
-Drupal caches.** Tailwind only includes classes it finds in scanned files.
-New classes that aren't compiled will NOT appear in the browser.
+Every time you add, modify, or remove Tailwind classes in any file (.twig,
+.php, .module, .theme), recompile the CSS and clear Drupal caches. Tailwind
+only emits the classes it finds in scanned files, so a class that was not
+compiled does not exist in the browser. This is the most common cause of
+"Tailwind classes not working".
 
-### Mandatory post-change sequence
+### Post-change sequence
 
 ```bash
-# 1. Recompile Tailwind CSS (ALWAYS after class changes)
+# 1. Recompile Tailwind CSS
 ssh web npm run build --prefix $DDEV_DOCROOT/themes/custom/<THEME>
 
 # 2. Clear Drupal cache (renders may reference old CSS)
@@ -35,15 +33,35 @@ ssh web drush cr
 #    Or use Playwright with cache disabled for testing
 ```
 
-**If you skip step 1, new Tailwind classes will NOT render.** This is the
-most common cause of "Tailwind classes not working."
+## Detect the Tailwind major version first
 
-## Installation in a Drupal theme
+Tailwind 3 and 4 are configured differently, and everything below this section
+is written for **v3**. In an existing theme, check before touching anything:
 
 ```bash
-# Navigate to theme directory inside container
+ssh web "cd $DDEV_DOCROOT/themes/custom/<THEME> && npm ls tailwindcss --depth=0; ls tailwind.config.* 2>/dev/null"
+```
+
+- **3.x** (`tailwind.config.js` present, `@tailwind base;` in the input CSS) →
+  this skill applies as written.
+- **4.x** (no `tailwind.config.js`; the input CSS starts with
+  `@import "tailwindcss";`) → there is no `npx tailwindcss init` and no
+  `@tailwind` directives. The CLI is the separate `@tailwindcss/cli` package
+  (`npx @tailwindcss/cli -i ./src/input.css -o ./css/styles.css`), sources are
+  auto-detected and extra paths are added in CSS with
+  `@source "../../../modules/custom";`, and theme values live in a CSS `@theme`
+  block. Keep the project's existing `package.json` scripts and config style;
+  only the post-change sequence, the library definition and the verification
+  steps of this skill carry over. Do not downgrade or upgrade the major version
+  unless the user asks.
+
+## Installation in a Drupal theme (v3)
+
+```bash
+# Pin the major: a bare `npm install -D tailwindcss` installs v4, where
+# `npx tailwindcss init` does not exist.
 ssh web "cd $DDEV_DOCROOT/themes/custom/<THEME> && npm init -y"
-ssh web "cd $DDEV_DOCROOT/themes/custom/<THEME> && npm install -D tailwindcss"
+ssh web "cd $DDEV_DOCROOT/themes/custom/<THEME> && npm install -D tailwindcss@^3.4"
 ssh web "cd $DDEV_DOCROOT/themes/custom/<THEME> && npx tailwindcss init"
 ```
 
@@ -65,8 +83,8 @@ ssh web "cd $DDEV_DOCROOT/themes/custom/<THEME> && npx tailwindcss init"
 
 | Script | Use | When |
 |--------|-----|------|
-| `npm run dev` | Watch mode, auto-recompile on file changes | During active development |
-| `npm run build` | One-time compile + minify | Before commit, after changes |
+| `npm run dev` | Watch mode, auto-recompile on file changes | For the human developer only: it never returns, so an agent that runs it hangs |
+| `npm run build` | One-time compile + minify | What agents run, after every class change |
 
 ### tailwind.config.js
 
@@ -78,10 +96,11 @@ module.exports = {
     // Drupal theme templates
     './templates/**/*.html.twig',
     './components/**/*.html.twig',
-    // Custom modules that use Tailwind classes
-    '../../modules/custom/**/*.html.twig',
-    '../../modules/custom/**/*.php',
-    '../../modules/custom/**/*.module',
+    // Custom modules that use Tailwind classes. From
+    // <docroot>/themes/custom/<THEME>, three levels up is the docroot.
+    '../../../modules/custom/**/*.html.twig',
+    '../../../modules/custom/**/*.php',
+    '../../../modules/custom/**/*.module',
     // Theme PHP files (preprocess functions with class arrays)
     './*.theme',
   ],
@@ -110,9 +129,8 @@ module.exports = {
 }
 ```
 
-**CRITICAL**: The `content` array must include ALL file paths where Tailwind
-classes appear. If a file is not scanned, its classes are purged from the
-compiled CSS.
+The `content` array must include every path where Tailwind classes appear: a
+file that is not scanned gets its classes purged from the compiled CSS.
 
 ### src/input.css
 
@@ -146,15 +164,15 @@ Attach in your base template (e.g., `html.html.twig` or `page.html.twig`):
 ## Build commands
 
 ```bash
-# Development: watch mode (auto-recompiles on save)
-ssh web npm run dev --prefix $DDEV_DOCROOT/themes/custom/<THEME>
-
-# Production: one-time build with minification
+# One-time build with minification (the only form an agent runs)
 ssh web npm run build --prefix $DDEV_DOCROOT/themes/custom/<THEME>
 
-# After build, ALWAYS clear Drupal cache
+# Then clear the Drupal cache
 ssh web drush cr
 ```
+
+Never run `npm run dev` from an agent: watch mode does not exit and blocks the
+session. If the user wants it, they run it on the host (`ddev exec`).
 
 ## Responsive breakpoints
 
@@ -177,7 +195,7 @@ breakpoint prefixes for larger screens.
 | Classes not rendering | CSS not recompiled | `npm run build` → `drush cr` → hard refresh |
 | Classes purged in prod | File path missing from `content` array | Add path to `tailwind.config.js` content |
 | Styles cached in browser | Browser using old CSS | Hard refresh (Ctrl+Shift+R) or clear browser cache |
-| Classes in PHP not found | `.php`/`.module`/`.theme` files not in content | Add `'../../modules/custom/**/*.php'` to content |
+| Classes in PHP not found | `.php`/`.module`/`.theme` files not in content | Add `'../../../modules/custom/**/*.php'` to content |
 | Watch mode not detecting | File outside content paths | Add missing glob pattern to content array |
 | `@apply` not working | Custom class not in @layer | Wrap in `@layer components { }` |
 | `npm run build` fails | Missing node_modules | `ssh web npm install --prefix $DDEV_DOCROOT/themes/custom/<THEME>` then rebuild |
@@ -185,7 +203,7 @@ breakpoint prefixes for larger screens.
 
 ## Verification
 
-After ANY Tailwind class change:
+After any Tailwind class change:
 
 ```bash
 # 1. Build

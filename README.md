@@ -170,11 +170,11 @@ Edit `.env.agents` to change which models all agents use:
 
 ```bash
 # OpenCode models (provider/model-id format)
-OC_MODEL_MAIN=opencode/deepseek-v4-flash
+OC_MODEL_MAIN=opencode/deepseek-v4.1-flash
 OC_MODEL_GENIUS=opencode/glm-5.2
 OC_MODEL_SMART=opencode/glm-5.2
 OC_MODEL_NORMAL=opencode/deepseek-v4-pro
-OC_MODEL_CHEAP=opencode/deepseek-v4-flash
+OC_MODEL_CHEAP=opencode/deepseek-v4.1-flash
 OC_MODEL_APPLIER=opencode/gpt-5-nano
 OC_MODEL_VISION=opencode/minimax-m3
 

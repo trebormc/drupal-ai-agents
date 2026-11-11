@@ -2,21 +2,26 @@
 name: drush-commands
 description: >-
   Executes Drupal Drush commands for cache clearing, database updates, module
-  management, cron, watchdog logs, and site maintenance. Use when user needs
-  any Drush operation. Use proactively after code changes to clear caches or
-  run database updates.
+  management, cron, one-time login, permission rebuilds, locale updates, and
+  writing custom Drush commands. Use proactively after code changes to clear
+  caches or run database updates.
   Examples:
   - user: "clear cache" -> run drush cr via ssh web
   - user: "enable my module" -> run drush en module_name via ssh web
-  - user: "clear cache" -> run drush cr via ssh web
   - user: "update the database" -> run drush updb via ssh web
-  Never use for config export/import workflows (use config-management).
+  - user: "add a drush command to my module" -> class in src/Drush/Commands/
+  Never use for config export/import workflows (use config-management) or for
+  diagnosing an error from the logs (use drupal-debugging).
 ---
 
 ## Environment
 
-All Drush commands run via `ssh web drush`.
-NEVER use just `drush` — it will not be found without the full vendor path.
+All Drush commands run via `ssh web drush`: Drupal and Drush live in the web
+container, and `drush` does not exist in this one.
+
+Quote the whole remote command when it contains PHP, `&&`, `|` or `;`:
+`ssh web` joins its arguments and the remote shell parses them again, so
+unquoted code is split or evaluated before Drush sees it.
 
 ## Common operations
 
@@ -32,14 +37,24 @@ NEVER use just `drush` — it will not be found without the full vendor path.
 | List enabled modules | `ssh web drush pm:list --status=enabled` |
 | Check pending updates | `ssh web drush updb --no` |
 | Watchdog logs | `ssh web drush ws --count=20` |
-| Rebuild permissions | `ssh web drush php-eval "node_access_rebuild();"` |
+| Rebuild permissions | `ssh web 'drush php:eval "node_access_rebuild();"'` |
 | Locale update | `ssh web drush locale:check && ssh web drush locale:update` |
 
-## After code changes (mandatory order)
+## After code changes
 
-1. `ssh web drush updb -y` (apply hook_update_N)
+1. `ssh web drush updb -y` — only if you added an update or post-update hook
+2. `ssh web drush cr` (rebuild caches)
+
+Do not run `cim` here: it overwrites active config that has not been exported
+yet, including the change you are in the middle of.
+
+## After pulling or merging someone else's code
+
+1. `ssh web drush updb -y` (apply update hooks)
 2. `ssh web drush cim -y` (import config changes)
 3. `ssh web drush cr` (rebuild caches)
+
+Same order as "Deploy order after a merge" in the config-management rule.
 
 ## Multiline / newline-separated config values
 
@@ -62,14 +77,16 @@ PHP
 
 ## Custom Drush commands (Drush 12+)
 
-Place in `src/Commands/` using attribute pattern:
+Place the class in `src/Drush/Commands/` (namespace
+`Drupal\<module>\Drush\Commands`): Drush discovers it there with no
+`drush.services.yml`, which Drush 13 no longer reads. Use the attribute pattern:
 
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Drupal\mymodule\Commands;
+namespace Drupal\mymodule\Drush\Commands;
 
 use Drush\Attributes as CLI;
 use Drush\Commands\DrushCommands;

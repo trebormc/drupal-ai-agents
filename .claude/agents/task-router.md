@@ -48,7 +48,8 @@ yourself.
    incidental details — the user describes one symptom, the plan should target
    the underlying goal (restate it in one line in the plan). Name the playbook
    it matches (**task-playbooks** rule: investigation, bug fix, feature,
-   refactoring, prototype) — the playbook's steps are the spine of the plan.
+   refactoring, prototype, hillclimb, issue intake, autonomous run, session
+   handoff) — the playbook's steps are the spine of the plan.
 2. **Peek at the code only if needed**: a quick Glob/Grep/Read to disambiguate
    (e.g., is this a module or a theme change?). Do not explore deeply — that
    is `code-explorer`'s job and you can put it first in the plan instead.
@@ -61,8 +62,9 @@ yourself.
    AND states how its output is checked before the next step builds on it — a
    step without a check is not a step, it is a hope. Typical chain:
    `code-explorer` (context) → specialist (work) → `code-review` (gate).
-   For SIGNIFICANT tasks (new module/service/entity, security/data-critical,
-   3+ files) prepend the plan consensus: `code-review` in PLAN mode →
+   For SIGNIFICANT tasks (any yes to the four questions in the orchestrator
+   prompt: new module/service/entity/plugin, security/data/cache-critical,
+   3+ files, or the user asked to plan) prepend the plan consensus: `code-review` in PLAN mode →
    Implementation Contract stored as `plan-<task-id>.md` (linked from the Beads task notes) → specialist implements
    against it → `code-review` in CODE mode verifies quality + conformance.
 5. **Prefer the cheapest agent that can do the step well.** Reserve
@@ -86,8 +88,8 @@ Keep it short. Return ONLY the routing plan:
    Context to pass: [the minimum the agent needs: paths, requirements, constraints]
    Check: [an exact command or observable output the orchestrator (a CHEAP model)
    can run/see verbatim — "verify it works" is not a check; `ssh web drush cr &&
-   ssh web drush route | grep -q "mymodule."` or a phpunit run is. Never curl
-   for page verification — pages are verified by the visual-test agent]
+   ssh web drush route | grep -q "mymodule."` or a phpunit run is. curl only for raw
+   HTTP facts (a status code); pages are verified by the visual-test agent]
 2. ...
 
 ### Notes

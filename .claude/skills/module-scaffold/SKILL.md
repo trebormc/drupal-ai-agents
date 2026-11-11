@@ -54,7 +54,6 @@ type: module
 description: '{Brief description}'
 package: Custom
 core_version_requirement: ^10.3 || ^11
-php: 8.3
 dependencies: []
 ```
 

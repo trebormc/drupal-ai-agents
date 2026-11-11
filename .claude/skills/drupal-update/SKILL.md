@@ -5,6 +5,12 @@ description: >-
   Handles core, contrib, and security-only updates. Pre-flight checks, backups,
   rollback procedures. Use when updating Drupal packages, applying security
   patches, or running composer update safely.
+  Examples:
+  - user: "update Drupal core" -> pre-flight, backup, core-only composer update, updb, verify
+  - user: "apply the security updates" -> composer audit, update only the advised packages
+  - user: "update the webform module" -> single-package update with rollback point
+  Never use for a major-version upgrade (10 to 11: use drupal-multi-version-compat
+  to prepare the code) or for adding a new package (plain composer require).
 allowed-tools: Bash Read Grep Glob
 metadata:
   drupal-version: "10.x/11.x"
@@ -13,7 +19,7 @@ metadata:
 
 # Drupal Update Workflow
 
-Execute updates following this EXACT sequence.
+Run the phases in this order: each one is the safety net for the next.
 
 ## Phase 1: Pre-flight Checks
 
@@ -43,7 +49,7 @@ git rev-parse HEAD  # Note for rollback
 ssh web test -s /tmp/pre-update-backup.sql.gz && echo "BACKUP OK" || echo "STOP: backup failed"
 ```
 
-**If the output is not "BACKUP OK": STOP. Tell the user the backup failed. Do NOT continue the update.**
+If the output is not "BACKUP OK", stop and tell the user the backup failed: without it there is no rollback.
 
 ## Phase 3: Composer Updates
 
@@ -59,9 +65,15 @@ ssh web composer update "drupal/core-*" --with-all-dependencies
 # Specific package — targeted fix or single contrib update
 ssh web composer update drupal/package_name --with-all-dependencies
 
-# Security only — when the goal is just to patch advisories
+# Security only — when the goal is just to patch advisories.
+# The guard matters: with an empty package list, `composer update` updates everything.
 ssh web composer audit
-ssh web composer update --with-all-dependencies $(ssh web composer audit --format=json | jq -r '.advisories | keys | .[]')
+PKGS=$(ssh web composer audit --format=json | jq -r '.advisories | keys | .[]')
+if [ -n "$PKGS" ]; then
+  ssh web composer update --with-all-dependencies $PKGS
+else
+  echo "No advisories: nothing to update"
+fi
 ```
 
 ## Phase 4: Database Updates
@@ -87,7 +99,12 @@ ssh web drush core:requirements
 
 # Run custom module tests if any exist (Form ROOT shown; if no project phpunit.xml,
 # use the canonical Form CORE pattern from the drupal-testing skill):
-ssh web ./vendor/bin/phpunit $DDEV_DOCROOT/modules/custom --testdox 2>/dev/null || echo "No tests"
+# Do not append `|| echo`: a failing suite must show as a failure, not as "no tests".
+if ssh web "find $DDEV_DOCROOT/modules/custom -path '*/tests/src/*' -name '*Test.php' | grep -q ."; then
+  ssh web ./vendor/bin/phpunit $DDEV_DOCROOT/modules/custom --testdox
+else
+  echo "No custom module tests found"
+fi
 ```
 
 ## Phase 7: Present Summary
@@ -125,7 +142,7 @@ ssh web drush cache:rebuild
 ssh web composer why-not drupal/package_name:^X.Y
 ```
 
-Then either update the blocking package FIRST (`ssh web composer update <blocker> --with-all-dependencies`) or report the conflict to the user. NEVER use `--ignore-platform-reqs` or `--force` as a workaround.
+Then either update the blocking package FIRST (`ssh web composer update <blocker> --with-all-dependencies`) or report the conflict to the user. Do not use `--ignore-platform-reqs` or `--force` as a workaround: they install a combination Composer has just told you is broken.
 
 ### Database Update Failures
 

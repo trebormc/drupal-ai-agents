@@ -9,7 +9,9 @@ description: >-
   - user: "debug this service" -> inspect service container and definitions
   - user: "what errors are in the log" -> show watchdog errors
   - user: "inspect the cache" -> cache debugging commands
-  Never use for destructive operations (use drush-commands skill instead).
+  Never use for routine operations such as cache clears, updb or enabling
+  modules (use drush-commands), or for timing and call-tree profiling (use
+  xdebug-profiling).
 ---
 
 ## Environment
@@ -88,15 +90,17 @@ ssh web drush route | grep mymodule
 ## Container & Log Debugging
 
 ```bash
-# Web container error logs (last 50 lines)
-ssh web tail -n 50 /var/log/apache2/error.log
-
-# Database container logs (last 50 lines)
-ssh web tail -n 50 /var/log/mysql/error.log
+# PHP errors Drupal logged (the first place to look)
+ssh web drush watchdog:show --severity=Error --count=20
 
 # Test database connection
 ssh web drush sql:connect
 ```
+
+Web server and database logs are not files you can read from here: DDEV's web
+container runs nginx by default and logs to the container output, and the
+database runs in another container with no SSH access. When watchdog is not
+enough, ask the user for `ddev logs -s web` or `ddev logs -s db` from the host.
 
 ## Common Troubleshooting Patterns
 
@@ -145,7 +149,7 @@ With Twig debugging enabled, HTML comments show template suggestions and the act
 | JavaScript not executing | Verify library attached (`{{ attach_library() }}`), check console for errors, verify `mytheme.libraries.yml` syntax, `drush cr` |
 | Cache issues | Disable render/page/dynamic_page caches in `settings.local.php` using `cache.backend.null` |
 | Template suggestions not appearing | `ssh web drush twig:debug`, `drush cr` |
-| Preprocess variables unavailable | Check hook name (`mytheme_preprocess_node`), verify theme is active, `drush cr`. Debug with `kint($variables)` |
+| Preprocess variables unavailable | Check hook name (`mytheme_preprocess_node`), verify theme is active, `drush cr`. Debug with `dump($variables)` in the preprocess function or `{{ dump() }}` in the template (Twig debug on); `kint()` exists only when the devel module is enabled. Remove the dump when done |
 | CSS/JS libraries not loading | `ssh web 'drush php:eval "print_r(array_keys(\Drupal::service(\"library.discovery\")->getLibrariesByExtension(\"mytheme\")));"'` |
 | Field not rendering correctly | `ssh web 'drush php:eval "print_r(\Drupal::service(\"entity_field.manager\")->getFieldDefinitions(\"node\", \"article\")[\"field_name\"]->getSettings());"'` |
 | Images not displaying | `ssh web drush image:flush --all` and check file permissions |
@@ -163,12 +167,12 @@ With Twig debugging enabled, HTML comments show template suggestions and the act
 | Tests pass locally, fail in CI | Check hardcoded paths/URLs, timezone settings, race conditions, use transactions |
 | "Test was not supposed to have output" | Don't use print/echo. Capture with `$this->expectOutputString('expected')` |
 | "Maximum function nesting level" | `ssh web php -d xdebug.max_nesting_level=500 ./vendor/bin/phpunit ...` |
-| Functional: "Failed to connect localhost:80" | Ensure `SIMPLETEST_BASE_URL` set in phpunit.xml or use `$this->setBaseUrl('http://web')` |
+| Functional: "Failed to connect localhost:80" | `SIMPLETEST_BASE_URL` is not set: define it in `phpunit.xml` or pass it inline (Form CORE in the **drupal-testing** skill) |
 | "Could not connect to database" | `ssh web 'drush sql:query "CREATE DATABASE IF NOT EXISTS test;"'`. SIMPLETEST_DB: `mysql://db:db@db/test` |
-| Browser screenshots not saving | `ssh web mkdir -p /var/www/html/sites/simpletest/browser_output && ssh web chmod 777 /var/www/html/sites/simpletest/browser_output` |
+| Browser screenshots not saving | `ssh web mkdir -p $DDEV_DOCROOT/sites/simpletest/browser_output`, and check `BROWSERTEST_OUTPUT_DIRECTORY` points at it |
 | "Theme not found" in functional | Set `protected $defaultTheme = 'stark';` or install custom theme in `setUp()` |
-| Test timeout issues | `--timeout=300` flag. Check for unnecessary modules in `$modules` |
-| "Test site directory exists already" | `ssh web rm -rf /var/www/html/sites/simpletest/` then recreate browser_output dir |
+| Test is very slow or times out | Remove unneeded modules from `$modules`; move logic assertions down to a Kernel test; in FunctionalJS replace fixed waits with condition waits |
+| "Test site directory exists already" | `ssh web rm -rf $DDEV_DOCROOT/sites/simpletest/` (test artifacts only), then recreate the browser_output dir |
 
 ## Performance Troubleshooting
 

@@ -64,6 +64,7 @@ so add `</dev/null`.
 
 - **Use `ssh web drush <command>`** to run Drush commands (drush is in the web container's PATH)
 - **Never hardcode `web/`** — use `$DDEV_DOCROOT` (detect with: `grep "^docroot:" .ddev/config.yaml`)
+- **curl is for raw HTTP facts only** (status code, headers, anonymous response, byte-for-byte output diff). Anything about what a page renders or does goes through Playwright (`visual-test`)
 - **Use HTTP not HTTPS** for Playwright browser navigation (avoids SSL errors in DDEV). Use `$DDEV_HTTP_URL`; if a command returns an HTTPS URL (e.g., `drush uli`), replace `https://` with `http://` before navigating
 
 ## Available Variables
@@ -103,4 +104,4 @@ Always check for the Audit module first:
 ssh web drush pm:list --filter=audit --format=list
 ```
 If installed, use `drush audit:run phpcs/phpstan/phpunit --filter="module:NAME" --format=json`.
-If not installed, recommend `composer require drupal/audit`. Fall back to raw tools only if user declines.
+If not installed, use the raw tools now (**quality-checks** skill) and recommend `composer require drupal/audit` in your summary.

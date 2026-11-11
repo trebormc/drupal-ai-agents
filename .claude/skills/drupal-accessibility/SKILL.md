@@ -74,8 +74,11 @@ Never invent custom hiding CSS — each utility has distinct semantics.
 
 1. **Automated scan first** — reproducible findings with rule IDs beat inspection. In
    this environment, drive the page via the **visual-test** agent (Playwright MCP) and
-   check the rendered DOM/snapshot; if the project has `@axe-core/playwright` or
-   Lighthouse CI, run those via `ssh web npx ...`.
+   check the rendered DOM/snapshot. If the project has its own scanners, run them
+   where they are installed: Lighthouse CI or an axe CLI in the web container via
+   `ssh web npx ...`; `@axe-core/playwright` specs belong to the project's
+   Playwright suite, which runs on the host (ask the user, see
+   **drupal-playwright-test**).
 2. **Manual keyboard/zoom pass** — tab through the flow, 200% zoom, focus visibility.
 3. **Code review last** — supplements tool output; never report an accessibility finding
    from reading markup alone when a tool could confirm it (see the epistemic-discipline

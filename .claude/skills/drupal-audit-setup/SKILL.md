@@ -9,8 +9,10 @@ description: >-
   and audit_complexity for development environments.
   Examples:
   - user: "install the audit module" -> composer require + drush en audit_all
-  - user: "set up code quality tools" -> install audit with dev analyzers
+  - user: "set up the audit module with phpcs and phpstan" -> install audit with dev analyzers
   - user: "audit module is missing" -> install and enable audit submodules
+  Never use to create phpcs.xml, phpstan.neon or phpunit.xml (use
+  quality-tools-setup) or to run the checks (use quality-checks).
 ---
 
 ## What is Drupal Audit?
@@ -77,11 +79,10 @@ These are marked **experimental** and require dev dependencies (phpcs, phpstan, 
 Check which binaries exist BEFORE enabling (only enable submodules whose binary is OK):
 
 ```bash
-ssh web test -f ./vendor/bin/phpcs && echo "phpcs OK" || echo "phpcs MISSING"
-ssh web test -f ./vendor/bin/phpstan && echo "phpstan OK" || echo "phpstan MISSING"
-ssh web test -f ./vendor/bin/phploc && echo "phploc OK" || echo "phploc MISSING"
-
-ssh web drush en audit_phpcs audit_phpstan audit_complexity -y
+# Each submodule is enabled only when its binary exists:
+ssh web test -f ./vendor/bin/phpcs && ssh web drush en audit_phpcs -y || echo "phpcs MISSING: audit_phpcs not enabled"
+ssh web test -f ./vendor/bin/phpstan && ssh web drush en audit_phpstan -y || echo "phpstan MISSING: audit_phpstan not enabled"
+ssh web test -f ./vendor/bin/phploc && ssh web drush en audit_complexity -y || echo "phploc MISSING: audit_complexity not enabled"
 ```
 
 | Submodule | Purpose | Requires |
@@ -114,7 +115,7 @@ ssh web drush cr
 Audit module installed successfully.
 
 Enabled:
-  - audit_all (19 production-safe submodules)
+  - audit_all (18 production-safe submodules)
   - audit_phpcs (dev only)
   - audit_phpstan (dev only)
   - audit_complexity (dev only)

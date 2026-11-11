@@ -68,7 +68,10 @@ default:
       # browserkit_http is the headless driver (goutte is deprecated in Mink Extension)
       browserkit_http: ~
       selenium2:
-        wd_host: 'http://127.0.0.1:4444/wd/hub'
+        # Placeholder: use the endpoint from "Browser driver in DDEV" in the
+        # drupal-testing skill (with ddev-selenium-standalone-chrome:
+        # http://selenium-chrome:4444/wd/hub). Only @javascript scenarios need it.
+        wd_host: 'http://selenium-chrome:4444/wd/hub'
         capabilities:
           browser: chrome
           extra_capabilities:
@@ -78,8 +81,10 @@ default:
                 - '--disable-gpu'
                 - '--headless'
                 - '--no-sandbox'
-      # Always HTTP in DDEV (self-signed certs break HTTPS)
-      base_url: 'http://localhost'
+      # Always HTTP in DDEV (self-signed certs break HTTPS). 'http://web' is the
+      # web container as seen from the browser container; with BrowserKit only
+      # (no @javascript, Behat running inside web) 'http://localhost' also works.
+      base_url: 'http://web'
       ajax_timeout: 10
     Drupal\DrupalExtension:
       api_driver: 'drupal'
@@ -416,25 +421,30 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
 ## Execution Command
 
 ```bash
+# CONFIG is where the project keeps behat.yml (tests/behat/behat.yml in the
+# layout above; some projects keep it at the root). Find it once:
+#   find . -name behat.yml -not -path './vendor/*'
+
 # All tests
-ssh web ./vendor/bin/behat --config=behat.yml
+ssh web ./vendor/bin/behat --config=tests/behat/behat.yml
 
 # By tag
-ssh web ./vendor/bin/behat --tags=@content
-ssh web ./vendor/bin/behat --tags=@my_module
-ssh web ./vendor/bin/behat --tags="@smoke&&~@javascript"
+ssh web ./vendor/bin/behat --config=tests/behat/behat.yml --tags=@content
+ssh web ./vendor/bin/behat --config=tests/behat/behat.yml --tags=@my_module
+# Quote the whole remote command: unquoted, the remote shell splits on &&
+ssh web './vendor/bin/behat --config=tests/behat/behat.yml --tags="@smoke&&~@javascript"'
 
 # Specific feature
-ssh web ./vendor/bin/behat features/article.feature
+ssh web ./vendor/bin/behat --config=tests/behat/behat.yml tests/behat/features/article.feature
 
 # Specific scenario by line
-ssh web ./vendor/bin/behat features/article.feature:15
+ssh web ./vendor/bin/behat --config=tests/behat/behat.yml tests/behat/features/article.feature:15
 
 # List available steps
-ssh web ./vendor/bin/behat --definitions
+ssh web ./vendor/bin/behat --config=tests/behat/behat.yml --definitions
 
 # Generate snippets for undefined steps
-ssh web ./vendor/bin/behat --dry-run --append-snippets
+ssh web ./vendor/bin/behat --config=tests/behat/behat.yml --dry-run --append-snippets
 ```
 
 ## Troubleshooting
@@ -443,5 +453,5 @@ ssh web ./vendor/bin/behat --dry-run --append-snippets
 |-------|-------|-----|
 | Drupal bootstrap error / "Drupal not found" | Wrong `drupal_root` in behat.yml | Set `drupal_root` to the project's $DDEV_DOCROOT value |
 | "No specifications found" | Wrong features path or running from wrong dir | Check `paths` in behat.yml; run with `--config=` pointing to the right file |
-| Selenium/driver connection errors | Selenium/Chrome service not running | Verify `wd_host` URL; only `@javascript` scenarios need it — others run on browserkit_http |
+| Selenium/driver connection errors | No Selenium/Chrome service in the project, or wrong `wd_host` | Run the detection in "Browser driver in DDEV" (**drupal-testing** skill); only `@javascript` scenarios need it — others run on browserkit_http. No driver → report, do not install |
 | Step "is undefined" | Custom step not loaded | Verify FeatureContext is listed in `contexts` and the class file path matches |

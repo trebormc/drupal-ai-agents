@@ -4,7 +4,13 @@ description: >-
   Audit Drupal performance: cache metadata, database queries, render arrays,
   lazy builders, BigPipe, N+1 queries. Analyze bottlenecks, implement caching
   strategies, optimize entity loading. Use when pages load slowly, optimizing
-  performance, reviewing cache implementations, or profiling queries.
+  performance, reviewing cache implementations, or counting queries.
+  Examples:
+  - user: "the homepage is slow" -> baseline timing, cache headers, query count
+  - user: "review the caching of this block" -> cache metadata audit
+  - user: "this view runs hundreds of queries" -> N+1 detection
+  Never use for function-level profiling (use xdebug-profiling) or for
+  cache-semantics bugs such as stale or leaked content (use drupal-render-pipeline).
 allowed-tools: Bash Read Grep Glob
 metadata:
   drupal-version: "10.x/11.x"
@@ -36,6 +42,11 @@ For function-level profiling, use the **xdebug-profiling** skill.
 ssh web curl -s -o /dev/null -w "first: %{time_total}s\n" http://localhost/PATH
 ssh web curl -s -o /dev/null -w "second (warm cache): %{time_total}s\n" http://localhost/PATH
 ```
+
+These are ANONYMOUS requests: the second one is usually a page-cache hit and
+says nothing about how the page performs for logged-in users. For an
+authenticated measurement, log in through Playwright (`drush uli`) and time the
+page there, or profile the request with **xdebug-profiling**.
 
 Record both numbers. After your fix, re-run and compare — if there is no measurable improvement, the bottleneck is elsewhere.
 

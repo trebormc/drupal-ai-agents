@@ -1,5 +1,7 @@
 # Drupal AI Agents
 
+**Who this is for.** "Each Turn", "Agents", "Delegation Protocol" and "Plan → Implement → Verify" address the main conversation only. If you were invoked as a subagent, your agent prompt and the brief you received replace them: do the work in the brief, do not re-delegate it, and skip Beads session start/end unless the brief names a task id.
+
 ## Language
 
 - **User interaction**: Respond in the same language the user writes in.
@@ -14,7 +16,7 @@
 
 1. **Classify the request**: trivial (answer from context, one known file, one command) → do it inline and stop here. Otherwise continue.
 2. **Restate the outcome** in one line and label what you assume (**epistemic-discipline** §1, §4).
-3. **Pick the playbook** from the **task-playbooks** rule (investigation, bug fix, feature, refactoring, prototype, hillclimb, issue intake, autonomous run, session handoff) and open your task list with its steps.
+3. **Pick the playbook** from the **task-playbooks** rule (investigation, bug fix, feature, refactoring, prototype, hillclimb, issue intake, autonomous run, session handoff) and open your task list with its steps. Non-trivial request with no Beads task yet → `bd create "<outcome>" -p 1 --json` and use its id.
 4. **Decide significance** with the four questions below; any yes → the Plan → Implement → Verify loop inside the playbook.
 5. **Delegate** per the Delegation Protocol; never search or implement inline.
 6. **Verify on the real surface** and report answer-first with the evidence and the NOT VERIFIED items (**epistemic-discipline** §6).
@@ -25,7 +27,7 @@ You run inside an AI container (OpenCode or Claude Code). PHP, Drupal, drush, co
 
 ## Model Strategy
 
-Agents declare a model token (`MODEL_MAIN`, `MODEL_GENIUS`, `MODEL_SMART`, `MODEL_NORMAL`, `MODEL_CHEAP`, `MODEL_APPLIER`, `MODEL_VISION`) resolved at sync time from the `.env.agents` cascade (repo < `~/.ddev/agents-sync/.env.agents` < `.ddev/.env.agents`). You, the main conversation, run on `MODEL_MAIN`, a deliberately cheap tier: the orchestrator model dominates session cost, so quality comes from delegating to the right specialist, not from you. Anything that must interpret a screenshot goes through `MODEL_VISION` (`visual-analyzer`). Defaults and fallbacks: `docs/model-strategy.md`; ready-made premium/cheap/local profiles: `docs/model-profiles.md`.
+Agents declare a model token (`MODEL_MAIN`, `MODEL_GENIUS`, `MODEL_SMART`, `MODEL_NORMAL`, `MODEL_CHEAP`, `MODEL_APPLIER`, `MODEL_VISION`) resolved at sync time from the `.env.agents` cascade (repo < `~/.ddev/agents-sync/.env.agents` < `.ddev/.env.agents`). You, the main conversation, run on `MODEL_MAIN`, a deliberately cheap tier: the orchestrator model dominates session cost, so quality comes from delegating to the right specialist, not from you. Anything that must interpret a screenshot goes through `MODEL_VISION` (`visual-analyzer`). Defaults, fallbacks and ready-made profiles are documented in the drupal-ai-agents repository (`docs/`, not synced into the container).
 
 ## Agents
 
@@ -63,6 +65,8 @@ Agents declare a model token (`MODEL_MAIN`, `MODEL_GENIUS`, `MODEL_SMART`, `MODE
 **Invocation:** OpenCode uses the `subagent` tool (agent id, short `description`, full `prompt`; `background: true` runs it while you keep working). Claude Code uses the `Agent` tool with `subagent_type`.
 
 **Agents that delegate** (can delegate to `applier` and to `code-explorer` for project-wide searches): `drupal-dev`, `drupal-theme`.
+
+**Specialist brief** = outcome (one line) + exact paths/ranges from `code-explorer` + the contract text or "no contract" + what done looks like (command + expected output) + the Beads task id or "no task". A specialist that returns `blocked` or `partial` is not done: fix the brief or ask the user, do not report success.
 
 ### Delegation Protocol
 
@@ -133,13 +137,12 @@ the specialist reports any deviation with its reason.
 MODE: CODE
 Contract: <paste plan-<task-id>.md in full>
 Changed files: <output of: git diff --name-only>
+Diff: <git diff; for files over 300 changed lines, git diff --stat plus the relevant hunks>
 Evidence: <pasted test output + the live-surface observation the contract's Live Verification section names>
 Task: <same one line as step 1>
 ```
 
-NEEDS IMPROVEMENT → send the Required Changes list back to the SAME specialist
-(step 3) and re-verify. Maximum 2 review rounds; still not APPROVED → stop and present
-the report's Dissent section to the user — the decision is theirs, not yours.
+NEEDS IMPROVEMENT → send the Required Changes list back to the SAME specialist (step 3) and re-verify. REJECTED → the approach itself is vetoed, do not patch it: return to step 1 with the veto as a constraint, or ask the user. Maximum 2 review rounds; still not APPROVED → stop and present the report's Dissent section to the user (autonomous run: record it in the task notes and stop) — the decision is theirs, not yours.
 
 ## The Applier Pattern
 
@@ -151,12 +154,12 @@ Git write access is off by default and configurable per tool through `.env.agent
 
 ## Web Testing
 
-Pages are verified by the `visual-test` agent (Playwright MCP over `$DDEV_HTTP_URL`, auth via `ssh web drush uli`), never with curl and never with script files. If the project has a `verify-<site>` skill, its feature map is the recipe.
+Pages are verified by the `visual-test` agent (Playwright MCP over `$DDEV_HTTP_URL`, auth via `ssh web drush uli`), not with curl (curl is only for raw HTTP facts, see the **ddev-environment** rule) and never with script files. If the project has a `verify-<site>` skill, its feature map is the recipe.
 
 ## Rules and Skills
 
-**Rules** are always-on instructions. Every rule file is loaded in BOTH tools:
-- **Claude Code**: loads every file in `.claude/rules/` automatically at session start (native feature).
+**Rules** without a `paths:` header are always loaded in BOTH tools. Rules with one (coding standards, security, testing, twig, services, config) are always loaded on OpenCode; on Claude Code they load when a matching file is read, so read the rule file itself when you need it earlier.
+- **Claude Code**: loads `.claude/rules/` automatically (native feature).
 - **OpenCode**: has no auto-loaded rules directory — rules load via the `instructions` glob in `opencode.json`: `~/.config/opencode/rules/*.md`. The `~/` form is required: plain relative paths resolve against the project (not the config dir) and fail silently.
 
 Adding a new rule = drop a `.md` file in `.claude/rules/` — no registration needed for either tool.
@@ -193,4 +196,4 @@ Adding a new rule = drop a `.md` file in `.claude/rules/` — no registration ne
 
 ## Beads Task Tracking
 
-Session start: `bd prime` and `bd ready --json` (never `bd init`, never `bd edit`). Work: `bd update <id> --status in_progress`, notes, `bd close <id> --reason "..." --json`. Session end: file follow-ups, close what is done, note where you paused. Full protocol: **beads-workflow** rule (always loaded) and **beads-task-tracking** skill.
+Session start: `bd prime` and `bd ready --json` (never `bd init`, never `bd edit`). Work: `bd update <id> --status in_progress`, notes, `bd close <id> --reason "..." --json`. Session end: file follow-ups, close what is done (you close a task after its review; specialists never close it), note where you paused. Full protocol: **beads-workflow** rule (always loaded) and **beads-task-tracking** skill.

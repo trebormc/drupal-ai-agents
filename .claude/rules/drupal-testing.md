@@ -150,8 +150,6 @@ tests, smoke tests, E2E flows in projects that do not use Behat.
     for a mock, assert the payload it received; for an absence, assert the presence on
     the other input in the same test. No such assertion exists → delete the test.
 
-Directory layout, canonical PHPUnit run pattern (ROOT/CORE forms + setup-error table),
-coverage targets: **drupal-testing** skill.
 14. **A change that must not alter existing output needs a before/after diff, not only
     tests.** Tests assert what you thought of. Render the real output for a grid of inputs
     (`drush php:eval` or `curl`) before and after, then `diff` each pair: the only hunks left
@@ -160,3 +158,6 @@ coverage targets: **drupal-testing** skill.
 15. **When new tests pass on their first run, prove they can fail.** Break the code on
     purpose, one mutation per behaviour (drop a filter, a `COALESCE`, a guard), confirm a test
     goes red, restore it. A test that survives its mutant is covering nothing.
+
+Directory layout, canonical PHPUnit run pattern (ROOT/CORE forms + setup-error table),
+coverage targets: **drupal-testing** skill.

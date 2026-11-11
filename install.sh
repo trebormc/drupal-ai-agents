@@ -34,7 +34,7 @@ else
   export MODEL_GENIUS="opencode/glm-5.2"
   export MODEL_SMART="opencode/glm-5.2"
   export MODEL_NORMAL="opencode/deepseek-v4-pro"
-  export MODEL_CHEAP="opencode/deepseek-v4-flash"
+  export MODEL_CHEAP="opencode/deepseek-v4.1-flash"
   export MODEL_APPLIER="opencode/gpt-5-nano"
   export MODEL_VISION="opencode/minimax-m3"
 fi

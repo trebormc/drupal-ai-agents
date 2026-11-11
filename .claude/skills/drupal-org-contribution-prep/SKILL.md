@@ -80,8 +80,10 @@ the neon — it is correct for its target environment.
 
   ```bash
   git status --short | grep "^AD"        # ghost entries: staged, then deleted on disk
-  git rm --cached <path>                 # remove each from the index (do NOT git add anything)
   ```
+
+  Removing a ghost entry is an index write (`git rm --cached <path>`): give the user
+  the command for each path, do not run it yourself.
 
 - Internal working notes → a committed, ENGLISH `TECHNICAL_DEBT.md`. Run every verification
   command BEFORE documenting it (one of ours did not work as written). Fixed structure:

@@ -49,7 +49,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  *
  * @group MODULE
  */
-#[RunTestsInSeparateProcesses] // Required on Drupal 11.3+, omit on 10.x.
+#[RunTestsInSeparateProcesses] // Required on Drupal 11.3+, harmless on 10.x.
 class NameTest extends WebDriverTestBase {
 
   protected $defaultTheme = 'stark';
@@ -217,28 +217,35 @@ $settings = $this->getDrupalSettings();
 $this->createScreenshot('/tmp/debug.png');
 ```
 
-## ChromeDriver Config
+## WebDriver Config
+
+The endpoint (last element) and the site base URL depend on what the project
+provides: run the detection in "Browser driver in DDEV" in the **drupal-testing**
+skill first and use the endpoint it gives you. `DRIVER_URL` below is a placeholder.
 
 Drupal 10.3+ and 11:
 ```xml
 <env name="MINK_DRIVER_ARGS_WEBDRIVER"
-     value='["chrome", {"browserName":"chrome","goog:chromeOptions":{"args":["--disable-gpu","--headless","--no-sandbox","--disable-dev-shm-usage"]}}, "http://127.0.0.1:9515"]'/>
+     value='["chrome", {"browserName":"chrome","goog:chromeOptions":{"args":["--disable-gpu","--headless","--no-sandbox","--disable-dev-shm-usage"]}}, "DRIVER_URL"]'/>
 ```
 
 Version guard: Drupal 10 (PHPUnit 9) still accepts plain `chromeOptions` (deprecated since 10.3); in Drupal 11 `goog:chromeOptions` is MANDATORY (without the `goog:` prefix it does not work). When in doubt, use `goog:chromeOptions` — it works on both.
 
 ## Anti-Patterns
 
-1. Using `sleep()`. NEVER.
-2. Using `statusCodeEquals()`. DOES NOT WORK in WebDriverTestBase.
+1. Using `sleep()`: it is either too short (flaky) or too long (slow). Wait on a condition.
+2. Using `statusCodeEquals()`: the WebDriver has no access to HTTP status codes.
 3. Not waiting after AJAX. Will pass locally and fail in CI.
 4. Tests with 15+ interactions. That is an E2E flow -> Behat or Playwright.
 5. Testing things that do not need JS. Use Functional test.
 
 ## Running Tests
 
-ChromeDriver is already available inside the DDEV web container. Do not start it
-from the agent container (it would not be reachable by PHPUnit in web).
+These tests need a WebDriver endpoint reachable from the web container, and a
+stock DDEV project has none. Run the detection in "Browser driver in DDEV"
+(**drupal-testing** skill) once per session. No driver → write the test, report
+it as NOT RUN with the reason, and do not start a browser from the agent
+container (PHPUnit in web could not reach it).
 
 First pick the config form ONCE per session: `ssh web test -f phpunit.xml && echo "ROOT" || echo "CORE"`
 
@@ -246,9 +253,10 @@ First pick the config form ONCE per session: `ssh web test -f phpunit.xml && ech
 # Form ROOT (project phpunit.xml exists — it must define MINK_DRIVER_ARGS_WEBDRIVER):
 ssh web ./vendor/bin/phpunit $DDEV_DOCROOT/modules/custom/MODULE/tests/src/FunctionalJavascript
 
-# Form CORE (no project phpunit.xml — pass ALL env vars explicitly, including the webdriver):
-ssh web env SIMPLETEST_DB=mysql://db:db@db/db SIMPLETEST_BASE_URL=http://localhost \
-  MINK_DRIVER_ARGS_WEBDRIVER='["chrome", {"browserName":"chrome","goog:chromeOptions":{"args":["--disable-gpu","--headless","--no-sandbox","--disable-dev-shm-usage"]}}, "http://127.0.0.1:9515"]' \
+# Form CORE (no project phpunit.xml — pass ALL env vars explicitly, including the webdriver).
+# BASE_URL and DRIVER_URL come from the detection table (skip both vars if MINK is already set):
+ssh web env SIMPLETEST_DB=mysql://db:db@db/db SIMPLETEST_BASE_URL=BASE_URL \
+  MINK_DRIVER_ARGS_WEBDRIVER='["chrome", {"browserName":"chrome","goog:chromeOptions":{"args":["--disable-gpu","--headless","--no-sandbox","--disable-dev-shm-usage"]}}, "DRIVER_URL"]' \
   ./vendor/bin/phpunit -c $DDEV_DOCROOT/core $DDEV_DOCROOT/modules/custom/MODULE/tests/src/FunctionalJavascript
 ```
 
@@ -256,7 +264,7 @@ ssh web env SIMPLETEST_DB=mysql://db:db@db/db SIMPLETEST_BASE_URL=http://localho
 
 | Error | Cause | Fix |
 |-------|-------|-----|
-| Connection refused to ChromeDriver | Driver URL wrong or driver not running | Check the URL in MINK_DRIVER_ARGS_WEBDRIVER; verify the driver runs in the web container |
+| Connection refused to ChromeDriver | Driver URL wrong or no driver in the project | Re-run the detection in "Browser driver in DDEV" (**drupal-testing** skill); no driver → report, do not install |
 | Test flaky (passes sometimes) | Race condition after AJAX/JS | Replace any `sleep()` with `assertWaitOnAjaxRequest()` or `waitForElementVisible()` |
 | `statusCodeEquals()` fails/undefined | Not supported in WebDriverTestBase | Assert on page text/elements instead |
 | Chrome capability errors on D11 | Plain `chromeOptions` used | Use `goog:chromeOptions` |
